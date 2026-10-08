@@ -1,0 +1,32 @@
+# Primary path: Argo CD pulls the packaged umbrella chart from the registry addon.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: registry.kube-system.svc.cluster.local:80/charts
+    chart: shipping-platform
+    targetRevision: 1.0.0            # an exact chart version, never a range
+    helm:
+      releaseName: platform
+      valueFiles:
+        - values-dev.yaml            # a file inside the packaged chart
+      valuesObject:                  # inline overrides, higher precedence than valueFiles
+        shipping:
+          config:
+            defaultCarrier: ARGO-Post
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: hfd-25
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

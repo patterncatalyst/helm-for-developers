@@ -1,0 +1,29 @@
+{{- if and .Values.route.enabled (.Capabilities.APIVersions.Has "route.openshift.io/v1") }}
+{{- range $alias := list "shipping" "notification" }}
+{{- $svc := include "shipping-platform.svcName" (dict "root" $ "alias" $alias) }}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ $svc }}
+  labels:
+    app.kubernetes.io/name: {{ $alias }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+    app.kubernetes.io/part-of: shipping-platform
+    helm.sh/chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
+spec:
+  {{- with index $.Values.route.hosts $alias }}
+  host: {{ . | quote }}
+  {{- end }}
+  to:
+    kind: Service
+    name: {{ $svc }}
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: {{ $.Values.route.tls.termination }}
+    insecureEdgeTerminationPolicy: {{ $.Values.route.tls.insecureEdgeTerminationPolicy }}
+{{- end }}
+{{- end }}

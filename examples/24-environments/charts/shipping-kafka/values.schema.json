@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["strimzi", "clusterName", "replicas", "kafkaTopic"],
+  "properties": {
+    "strimzi": {
+      "type": "object",
+      "required": ["apiVersion"],
+      "properties": {"apiVersion": {"enum": ["kafka.strimzi.io/v1", "kafka.strimzi.io/v1beta2"]}}
+    },
+    "clusterName": {"type": "string", "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"},
+    "replicas": {"type": "integer", "minimum": 1},
+    "replicationFactor": {"type": "integer", "minimum": 1},
+    "minInsyncReplicas": {"type": "integer", "minimum": 1},
+    "storage": {
+      "type": "object",
+      "properties": {
+        "type": {"enum": ["ephemeral", "persistent-claim"]},
+        "size": {"type": "string"}
+      }
+    },
+    "resources": {"type": "object"},
+    "kafkaTopic": {
+      "type": "object",
+      "required": ["name", "partitions", "replicas"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "partitions": {"type": "integer", "minimum": 1},
+        "replicas": {"type": "integer", "minimum": 1}
+      }
+    },
+    "exports": {"type": "object"},
+    "global": {"type": "object"}
+  }
+}

@@ -1,0 +1,30 @@
+suite: shipping-platform toggles
+templates:
+  - templates/NOTES.txt
+tests:
+  - it: lists every component by default
+    asserts:
+      - matchRegex:
+          path: raw
+          pattern: "Components: shipping, notification, kafka, db"
+
+  - it: drops notification and kafka when tags.messaging is false
+    set:
+      tags.messaging: false
+      shipping.kafka.enabled: false
+    asserts:
+      - matchRegex:
+          path: raw
+          pattern: "Components: shipping, db"
+      - notMatchRegex:
+          path: raw
+          pattern: "kafka"
+
+  - it: drops the database when db.enabled is false
+    set:
+      db.enabled: false
+      shipping.config.storage: memory
+    asserts:
+      - matchRegex:
+          path: raw
+          pattern: "Components: shipping, notification, kafka\n"

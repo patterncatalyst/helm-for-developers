@@ -1,0 +1,4 @@
+CloudNativePG Cluster {{ .Values.cluster.name }} requested in namespace {{ .Release.Namespace }}.
+  [host]$ kubectl -n {{ .Release.Namespace }} get cluster.postgresql.cnpg.io {{ .Values.cluster.name }}
+Services: {{ .Values.cluster.name }}-rw (primary), {{ .Values.cluster.name }}-ro (replicas).
+Credentials: Secret {{ .Values.cluster.name }}-app (keys dbname, username, password).

@@ -1,0 +1,42 @@
+suite: shipping-platform routes
+templates:
+  - templates/route.yaml
+tests:
+  - it: renders no Route without the route.openshift.io/v1 API
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders a Route per service when the API is available
+    capabilities:
+      apiVersions:
+        - route.openshift.io/v1
+    release:
+      name: platform
+    asserts:
+      - hasDocuments:
+          count: 2
+      - isKind:
+          of: Route
+      - equal:
+          path: spec.to.name
+          value: platform-shipping
+        documentIndex: 0
+      - equal:
+          path: spec.to.name
+          value: platform-notification
+        documentIndex: 1
+      - equal:
+          path: spec.tls.insecureEdgeTerminationPolicy
+          value: Redirect
+        documentIndex: 0
+
+  - it: renders no Route when route.enabled is false
+    capabilities:
+      apiVersions:
+        - route.openshift.io/v1
+    set:
+      route.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
