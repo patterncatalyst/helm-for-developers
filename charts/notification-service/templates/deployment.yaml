@@ -1,0 +1,6 @@
+{{- $configSum := include (print $.Template.BasePath "/configmap.yaml") . | sha256sum -}}
+{{- include "pc-lib.deployment" (dict
+    "root" .
+    "env" (include "notification-service.env" .)
+    "envFrom" (printf "- configMapRef:\n    name: %s" (include "pc-lib.fullname" .))
+    "podAnnotations" (dict "checksum/config" $configSum)) }}

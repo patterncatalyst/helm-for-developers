@@ -6,7 +6,7 @@ description: "The nine parts and thirty-one chapters, and how one application gr
 duration: 10 minutes
 ---
 
-This tutorial teaches Helm 4 by building one application in the open. The application is fixed from the first chapter: a **shipping-service** (REST API, Postgres, Kafka producer) and a **notification-service** (Kafka consumer), both Python 3.15 and FastAPI, built once into UBI 10 images. Feature flags in the services switch storage, messaging and telemetry on or off. Because the image never changes, every chapter changes only charts and values, and every chapter is about Helm.
+This tutorial teaches Helm 4 by building one application in the open. The application is fixed from the first chapter: a **shipping-service** (REST API, Postgres, Kafka producer) and a **notification-service** (Kafka consumer), both Python 3.14 (3.15-ready) and FastAPI, built once into UBI 10 images. Feature flags in the services switch storage, messaging and telemetry on or off. Because the image never changes, every chapter changes only charts and values, and every chapter is about Helm.
 
 Each hands-on chapter has an `examples/NN-slug/` directory. The directory is a self-contained snapshot of the charts at that step, with a `demo.sh` that supports three modes: no argument for the full run, `offline` for lint, template, unit tests and kubeconform only, and `clean` to uninstall.
 
@@ -90,4 +90,4 @@ Chapters 01 to 12 are the core and should be read in order. Chapters 13 and 14 a
 
 ## Verification status
 
-Every chapter ends with a verification footer. No chapter is marked `verified` until its example has run against a live cluster and the observed effect is recorded under `_plans/evidence/`.
+Every chapter ends with a verification footer. A chapter is marked `verified` only after its example has run against a live cluster and the observed effect is recorded as evidence in the repository.

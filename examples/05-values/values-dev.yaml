@@ -1,0 +1,6 @@
+# Development: one replica, debug logging, NodePort for the host tunnel.
+config:
+  logLevel: DEBUG
+service:
+  type: NodePort
+  nodePort: 30080

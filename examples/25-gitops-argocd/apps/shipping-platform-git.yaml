@@ -1,0 +1,29 @@
+# PENDING: works only after patterncatalyst/helm-for-developers is pushed and public.
+# Same chart, sourced from Git. Argo CD resolves the file:// dependencies inside the checkout.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform-git
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/patterncatalyst/helm-for-developers
+    targetRevision: main
+    path: charts/shipping-platform
+    helm:
+      releaseName: platform
+      valueFiles:
+        - values-dev.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: hfd-25-git
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

@@ -1,0 +1,43 @@
+{
+  "uid": "shipping-platform",
+  "title": "Shipping platform ({{ .Release.Name }})",
+  "tags": ["shipping", "helm"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "30s",
+  "time": {"from": "now-1h", "to": "now"},
+  "templating": {"list": []},
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "HTTP requests per second",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "datasource": {"type": "prometheus", "uid": "mimir"},
+      "targets": [
+        {"refId": "A", "expr": "sum by (job) (rate(http_server_duration_milliseconds_count{job=~\".*/{{ .Release.Name }}-.*\"}[5m]))", "legendFormat": "{{ "{{" }}job{{ "}}" }}"}
+      ]
+    },
+    {
+      "id": 2,
+      "type": "table",
+      "title": "Dispatch traces (shipping to notification)",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "datasource": {"type": "tempo", "uid": "tempo"},
+      "targets": [
+        {"refId": "A", "queryType": "traceql", "query": "{ resource.service.name = \"{{ .Release.Name }}-shipping\" && span.http.target =~ \".*dispatch.*\" }"}
+      ]
+    },
+    {
+      "id": 3,
+      "type": "logs",
+      "title": "Service logs",
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 8},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "targets": [
+        {"refId": "A", "expr": "{service_name=~\"{{ .Release.Name }}-.*\"}"}
+      ]
+    }
+  ]
+}

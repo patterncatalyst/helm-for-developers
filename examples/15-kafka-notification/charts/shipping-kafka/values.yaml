@@ -1,0 +1,31 @@
+# Requires the Strimzi operator. Strimzi 1.x (1.2.0 in this book) serves kafka.strimzi.io/v1; v1beta2
+# was removed in 1.0. Set strimzi.apiVersion to
+# kafka.strimzi.io/v1beta2 only for an operator older than 0.49.
+strimzi:
+  apiVersion: kafka.strimzi.io/v1
+
+clusterName: shipping-kafka
+replicas: 1                    # one dual-role KRaft node, ephemeral storage: dev only
+replicationFactor: 1
+minInsyncReplicas: 1
+
+storage:
+  type: ephemeral              # ephemeral | persistent-claim
+  size: 5Gi                    # used when type=persistent-claim
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 768Mi
+  limits:
+    memory: 1536Mi
+
+kafkaTopic:
+  name: shipment.dispatched
+  partitions: 1
+  replicas: 1
+
+# Values other charts can import with import-values (static: must match clusterName).
+exports:
+  kafka:
+    bootstrap: shipping-kafka-kafka-bootstrap:9092

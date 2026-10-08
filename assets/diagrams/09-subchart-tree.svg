@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 430" font-family="'Red Hat Text', system-ui, sans-serif" role="img">
+<defs><marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker><marker id="am" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b8650a"/></marker></defs>
+<rect x="20" y="20" width="560" height="390" rx="12" fill="#fafafa" stroke="#ddd"/>
+<text x="32" y="40" font-size="12" font-weight="700" fill="#888">Release shipping (one helm upgrade --install)</text>
+<rect x="600" y="20" width="300" height="390" rx="12" fill="#fafafa" stroke="#ddd"/>
+<text x="612" y="40" font-size="12" font-weight="700" fill="#888">In the cluster</text>
+<rect x="50" y="60" width="200" height="70" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="150.0" y="85.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">shipping-service</text>
+<text x="150.0" y="102.5" font-size="11.5" fill="#555555" text-anchor="middle">Chart.yaml: dependencies</text>
+<text x="150.0" y="117.5" font-size="11.5" fill="#555555" text-anchor="middle">condition: shipping-postgres.enabled</text>
+<rect x="330" y="60" width="210" height="70" rx="9" fill="#eef4fb" stroke="#2f6db5" stroke-width="2"/>
+<text x="435.0" y="85.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">shipping-postgres</text>
+<text x="435.0" y="102.5" font-size="11.5" fill="#555555" text-anchor="middle">file://../shipping-postgres</text>
+<text x="435.0" y="117.5" font-size="11.5" fill="#555555" text-anchor="middle">templates/cluster.yaml</text>
+<rect x="50" y="190" width="200" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="150.0" y="215.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Parent values</text>
+<text x="150.0" y="232.5" font-size="11.5" fill="#555555" text-anchor="middle">postgres.host   (no default)</text>
+<text x="150.0" y="247.5" font-size="11.5" fill="#555555" text-anchor="middle">postgres.existingSecret</text>
+<rect x="330" y="190" width="210" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="435.0" y="215.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Child values: exports</text>
+<text x="435.0" y="232.5" font-size="11.5" fill="#555555" text-anchor="middle">postgres.host: shipping-postgres-rw</text>
+<text x="435.0" y="247.5" font-size="11.5" fill="#555555" text-anchor="middle">existingSecret: shipping-postgres-app</text>
+<rect x="50" y="320" width="200" height="70" rx="9" fill="#ffffff" stroke="#999999" stroke-width="1.5"/>
+<text x="150.0" y="345.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Deployment</text>
+<text x="150.0" y="362.5" font-size="11.5" fill="#555555" text-anchor="middle">env PG_HOST, PG_PASSWORD</text>
+<text x="150.0" y="377.5" font-size="11.5" fill="#555555" text-anchor="middle">password read from the Secret</text>
+<rect x="330" y="320" width="210" height="70" rx="9" fill="#ffffff" stroke="#999999" stroke-width="1.5"/>
+<text x="435.0" y="345.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Cluster</text>
+<text x="435.0" y="362.5" font-size="11.5" fill="#555555" text-anchor="middle">CNPG custom resource</text>
+<text x="435.0" y="377.5" font-size="11.5" fill="#555555" text-anchor="middle">rendered by the subchart</text>
+<rect x="630" y="60" width="240" height="70" rx="9" fill="#f4f4f4" stroke="#888888" stroke-width="1.5"/>
+<text x="750.0" y="93.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">CloudNativePG operator</text>
+<text x="750.0" y="110.0" font-size="11.5" fill="#555555" text-anchor="middle">installed once per cluster</text>
+<rect x="630" y="190" width="240" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="750.0" y="223.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Service shipping-postgres-rw</text>
+<text x="750.0" y="240.0" font-size="11.5" fill="#555555" text-anchor="middle">Secret shipping-postgres-app</text>
+<rect x="630" y="320" width="240" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="750.0" y="353.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Pod shipping-postgres-1</text>
+<text x="750.0" y="370.0" font-size="11.5" fill="#555555" text-anchor="middle">database shipping</text>
+<path d="M250,95 L330,95" fill="none" stroke="#b8650a" stroke-width="2" marker-end="url(#am)"/>
+<text x="290.0" y="85.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">depends on</text>
+<text x="290.0" y="85.0" font-size="11" fill="#b8650a" text-anchor="middle">depends on</text>
+<path d="M330,225 L250,225" fill="none" stroke="#b8650a" stroke-width="2" marker-end="url(#am)"/>
+<text x="290.0" y="215.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">import-values</text>
+<text x="290.0" y="215.0" font-size="11" fill="#b8650a" text-anchor="middle">import-values</text>
+<path d="M435,130 L435,190" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
+<path d="M150,260 L150,320" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="168.0" y="290.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">env</text>
+<text x="168.0" y="290.0" font-size="11" fill="#555" text-anchor="middle">env</text>
+<path d="M435,260 L435,320" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M540,355 L630,355" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="585.0" y="345.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">creates</text>
+<text x="585.0" y="345.0" font-size="11" fill="#555" text-anchor="middle">creates</text>
+<path d="M750,130 L750,190" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
+<text x="780.0" y="160.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">reconciles</text>
+<text x="780.0" y="160.0" font-size="11" fill="#555" text-anchor="middle">reconciles</text>
+<path d="M750,260 L750,320" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+</svg>

@@ -1,0 +1,18 @@
+apiVersion: v2
+name: shipping-service
+description: Shipping data product. FastAPI service that creates and dispatches shipments.
+type: application
+version: 0.9.0
+appVersion: "0.1.0"
+keywords: [shipping, fastapi, data-product]
+maintainers:
+  - name: PatternCatalyst
+    email: rsedor@patterncatalyst.io
+dependencies:
+  - name: shipping-postgres
+    version: 0.9.0
+    repository: file://../shipping-postgres
+    condition: shipping-postgres.enabled
+    import-values:
+      - child: exports.postgres
+        parent: postgres

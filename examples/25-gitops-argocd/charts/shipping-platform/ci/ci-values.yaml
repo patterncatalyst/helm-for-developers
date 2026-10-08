@@ -1,0 +1,10 @@
+# Rendering only: the database and Kafka need operators, so install them off.
+db:
+  enabled: false
+tags:
+  messaging: false
+shipping:
+  config:
+    storage: memory
+  kafka:
+    enabled: false

@@ -1,0 +1,56 @@
+# One Containerfile for every service. Build context is services/:
+#
+#   podman build -f services/Containerfile --build-arg SERVICE=shipping-service \
+#     -t shipping-service:0.1.0 services/
+#   podman build ... --target test services/     # run the unit tests
+#
+# UBI 10 has no Python image, so CPython comes from uv (python-build-standalone)
+# on top of ubi-minimal. The builder installs it plus a venv; the runtime stage
+# copies both and runs as a non-root user.
+
+# Python 3.15.0 GA is not yet in uv's download index and aiokafka has no cp315
+# wheel, so the default is the 3.14 fallback (F1). See services/README.md.
+ARG PYTHON_VERSION=3.14
+ARG UV_IMAGE=ghcr.io/astral-sh/uv:0.12.23
+ARG UBI_MINIMAL=registry.access.redhat.com/ubi10/ubi-minimal
+
+FROM ${UV_IMAGE} AS uv
+
+# --- builder: Python + dependencies ----------------------------------------
+FROM ${UBI_MINIMAL} AS builder
+ARG SERVICE
+ARG PYTHON_VERSION
+COPY --from=uv /uv /usr/local/bin/uv
+ENV UV_PYTHON_INSTALL_DIR=/opt/python \
+    UV_PYTHON_PREFERENCE=only-managed \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
+RUN uv python install ${PYTHON_VERSION} \
+ && uv venv /opt/venv --python ${PYTHON_VERSION}
+COPY common /src/common
+COPY ${SERVICE}/pyproject.toml /src/service/pyproject.toml
+RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+
+# --- test: builder + test deps + sources; the build fails if pytest fails ----
+FROM builder AS test
+ARG SERVICE
+WORKDIR /app
+COPY ${SERVICE}/ /app/
+RUN uv pip install --python /opt/venv/bin/python --extra test -r /app/pyproject.toml
+ENV PATH="/opt/venv/bin:$PATH" PYTHONDONTWRITEBYTECODE=1
+RUN python -m pytest -q
+
+# --- runtime: no package manager, no compiler, non-root ---------------------
+FROM ${UBI_MINIMAL} AS runtime
+ARG SERVICE
+WORKDIR /app
+COPY --from=builder /opt/python /opt/python
+COPY --from=builder /opt/venv /opt/venv
+COPY ${SERVICE}/ /app/
+RUN rm -rf /app/tests /app/pyproject.toml
+ENV PATH="/opt/venv/bin:$PATH" \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+USER 1001:0
+EXPOSE 8080
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]

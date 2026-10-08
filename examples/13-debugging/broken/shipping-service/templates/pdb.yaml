@@ -1,0 +1,11 @@
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "shipping-service.fullname" . }}
+  labels:
+    {{- include "shipping-service.labels" . | nindent 4 }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      {{- include "shipping-service.selectorLabels" . | nindent 6 }}

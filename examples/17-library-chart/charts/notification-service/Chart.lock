@@ -1,0 +1,6 @@
+dependencies:
+- name: pc-lib
+  repository: file://../pc-lib
+  version: 0.17.0
+digest: sha256:594f6bcdc7cf20b60ce759d119cf6d673671ae73695abe4cc6f45e1b6b726ce3
+generated: "2026-10-08T10:21:18.983755477-04:00"

@@ -12,7 +12,7 @@ This file records the project conventions. Chapters, examples, scripts and decks
 - `brand_emoji: "⎈"` (fall back to "🧭" if the font lacks it).
 - Accent color: default amber `#e8870c`.
 - License: Apache-2.0.
-- Hero eyebrow: "Helm 4 · Python 3.15 · FastAPI · minikube · OpenShift".
+- Hero eyebrow: "Helm 4 · Python 3.14 · FastAPI · minikube · OpenShift".
 
 ### Versions
 
@@ -27,9 +27,9 @@ Pinned and dated 2026-10-08. Re-verify against upstream before each release.
 - helmfile: latest 1.x that supports Helm 4, optional
 - Argo CD Helm chart: latest stable
 - CNPG chart: 0.23.0 in the lgtm-minikube-stack skill; re-verify
-- Strimzi 0.51.0
+- Strimzi 1.2.0
 - LGTM chart versions as in `setup-lgtm.sh`
-- Python 3.15.0; FastAPI latest; Pydantic, uvicorn, asyncpg, aiokafka and OpenTelemetry versions pinned in `pyproject.toml`
+- Python 3.14 (3.15-ready); FastAPI latest; Pydantic, uvicorn, asyncpg, aiokafka and OpenTelemetry versions pinned in `pyproject.toml`
 
 ### Tool isolation
 
@@ -113,7 +113,7 @@ Chapters 12, 13, 20, 21, 22, 23 and 28 are docs-only and contain no ISBN lines.
 | Kubernetes for Developers (Denniss; Manning 2024; 9781617297175) | Chapters 03 and 11 | Helm behavior |
 | GitOps and Kubernetes (Yuen et al.; Manning 2021; 9781617297274) | Chapter 25 GitOps principles | Argo CD CLI or version specifics |
 | Platform Engineering on Kubernetes (Salatino; Manning 2024; 9781617299322) | Chapters 18, 24, 25 | Helm behavior |
-| Effective Platform Engineering (Chankramath et al.; Manning 2025; 9781633436497) | Chapters 17, 18, 24 | Helm behavior |
+| Effective Platform Engineering (Oliver et al.; Manning 2025; 9781633436497) | Chapters 17, 18, 24 | Helm behavior |
 
 ### Chapter format
 
@@ -125,13 +125,13 @@ Chapters 12, 13, 20, 21, 22, 23 and 28 are docs-only and contain no ISBN lines.
 
 ### Verification discipline
 
-Every claim starts `unverified`. A footer moves to `verified` only with an evidence file in `_plans/evidence/` recording the behavioral observation, not a clean exit. Chapter 27 stays `unverified` and states "untested on the authoring machine".
+Every claim starts `unverified`. A footer moves to `verified` only with an evidence file in `_plans/evidence/` recording the behavioral observation, not a clean exit. Chapter 27 is `verified` against OpenShift Local with evidence in `_plans/evidence/27-openshift-crc.txt`; any step the run did not exercise is listed in its footer.
 
 ## Decisions
 
 Recorded 2026-10-08.
 
-1. **Base image.** UBI 10 `ubi-minimal` with uv-installed CPython 3.15.0. Fallbacks: F1 is `PYTHON_VERSION=3.14` with the same build; F2 is `registry.access.redhat.com/ubi9/python-314`. Any fallback is recorded here and in `_plans/reconciliation-plan.md`, never applied silently. No Docker Hub Python base image. Fallback in use: none yet.
+1. **Base image.** UBI 10 `ubi-minimal` with uv-installed CPython 3.15.0. Fallbacks: F1 is `PYTHON_VERSION=3.14` with the same build; F2 is `registry.access.redhat.com/ubi9/python-314`. Any fallback is recorded here and in `_plans/reconciliation-plan.md`, never applied silently. No Docker Hub Python base image. Fallback in use: **F1** (Python 3.14.8, recorded 2026-10-08). `uv` had no 3.15.0 build, only 3.15.0rc3, and aiokafka 0.14.0 has no cp315 wheel. Move to 3.15 by changing `ARG PYTHON_VERSION` in `services/Containerfile` once both exist. See `services/README.md`.
 2. **Helm 4 location.** Installed project-locally under `.tools/`. The global `~/.local/bin/helm` (3.18.3) is untouched.
 3. **Publishing.** Public repository `patterncatalyst/helm-for-developers`, GitHub Pages, hub change through a pull request. Re-confirm before any outward action.
 4. **Plan.** Approved; execution started. The full plan is `_plans/r1-plan.md`.

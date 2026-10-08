@@ -1,0 +1,10 @@
+# Argo CD for the helm4dev lab: small, one replica per component, reachable on a NodePort.
+dex:
+  enabled: false              # no SSO in the lab; log in as admin
+notifications:
+  enabled: false
+server:
+  service:
+    type: NodePort
+    nodePortHttps: 30443      # scripts/tunnel.sh argocd maps 127.0.0.1:8443 to this port
+    nodePortHttp: 30082       # the chart default (30080) is shipping's NodePort; Kubernetes rejects the duplicate

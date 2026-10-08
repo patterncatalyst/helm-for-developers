@@ -1,0 +1,77 @@
+$ examples/02-helm-tour/demo.sh
+
+==> Install podinfo 6.15.0 into hfd-02
+Pulled: ghcr.io/stefanprodan/charts/podinfo:6.15.0
+Digest: sha256:ff3d3e14728f75476ed4d43c14f80d52d81d36bc16906843463d464c6146f0d8
+NAME: podinfo
+LAST DEPLOYED: Thu Oct  8 10:38:45 2026
+NAMESPACE: hfd-02
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+NOTES:
+1. Get the application URL by running these commands:
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl -n hfd-02 port-forward deploy/podinfo 8080:9898
+
+==> helm list
+NAME   	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART         	APP VERSION
+podinfo	hfd-02   	1       	2026-10-08 10:38:45.402606811 -0400 EDT	deployed	podinfo-6.15.0	6.15.0     
+
+==> helm status
+NAME: podinfo
+LAST DEPLOYED: Thu Oct  8 10:38:45 2026
+NAMESPACE: hfd-02
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+RESOURCES:
+==> v1/Service
+NAME      TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)             AGE
+podinfo   ClusterIP   10.106.235.220   <none>        9898/TCP,9999/TCP   4s
+
+==> v1/Deployment
+NAME      READY   UP-TO-DATE   AVAILABLE   AGE
+podinfo   2/2     2            2           4s
+
+==> v1/Pod(related)
+NAME                       READY   STATUS    RESTARTS   AGE
+podinfo-64d75c6777-qdvbj   1/1     Running   0          4s
+podinfo-64d75c6777-rcw2h   1/1     Running   0          4s
+
+
+NOTES:
+1. Get the application URL by running these commands:
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl -n hfd-02 port-forward deploy/podinfo 8080:9898
+
+==> Release record stored in the cluster
+NAME                            TYPE                 DATA   AGE
+sh.helm.release.v1.podinfo.v1   helm.sh/release.v1   1      4s
+
+==> helm get values (user-supplied only)
+USER-SUPPLIED VALUES:
+replicaCount: 2
+ui:
+  message: Helm for Developers, chapter 02
+
+==> Probe the running pods
+2026-10-08T14:38:50.585Z	INFO	podcli/check.go:148	check succeed	{"address": "http://localhost:9898/healthz", "status code": 200, "response size": "20 B"}
+
+==> helm uninstall
+release "podinfo" uninstalled
+NAME	NAMESPACE	REVISION	UPDATED	STATUS	CHART	APP VERSION
+exit=0
+--- after uninstall: secrets
+No resources found in hfd-02 namespace.
+--- cross-check: reinstall
+  replicas: 2
+          image: "ghcr.io/stefanprodan/podinfo:6.15.0"
+2 ghcr.io/stefanprodan/podinfo:6.15.0
+pod/podinfo-64d75c6777-l4td5
+pod/podinfo-64d75c6777-qdvbj
+pod/podinfo-64d75c6777-rcw2h
+pod/podinfo-64d75c6777-tlkw7
+release "podinfo" uninstalled
+namespace "hfd-02" deleted
+Error from server (NotFound): namespaces "hfd-02" not found

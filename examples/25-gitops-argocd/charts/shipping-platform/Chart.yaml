@@ -1,0 +1,41 @@
+apiVersion: v2
+name: shipping-platform
+description: Umbrella chart. Deploys shipping-service, notification-service, a CloudNativePG database and a Strimzi Kafka cluster as one release.
+type: application
+version: 1.0.0
+appVersion: "0.1.0"
+keywords: [umbrella, shipping, platform]
+maintainers:
+  - name: PatternCatalyst
+    email: rsedor@patterncatalyst.io
+dependencies:
+  - name: shipping-service
+    alias: shipping
+    version: 1.0.0
+    repository: file://../shipping-service
+    condition: shipping.enabled
+  - name: notification-service
+    alias: notification
+    version: 1.0.0
+    repository: file://../notification-service
+    tags:
+      - messaging
+  - name: shipping-postgres
+    alias: db
+    version: 1.0.0
+    repository: file://../shipping-postgres
+    condition: db.enabled
+    import-values:
+      - child: exports.postgres
+        parent: shipping.postgres
+  - name: shipping-kafka
+    alias: kafka
+    version: 1.0.0
+    repository: file://../shipping-kafka
+    tags:
+      - messaging
+    import-values:
+      - child: exports.kafka
+        parent: shipping.kafka
+      - child: exports.kafka
+        parent: notification.kafka

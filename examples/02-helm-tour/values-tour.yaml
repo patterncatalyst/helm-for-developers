@@ -1,0 +1,4 @@
+# Overrides for the podinfo tour. Everything not listed here keeps the chart default.
+replicaCount: 2
+ui:
+  message: "Helm for Developers, chapter 02"

@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "notification-service.fullname" . }}-test-connection
+  labels:
+    {{- include "notification-service.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  securityContext:
+    {{- include "notification-service.podSecurityContext" . | nindent 4 }}
+  containers:
+    - name: probe
+      image: {{ default (include "notification-service.image" .) .Values.tests.image | quote }}
+      command:
+        - python
+        - -c
+        - >-
+          import urllib.request as u;
+          u.urlopen("http://{{ include "notification-service.fullname" . }}:{{ .Values.service.port }}/healthz", timeout=10).read()
+      securityContext:
+        {{- include "notification-service.containerSecurityContext" . | nindent 8 }}

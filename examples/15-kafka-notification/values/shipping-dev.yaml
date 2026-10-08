@@ -1,0 +1,9 @@
+# Chapter 15: shipping-service publishes ShipmentDispatched events to the kafka chart's cluster.
+service:
+  type: NodePort
+  nodePort: 30080
+auth:
+  token: dev-token
+kafka:
+  enabled: true
+  bootstrap: shipping-kafka-kafka-bootstrap:9092

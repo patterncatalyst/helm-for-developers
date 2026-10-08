@@ -1,0 +1,5 @@
+$ helm uninstall platform -n hfd-26 --wait
+release "platform" uninstalled
+$ kubectl delete ns hfd-26
+namespace "hfd-26" deleted
+0

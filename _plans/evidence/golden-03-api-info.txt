@@ -1,0 +1,8 @@
+$ scripts/tunnel.sh shipping notification grafana
+    ok: shipping      http://127.0.0.1:8080 (pid 927169)
+    ok: notification  http://127.0.0.1:8081 (pid 927176)
+    ok: grafana       http://127.0.0.1:3000 (pid 927183)
+$ curl -s 127.0.0.1:8080/api/info
+{"service":"platform-shipping","version":"0.1.0","environment":"dev","defaultCarrier":"ACME-Post","storage":"postgres","kafkaEnabled":true}
+$ kubectl -n hfd-26 get cm platform-shipping -o yaml | data
+{"DEPLOY_ENV":"dev","KAFKA_ENABLED":"true","KAFKA_TOPIC_DISPATCHED":"shipment.dispatched","LOG_LEVEL":"INFO","SERVICE_NAME":"platform-shipping","SERVICE_VERSION":"0.1.0","SHIPPING_DEFAULT_CARRIER":"ACME-Post","SHIPPING_STORAGE":"postgres"}

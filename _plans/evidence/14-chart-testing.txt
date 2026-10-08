@@ -1,0 +1,396 @@
+
+==> helm lint --strict, with the chart defaults and with the CI values
+==> Linting charts/shipping-service
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+==> Linting charts/shipping-service
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+
+==> helm unittest: six suites, one of them snapshots
+
+### Chart [ shipping-service ] charts/shipping-service
+
+ PASS  shipping-service config, secret, service	charts/shipping-service/tests/config_test.yaml
+ PASS  shipping-service deployment	charts/shipping-service/tests/deployment_test.yaml
+ PASS  shipping-service migration hook	charts/shipping-service/tests/migration_test.yaml
+ PASS  shipping-service values schema	charts/shipping-service/tests/schema_test.yaml
+ PASS  shipping-service snapshots	charts/shipping-service/tests/snapshot_test.yaml
+ PASS  shipping-service helm test pod	charts/shipping-service/tests/test_pod_test.yaml
+
+Charts:      1 passed, 1 total
+Test Suites: 6 passed, 6 total
+Tests:       30 passed, 30 total
+Snapshot:    2 passed, 2 total
+Time:        60.0579ms
+
+
+==> kubeconform on the rendered chart, test pod included
+Summary: 5 resources found parsing stdin - Valid: 5, Invalid: 0, Errors: 0, Skipped: 0
+
+==> ct lint: Chart.yaml schema, yamllint, helm lint on every ci/*-values.yaml
+Linting charts...
+Version increment checking disabled.
+
+------------------------------------------------------------------------------------------------------------------------
+ Charts to be processed:
+------------------------------------------------------------------------------------------------------------------------
+ shipping-service => (version: "0.14.0", path: "charts/shipping-service")
+------------------------------------------------------------------------------------------------------------------------
+
+Linting chart "shipping-service => (version: \"0.14.0\", path: \"charts/shipping-service\")"
+Validating charts/shipping-service/Chart.yaml...
+Validation success! 👍
+
+Linting chart with values file "charts/shipping-service/ci/ci-values.yaml"...
+
+==> Linting charts/shipping-service
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+
+------------------------------------------------------------------------------------------------------------------------
+ ✔︎ shipping-service => (version: "0.14.0", path: "charts/shipping-service")
+------------------------------------------------------------------------------------------------------------------------
+All charts linted successfully
+
+==> Planted failure 1: .helmignore with tests/ instead of /tests/ drops templates/tests/
+Error: could not find template templates/tests/test-connection.yaml in chart
+    anchored /tests/ keeps the test pod and still excludes the unit-test directory:
+# Source: shipping-service/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+
+==> Planted failure 2: a snapshot no longer matches (a default value changed)
+
+### Chart [ shipping-service ] /tmp/tmp.Pns06vhWI8/snapshot
+
+ FAIL  shipping-service snapshots	../../../../../../tmp/tmp.Pns06vhWI8/snapshot/tests/snapshot_test.yaml
+	- keeps the default ConfigMap stable
+
+		- asserts[0] `matchSnapshot` fail
+			Template:	shipping-service/templates/configmap.yaml
+			DocumentIndex:	0
+			ValuesIndex:	0
+			Path:	
+			Expected to match snapshot 1:
+				--- Expected
+				+++ Actual
+    review the diff, then accept it with -u:
+Test Suites: 1 passed, 1 total
+Tests:       2 passed, 2 total
+Snapshot:    2 passed, 2 total
+Time:        4.896887ms
+
+
+==> Planted failure 3: ct lint rejects an unknown Chart.yaml key
+Linting charts...
+Version increment checking disabled.
+
+------------------------------------------------------------------------------------------------------------------------
+ Charts to be processed:
+------------------------------------------------------------------------------------------------------------------------
+ shipping-service => (version: "0.14.0", path: "/tmp/tmp.Pns06vhWI8/charts/shipping-service")
+------------------------------------------------------------------------------------------------------------------------
+
+Linting chart "shipping-service => (version: \"0.14.0\", path: \"/tmp/tmp.Pns06vhWI8/charts/shipping-service\")"
+Validating /tmp/tmp.Pns06vhWI8/charts/shipping-service/Chart.yaml...
+Validation failed!
+Error validating data '/tmp/tmp.Pns06vhWI8/charts/shipping-service/Chart.yaml' with schema '/home/rsedor/Dev/helm-for-developers/.tools/ct/chart_schema.yaml'
+	owner: Unexpected element
+
+==> Build the image and install with the CI values
+==> engine=docker mode=build tag=0.1.0
+
+==> shipping-service:0.1.0
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Containerfile
+#1 transferring dockerfile: 2.17kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#2 DONE 0.3s
+
+#3 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
+#3 DONE 0.4s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 DONE 0.0s
+
+#6 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
+#6 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.0s done
+#6 DONE 0.0s
+
+#7 [builder 1/6] FROM registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
+#7 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.0s done
+#7 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 1.42kB done
+#5 DONE 0.0s
+
+#8 [builder 4/6] COPY common /src/common
+#8 CACHED
+
+#9 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+#9 CACHED
+
+#10 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+#10 CACHED
+
+#11 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+#11 CACHED
+
+#12 [runtime 5/6] COPY shipping-service/ /app/
+#12 CACHED
+
+#13 [runtime 2/6] WORKDIR /app
+#13 CACHED
+
+#14 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+#14 CACHED
+
+#15 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+#15 CACHED
+
+#16 [builder 5/6] COPY shipping-service/pyproject.toml /src/service/pyproject.toml
+#16 CACHED
+
+#17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
+#17 CACHED
+
+#18 exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:ac2cd575e5eb17d6172e2a77a94099ac903d80c1770bd98aeb3eb10d2f70f3ec done
+#18 exporting config sha256:d7577a9165c2732d167d639f1ad0b130db9a6ed6dab6eddc2c9002561802d5a3 done
+#18 exporting attestation manifest sha256:c0177ca83e59b6b1fc5f1bff219683ba09b76278968d3d2012a46ff09ee24f96 0.0s done
+#18 exporting manifest list sha256:c0ce579722675dfe3656509d3a09d7ad2a1bd4ada7b51c61d9a59f998619128e 0.0s done
+#18 naming to docker.io/library/shipping-service:0.1.0 done
+#18 unpacking to docker.io/library/shipping-service:0.1.0 done
+#18 DONE 0.1s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/op2iqkiu8krqt7pj52xtv5y1k
+
+==> images in the profile:
+docker.io/library/shipping-service:0.1.0
+docker.io/library/notification-service:0.1.0
+Release "shipping" does not exist. Installing it now.
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 11:16:40 2026
+NAMESPACE: hfd-14
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+NOTES:
+shipping-shipping-service 0.1.0 installed as release "shipping" in namespace hfd-14.
+Storage: memory
+
+Reach the service:
+  [host]$ kubectl -n hfd-14 get svc shipping-shipping-service
+
+Run the chart test:
+  [host]$ helm test shipping -n hfd-14
+
+==> helm test runs the pod annotated helm.sh/hook: test
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 11:16:40 2026
+NAMESPACE: hfd-14
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE:     shipping-shipping-service-test-connection
+Last Started:   Thu Oct  8 11:16:43 2026
+Last Completed: Thu Oct  8 11:16:45 2026
+Phase:          Succeeded
+
+==> ct install: install, helm test and clean up in a generated namespace
+Installing charts...
+Version increment checking disabled.
+
+------------------------------------------------------------------------------------------------------------------------
+ Charts to be processed:
+------------------------------------------------------------------------------------------------------------------------
+ shipping-service => (version: "0.14.0", path: "charts/shipping-service")
+------------------------------------------------------------------------------------------------------------------------
+
+Installing chart "shipping-service => (version: \"0.14.0\", path: \"charts/shipping-service\")"...
+
+Installing chart with values file "charts/shipping-service/ci/ci-values.yaml"...
+
+Creating namespace "shipping-service-m8bji21tx6"...
+namespace/shipping-service-m8bji21tx6 created
+NAME: shipping-service-m8bji21tx6
+LAST DEPLOYED: Thu Oct  8 11:16:45 2026
+NAMESPACE: shipping-service-m8bji21tx6
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+NOTES:
+shipping-service-m8bji21tx6 0.1.0 installed as release "shipping-service-m8bji21tx6" in namespace shipping-service-m8bji21tx6.
+Storage: memory
+
+Reach the service:
+  [host]$ kubectl -n shipping-service-m8bji21tx6 get svc shipping-service-m8bji21tx6
+
+Run the chart test:
+  [host]$ helm test shipping-service-m8bji21tx6 -n shipping-service-m8bji21tx6
+deployment "shipping-service-m8bji21tx6" successfully rolled out
+NAME: shipping-service-m8bji21tx6
+LAST DEPLOYED: Thu Oct  8 11:16:45 2026
+NAMESPACE: shipping-service-m8bji21tx6
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE:     shipping-service-m8bji21tx6-test-connection
+Last Started:   Thu Oct  8 11:16:48 2026
+Last Completed: Thu Oct  8 11:16:50 2026
+Phase:          Succeeded
+========================================================================================================================
+........................................................................................................................
+==> Events of namespace shipping-service-m8bji21tx6
+........................................................................................................................
+LAST SEEN   TYPE     REASON              OBJECT                                              SUBOBJECT                           SOURCE                  MESSAGE                                                                                                      FIRST SEEN   COUNT   NAME
+5s          Normal   Scheduled           pod/shipping-service-m8bji21tx6-74f7bc5dcf-j2fjr                                        default-scheduler       Successfully assigned shipping-service-m8bji21tx6/shipping-service-m8bji21tx6-74f7bc5dcf-j2fjr to helm4dev   5s           1       shipping-service-m8bji21tx6-74f7bc5dcf-j2fjr.18dc96d7d07ead57
+5s          Normal   Pulled              pod/shipping-service-m8bji21tx6-74f7bc5dcf-j2fjr    spec.containers{shipping-service}   kubelet, helm4dev       Container image "shipping-service:0.1.0" already present on machine and can be accessed by the pod           5s           1       shipping-service-m8bji21tx6-74f7bc5dcf-j2fjr.18dc96d7e85d60a6
+5s          Normal   Created             pod/shipping-service-m8bji21tx6-74f7bc5dcf-j2fjr    spec.containers{shipping-service}   kubelet, helm4dev       Container created                                                                                            5s           1       shipping-service-m8bji21tx6-74f7bc5dcf-j2fjr.18dc96d7e97d9468
+5s          Normal   Started             pod/shipping-service-m8bji21tx6-74f7bc5dcf-j2fjr    spec.containers{shipping-service}   kubelet, helm4dev       Container started                                                                                            5s           1       shipping-service-m8bji21tx6-74f7bc5dcf-j2fjr.18dc96d7ec4e4011
+5s          Normal   SuccessfulCreate    replicaset/shipping-service-m8bji21tx6-74f7bc5dcf                                       replicaset-controller   Created pod: shipping-service-m8bji21tx6-74f7bc5dcf-j2fjr                                                    5s           1       shipping-service-m8bji21tx6-74f7bc5dcf.18dc96d7d031e5aa
+5s          Normal   ScalingReplicaSet   deployment/shipping-service-m8bji21tx6                                                  deployment-controller   Scaled up replica set shipping-service-m8bji21tx6-74f7bc5dcf from 0 to 1                                     5s           1       shipping-service-m8bji21tx6.18dc96d7cfca7a56
+2s          Normal   Scheduled           pod/shipping-service-m8bji21tx6-test-connection                                         default-scheduler       Successfully assigned shipping-service-m8bji21tx6/shipping-service-m8bji21tx6-test-connection to helm4dev    2s           1       shipping-service-m8bji21tx6-test-connection.18dc96d87c9bc011
+2s          Normal   Pulled              pod/shipping-service-m8bji21tx6-test-connection     spec.containers{probe}              kubelet, helm4dev       Container image "shipping-service:0.1.0" already present on machine and can be accessed by the pod           2s           1       shipping-service-m8bji21tx6-test-connection.18dc96d893cecf14
+2s          Normal   Created             pod/shipping-service-m8bji21tx6-test-connection     spec.containers{probe}              kubelet, helm4dev       Container created                                                                                            2s           1       shipping-service-m8bji21tx6-test-connection.18dc96d894f7b67c
+2s          Normal   Started             pod/shipping-service-m8bji21tx6-test-connection     spec.containers{probe}              kubelet, helm4dev       Container started                                                                                            2s           1       shipping-service-m8bji21tx6-test-connection.18dc96d897bd6a67
+........................................................................................................................
+<== Events of namespace shipping-service-m8bji21tx6
+........................................................................................................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+==> Description of pod shipping-service-m8bji21tx6-74f7bc5dcf-j2fjr
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Name:             shipping-service-m8bji21tx6-74f7bc5dcf-j2fjr
+Namespace:        shipping-service-m8bji21tx6
+Priority:         0
+Service Account:  default
+Node:             helm4dev/192.168.58.2
+Start Time:       Thu, 08 Oct 2026 11:16:45 -0400
+Labels:           app.kubernetes.io/instance=shipping-service-m8bji21tx6
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/name=shipping-service
+                  app.kubernetes.io/part-of=shipping-platform
+                  app.kubernetes.io/version=0.1.0
+                  helm.sh/chart=shipping-service-0.14.0
+                  pod-template-hash=74f7bc5dcf
+Annotations:      checksum/config: da03b042288289f1a08bf6f41902b5912e20f540c879152588e95ce7061b5c3f
+                  patterncatalyst.io/data-product: shipments
+                  patterncatalyst.io/domain: shipping
+                  patterncatalyst.io/owner: team-shipping
+Status:           Running
+SeccompProfile:   RuntimeDefault
+IP:               10.244.0.134
+IPs:
+  IP:           10.244.0.134
+Controlled By:  ReplicaSet/shipping-service-m8bji21tx6-74f7bc5dcf
+Containers:
+  shipping-service:
+    Container ID:    containerd://d91f0fcb95e738a397ab217de0452ff88e8afdea8180c81287374221d9b44d44
+    Image:           shipping-service:0.1.0
+    Image ID:        sha256:d7577a9165c2732d167d639f1ad0b130db9a6ed6dab6eddc2c9002561802d5a3
+    Port:            8080/TCP
+    Host Port:       0/TCP
+    SeccompProfile:  RuntimeDefault
+    State:           Running
+      Started:       Thu, 08 Oct 2026 11:16:45 -0400
+    Ready:           True
+    Restart Count:   0
+    Limits:
+      memory:  512Mi
+    Requests:
+      cpu:      100m
+      memory:   192Mi
+    Liveness:   http-get http://:http/health delay=0s timeout=1s period=10s #success=1 #failure=3
+    Readiness:  http-get http://:http/healthz delay=0s timeout=1s period=5s #success=1 #failure=3
+    Startup:    http-get http://:http/health delay=0s timeout=1s period=2s #success=1 #failure=30
+    Environment Variables from:
+      shipping-service-m8bji21tx6  ConfigMap  Optional: false
+    Environment:
+      API_TOKEN:                 <set to the key 'api-token' in secret 'shipping-service-m8bji21tx6'>  Optional: false
+      OTEL_SDK_DISABLED:         true
+      OTEL_SERVICE_NAME:         shipping-service-m8bji21tx6
+      OTEL_RESOURCE_ATTRIBUTES:  service.namespace=shipping,deployment.environment=dev,service.version=0.1.0
+    Mounts:
+      /tmp from tmp (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-9plsh (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  tmp:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  kube-api-access-9plsh:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  5s    default-scheduler  Successfully assigned shipping-service-m8bji21tx6/shipping-service-m8bji21tx6-74f7bc5dcf-j2fjr to helm4dev
+  Normal  Pulled     5s    kubelet            Container image "shipping-service:0.1.0" already present on machine and can be accessed by the pod
+  Normal  Created    5s    kubelet            Container created
+  Normal  Started    5s    kubelet            Container started
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<== Description of pod shipping-service-m8bji21tx6-74f7bc5dcf-j2fjr
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------------------------------------------------------------------------------------------------
+==> Logs of container shipping-service-m8bji21tx6-74f7bc5dcf-j2fjr
+------------------------------------------------------------------------------------------------------------------------
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+{"ts": "2026-10-08T15:16:46+0000", "level": "INFO", "logger": "app.main", "msg": "started: storage=memory kafka=False", "trace_id": "-", "span_id": "-"}
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+INFO:     10.244.0.1:38904 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.244.0.1:38906 - "GET /healthz HTTP/1.1" 200 OK
+INFO:     10.244.0.135:52416 - "GET /healthz HTTP/1.1" 200 OK
+------------------------------------------------------------------------------------------------------------------------
+<== Logs of container shipping-service-m8bji21tx6-74f7bc5dcf-j2fjr
+------------------------------------------------------------------------------------------------------------------------
+========================================================================================================================
+Deleting release "shipping-service-m8bji21tx6"...
+release "shipping-service-m8bji21tx6" uninstalled
+Deleting namespace "shipping-service-m8bji21tx6"...
+namespace "shipping-service-m8bji21tx6" deleted
+Namespace "shipping-service-m8bji21tx6" terminated.
+
+------------------------------------------------------------------------------------------------------------------------
+ ✔︎ shipping-service => (version: "0.14.0", path: "charts/shipping-service")
+------------------------------------------------------------------------------------------------------------------------
+All charts installed successfully
+
+## S7 extra: unanchored tests/ installed
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+LAST DEPLOYED: Thu Oct  8 11:17:16 2026
+NAMESPACE: hfd-14
+STATUS: deployed
+REVISION: 2
+DESCRIPTION: Upgrade complete
+TEST SUITE: None

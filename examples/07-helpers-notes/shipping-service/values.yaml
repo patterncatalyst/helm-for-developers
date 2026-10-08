@@ -1,0 +1,54 @@
+# shipping-service values. Every key here is part of the chart's public interface.
+
+replicaCount: 1
+
+image:
+  repository: shipping-service
+  tag: ""            # empty means .Chart.AppVersion
+  pullPolicy: IfNotPresent
+
+containerPort: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  nodePort: null     # 30000-32767 when type is NodePort
+
+# Non-secret application settings, rendered into a ConfigMap.
+config:
+  environment: dev          # DEPLOY_ENV
+  logLevel: INFO            # LOG_LEVEL
+  defaultCarrier: ACME-Post # SHIPPING_DEFAULT_CARRIER
+  storage: memory           # SHIPPING_STORAGE; only memory until chapter 09
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 192Mi
+  limits:
+    memory: 512Mi
+
+probes:
+  startup:
+    path: /health
+    failureThreshold: 30
+    periodSeconds: 2
+  liveness:
+    path: /health
+    periodSeconds: 10
+  readiness:
+    path: /healthz
+    periodSeconds: 5
+
+imagePullSecrets: []        # list of {name: ...}
+
+# Extra pod annotations. Values go through tpl, so they can use {{ .Release.Name }}.
+podAnnotations: {}
+
+# Extra container environment entries, rendered with range.
+extraEnv: []                # list of {name: ..., value: ...}
+
+nameOverride: ""
+fullnameOverride: ""
+
+global: {}                  # global.partOf and global.environment, set by a parent chart

@@ -1,0 +1,28 @@
+# Requires the CloudNativePG operator (postgresql.cnpg.io/v1).
+cluster:
+  name: shipping-postgres
+  instances: 1                 # single instance: dev-shaped, not production
+  imageName: ""                # empty: the operator default image
+  storage:
+    size: 2Gi
+    storageClass: ""
+  database: shipping           # one database; each service owns a schema inside it
+  owner: shipping_app
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      memory: 2Gi              # 512Mi OOM-killed during crash recovery on minikube
+  # Keep operator-managed pods out of a service mesh: CNPG runs its own TLS.
+  inheritedMetadata:
+    annotations:
+      sidecar.istio.io/inject: "false"
+
+# Values other charts can import with import-values (static: they must match
+# cluster.name above). CNPG creates the Secret "<cluster>-app" with keys
+# dbname, username, password, and the Service "<cluster>-rw".
+exports:
+  postgres:
+    host: shipping-postgres-rw
+    existingSecret: shipping-postgres-app

@@ -1,0 +1,149 @@
+suite: shipping-service deployment
+templates:
+  - templates/deployment.yaml
+  - templates/configmap.yaml
+tests:
+  - it: renders a Deployment with the default image tag from appVersion
+    template: templates/deployment.yaml
+    asserts:
+      - isKind:
+          of: Deployment
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: shipping-service:0.1.0
+      - equal:
+          path: spec.template.spec.containers[0].imagePullPolicy
+          value: IfNotPresent
+
+  - it: prefixes the image with global.imageRegistry
+    template: templates/deployment.yaml
+    set:
+      global.imageRegistry: localhost:5000
+      image.tag: "9.9.9"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: localhost:5000/shipping-service:9.9.9
+
+  - it: sets an OpenShift-safe security context without runAsUser
+    template: templates/deployment.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.runAsNonRoot
+          value: true
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.allowPrivilegeEscalation
+          value: false
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.capabilities.drop
+          value: [ALL]
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.seccompProfile.type
+          value: RuntimeDefault
+      - notExists:
+          path: spec.template.spec.containers[0].securityContext.runAsUser
+      - notExists:
+          path: spec.template.spec.securityContext.runAsUser
+
+  - it: carries the data-product annotations on the Deployment and the pod
+    template: templates/deployment.yaml
+    asserts:
+      - equal:
+          path: metadata.annotations["patterncatalyst.io/domain"]
+          value: shipping
+      - equal:
+          path: spec.template.metadata.annotations["patterncatalyst.io/owner"]
+          value: team-shipping
+      - equal:
+          path: spec.template.metadata.annotations["patterncatalyst.io/data-product"]
+          value: shipments
+
+  - it: has a checksum/config annotation that changes with the config
+    template: templates/deployment.yaml
+    asserts:
+      - matchRegex:
+          path: spec.template.metadata.annotations["checksum/config"]
+          pattern: "^[0-9a-f]{64}$"
+
+  - it: wires startup, liveness and readiness probes
+    template: templates/deployment.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          value: /health
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          value: /healthz
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.failureThreshold
+          value: 30
+
+  - it: omits PG_* env in memory mode
+    template: templates/deployment.yaml
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: PG_HOST
+            value: db
+          any: true
+
+  - it: reads PG_* from an existing Secret in postgres mode
+    template: templates/deployment.yaml
+    set:
+      config.storage: postgres
+      postgres.host: db-rw
+      postgres.existingSecret: db-app
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: PG_HOST
+            value: db-rw
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: PG_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-app
+                key: password
+
+  - it: sources API_TOKEN from an existing Secret when given
+    template: templates/deployment.yaml
+    set:
+      auth.existingSecret: my-token
+      auth.existingSecretKey: tok
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: my-token
+                key: tok
+
+  - it: enables the OTLP exporter from global.otlpEndpoint
+    template: templates/deployment.yaml
+    set:
+      global.otlpEndpoint: http://otel:4318
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: OTEL_SDK_DISABLED
+            value: "false"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: OTEL_EXPORTER_OTLP_ENDPOINT
+            value: http://otel:4318
+
+  - it: fails when kafka is enabled without a bootstrap address
+    template: templates/deployment.yaml
+    set:
+      kafka.enabled: true
+    asserts:
+      - failedTemplate:
+          errorPattern: kafka.bootstrap is required

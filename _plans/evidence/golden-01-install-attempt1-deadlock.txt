@@ -1,0 +1,7 @@
+$ helm upgrade --install platform charts/shipping-platform -n hfd-26 -f charts/shipping-platform/values-dev.yaml --wait --rollback-on-failure --timeout 8m
+Release "platform" does not exist. Installing it now.
+Error: release platform failed, and has been uninstalled due to rollback-on-failure being set: resource Deployment/hfd-26/platform-shipping not ready. status: InProgress, message: Available: 0/1
+context deadline exceeded
+helm upgrade --install platform charts/shipping-platform -n hfd-26 -f  --wait  0.55s user 0.05s system 0% cpu 8:00.48 total
+rc=1
+NOTE: fix applied afterwards: notification asyncpg import crash in pcobs/otel.py (attempt 1 crashed), then umbrella readiness override (attempt 2 deadlocked: post-install hook runs only after --wait; shipping /healthz needs migration). Message above is attempt 2.

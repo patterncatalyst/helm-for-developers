@@ -1,0 +1,18 @@
+suite: shipping-service snapshots
+templates:
+  - templates/configmap.yaml
+  - templates/service.yaml
+tests:
+  - it: keeps the default ConfigMap stable
+    template: templates/configmap.yaml
+    asserts:
+      - matchSnapshot: {}
+
+  - it: keeps the NodePort Service stable
+    template: templates/service.yaml
+    set:
+      service.type: NodePort
+      service.nodePort: 30080
+    asserts:
+      - matchSnapshot:
+          path: spec

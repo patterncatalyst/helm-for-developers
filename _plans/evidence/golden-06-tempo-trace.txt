@@ -1,0 +1,25 @@
+# Env in shipping pod:
+OTEL_SDK_DISABLED=false
+OTEL_RESOURCE_ATTRIBUTES=service.namespace=shipping,deployment.environment=dev,service.version=0.1.0
+OTEL_SERVICE_NAME=platform-shipping
+OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector.observability.svc.cluster.local:4318
+OTEL_SDK_DISABLED=false
+OTEL_SERVICE_NAME=platform-notification
+OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector.observability.svc.cluster.local:4318
+OTEL_RESOURCE_ATTRIBUTES=service.namespace=notification,deployment.environment=dev,service.version=0.1.0
+
+# Datasource fix: platform/observability/grafana-datasources.yaml Tempo url :3200 -> :3100 (Tempo chart 1.10.0 serves HTTP on 3100)
+$ curl -u admin:admin -G 127.0.0.1:3000/api/datasources/proxy/uid/tempo/api/search --data-urlencode 'q={ resource.service.name = "platform-shipping" && span.http.target =~ ".*dispatch.*" }'
+{"traces":[{"traceID":"3ff8ba3e5495645659fcce9edffcd6f5","rootServiceName":"platform-shipping","rootTraceName":"POST /api/shipments/{shipment_id}/dispatch","startTimeUnixNano":"1791468710810618279","durationMs":7,"spanSet":{"spans":[{"spanID":"dfb7b227f45c88e2","startTimeUnixNano":"1791468710810618279","durationNanos":"6937158","attributes":[{"key":"service.name","value":{"stringValue":"platform-shipping"}},{"key":"http.target","value":{"stringValue":"/api/shipments/2/dispatch"}}]}],"matched":1},"spanSets":[{"spans":[{"spanID":"dfb7b227f45c88e2","startTimeUnixNano":"1791468710810618279","durationNanos":"6937158","attributes":[{"key":"service.name","value":{"stringValue":"platform-shipping"}},{"key":"http.target","value":{"stringValue":"/api/shipments/2/dispatch"}}]}],"matched":1}]},{"traceID":"49bb8b41fdbc370d49e5f41628600805","rootServiceName":"platform-shipping","rootTraceName":"POST /api/shipments/{shipment_id}/dispatch","startTimeUnixNano":"1791468277973470050","durationMs":23,"spanSet":{"spans":[{"spanID":"33011e5f8ebb7b8a","startTimeUnixNano":"1791468277973470050","durationNanos":"21612226","attributes":[{"key":"http.target","value":{"stringValue":"/api/shipments/1/dispatch"}},{"key":"service.name","value":{"stringValue":"platform-shipping"}}]}],"matched":1},"spanSets":[{"spans":[{"spanID":"33011e5f8ebb7b8a","startTimeUnixNano":"1791468277973470050","durationNanos":"21612226","attributes":[{"key":"http.target","value":{"stringValue":"/api/shipments/1/dispatch"}},{"key":
+
+$ curl -s -u admin:admin 127.0.0.1:3000/api/datasources/proxy/uid/tempo/api/traces/3ff8ba3e5495645659fcce9edffcd6f5   (service.name | span | parent)
+platform-notification | process shipment.dispatched
+platform-shipping | POST /api/shipments/{shipment_id}/dispatch http send
+platform-shipping | POST /api/shipments/{shipment_id}/dispatch http send
+platform-shipping | POST /api/shipments/{shipment_id}/dispatch
+platform-shipping | SELECT
+platform-shipping | SELECT
+platform-shipping | UPDATE
+platform-shipping | SELECT
+
+RESULT: one trace (3ff8ba3e...) holds spans from platform-shipping and platform-notification (trace context carried over Kafka). MET

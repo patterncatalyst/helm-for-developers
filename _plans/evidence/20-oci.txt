@@ -1,0 +1,151 @@
+
+== dependency build
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "open-telemetry" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "grafana" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Deleting outdated charts
+
+== lint --strict
+==> Linting charts/shipping-service
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+
+== template | kubeconform
+Summary: 4 resources found parsing stdin - Valid: 4, Invalid: 0, Errors: 0, Skipped: 0
+
+== unittest
+
+### Chart [ shipping-service ] charts/shipping-service
+
+ PASS  shipping-service config, secret, service	charts/shipping-service/tests/config_test.yaml
+ PASS  shipping-service deployment	charts/shipping-service/tests/deployment_test.yaml
+ PASS  shipping-service migration hook	charts/shipping-service/tests/migration_test.yaml
+ PASS  shipping-service values schema	charts/shipping-service/tests/schema_test.yaml
+
+Charts:      1 passed, 1 total
+Test Suites: 4 passed, 4 total
+Tests:       25 passed, 25 total
+Snapshot:    0 passed, 0 total
+Time:        59.264428ms
+
+
+== package
+Successfully packaged chart and saved it to: /home/rsedor/Dev/helm-for-developers/examples/20-oci/.work/pkg/shipping-service-1.0.0.tgz
+Successfully packaged chart and saved it to: /home/rsedor/Dev/helm-for-developers/examples/20-oci/.work/pkg/pc-lib-1.0.0.tgz
+
+== start local registries (docker)
+
+== push without --plain-http fails (registry speaks HTTP)
+Error: failed to perform "Exists" on destination: Head "https://127.0.0.1:5001/v2/charts/shipping-service/manifests/sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a": http: server gave HTTP response to HTTPS client
+
+== push with --plain-http
+Pushed: 127.0.0.1:5001/charts/shipping-service:1.0.0
+Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+{"repositories":["charts/shipping-service"]}
+
+{"name":"charts/shipping-service","tags":["1.0.0"]}
+
+
+== show chart / pull by tag
+Pulled: 127.0.0.1:5001/charts/shipping-service:1.0.0
+Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+apiVersion: v2
+appVersion: 0.1.0
+dependencies:
+- name: pc-lib
+  repository: file://../pc-lib
+  version: 1.0.0
+description: Shipping data product. FastAPI service that creates and dispatches shipments
+  and publishes ShipmentDispatched events.
+Pulled: 127.0.0.1:5001/charts/shipping-service:1.0.0
+Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+
+== the chart layer digest equals the sha256 of the .tgz (the manifest digest does not)
+f8d507c0004fb9f9f9c3418e7e2565d01ed00c4f8b05b28c5d2855e8ee90ccbd  /home/rsedor/Dev/helm-for-developers/examples/20-oci/.work/pull/shipping-service-1.0.0.tgz
+manifest digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+
+== pull by digest
+Pulled: 127.0.0.1:5001/charts/shipping-service@sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+shipping-service-1.0.0.tgz
+shipping-service@sha256-d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a.tgz
+
+== authenticated registry: push without login fails, login, push
+Error: failed to perform "Exists" on destination: HEAD "http://127.0.0.1:5002/v2/charts/shipping-service/manifests/sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a": basic credential not found
+Login Succeeded
+Pushed: 127.0.0.1:5002/charts/shipping-service:1.0.0
+Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+Removing login credentials for 127.0.0.1:5002
+
+== OCI dependency: pc-lib comes from the registry instead of file://../pc-lib
+Pushed: 127.0.0.1:5001/charts/pc-lib:1.0.0
+Digest: sha256:45664d4f0fae347caf14c512c2d1981358ef7ca3a4fe56ac96dc962d268ceae1
+Saving 1 charts
+Downloading pc-lib from repo oci://127.0.0.1:5001/charts
+Pulled: 127.0.0.1:5001/charts/pc-lib:1.0.0
+Digest: sha256:45664d4f0fae347caf14c512c2d1981358ef7ca3a4fe56ac96dc962d268ceae1
+Deleting outdated charts
+NAME  	VERSION	REPOSITORY                 	STATUS
+pc-lib	1.0.0  	oci://127.0.0.1:5001/charts	ok    
+
+
+== install by digest
+Release "shipping" does not exist. Installing it now.
+Pulled: 127.0.0.1:5001/charts/shipping-service@sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 11:31:06 2026
+NAMESPACE: hfd-20
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+NOTES:
+shipping-shipping-service 0.1.0 installed as release "shipping" in namespace hfd-20.
+Storage: memory
+
+Reach the service:
+  [host]$ minikube -p helm4dev service shipping-shipping-service -n hfd-20 --url
+
+Run the chart test:
+  [host]$ helm test shipping -n hfd-20
+NAME    	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART                 	APP VERSION
+shipping	hfd-20   	1       	2026-10-08 11:31:06.293157182 -0400 EDT	deployed	shipping-service-1.0.0	0.1.0      
+
+== minikube registry addon (tunnel 127.0.0.1:5000)
+    ok: registry      127.0.0.1:5000 -> node:5000
+    stop with: scripts/tunnel.sh stop
+Pushed: 127.0.0.1:5000/charts/shipping-service:1.0.0
+Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+{"repositories":["charts/shipping-service"]}
+
+Registries stay up for inspection. Run ./demo.sh clean to remove them.
+
+## S7 extra: addon registry, template + install by digest
+{"name":"charts/shipping-service","tags":["1.0.0"]}
+
+Pulled: 127.0.0.1:5000/charts/shipping-service@sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+4
+STATUS: pending-upgrade
+REVISION: 2
+Pulled: 127.0.0.1:5000/charts/shipping-service@sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+STATUS: deployed
+NAME                                        READY   STATUS    RESTARTS   AGE
+shipping-shipping-service-75db87b89-v4rpz   1/1     Running   0          3s
+CHART: shipping-service
+VERSION: 1.0.0
+APP_VERSION: 0.1.0
+{"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"ACME-Post","storage":"memory","kafkaEnabled":false}
+    stopped registry (pid 1738048)
+    stopped shipping (pid 1738679)
+    stopped 2 tunnel(s)
+
+## S7 extra: tag moves, digest does not
+Digest: sha256:8a8973a424c24bd1b92c53ee0186f5e1a8a8af8dac211ed67644cb65c4055558
+appVersion: 9.9.9
+appVersion: 0.1.0

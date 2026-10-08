@@ -1,0 +1,74 @@
+# shipping-service values after chapter 09.
+
+replicaCount: 1
+
+image:
+  repository: shipping-service
+  tag: ""            # defaults to .Chart.AppVersion
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+containerPort: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  nodePort: null
+
+# Non-secret application settings. Rendered into a ConfigMap; a change rolls the pods
+# through the checksum/config annotation.
+config:
+  environment: dev          # DEPLOY_ENV (global.environment wins when set)
+  logLevel: INFO
+  defaultCarrier: ACME-Post
+  storage: memory           # memory | postgres
+
+postgres:
+  # host and existingSecret have no default on purpose: the shipping-postgres
+  # subchart exports them through import-values, and import-values cannot override
+  # a key the parent already defaults. For an external database, set them yourself.
+  port: 5432
+  database: shipping
+  user: shipping_app
+  schema: shipping
+  # The CloudNativePG "<cluster>-app" Secret has the keys dbname, username, password.
+  existingSecretKeys:
+    database: dbname
+    user: username
+    password: password
+  password: ""              # dev only; stored in a chart-created Secret
+
+auth:
+  token: ""                 # dev only; stored in a chart-created Secret
+  existingSecret: ""
+  existingSecretKey: api-token
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 192Mi
+  limits:
+    memory: 512Mi
+
+probes:
+  startup:
+    path: /health
+    failureThreshold: 30
+    periodSeconds: 2
+  liveness:
+    path: /health
+    periodSeconds: 10
+  readiness:
+    path: /healthz
+    periodSeconds: 5
+
+podAnnotations: {}
+
+global: {}
+
+# Subchart switch. The dependency's `condition` reads this path.
+shipping-postgres:
+  enabled: false

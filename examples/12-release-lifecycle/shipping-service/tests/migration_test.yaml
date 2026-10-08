@@ -1,0 +1,74 @@
+suite: shipping-service migration and warm hooks
+templates:
+  - templates/migration-job.yaml
+  - templates/warm-job.yaml
+tests:
+  - it: renders no migration Job in memory mode
+    template: templates/migration-job.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders a pre-install and pre-upgrade hook Job by default in postgres mode
+    template: templates/migration-job.yaml
+    set:
+      config.storage: postgres
+      postgres.host: db-rw
+      postgres.existingSecret: db-app
+    asserts:
+      - isKind:
+          of: Job
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: pre-install,pre-upgrade
+      - equal:
+          path: metadata.annotations["helm.sh/hook-delete-policy"]
+          value: before-hook-creation,hook-succeeded
+      - equal:
+          path: spec.template.spec.containers[0].command
+          value: [python, -m, app.migrate]
+      - notExists:
+          path: spec.template.spec.containers[0].securityContext.runAsUser
+
+  - it: honours migration.hooks and migration.weight
+    template: templates/migration-job.yaml
+    set:
+      config.storage: postgres
+      postgres.host: db-rw
+      postgres.existingSecret: db-app
+      migration.hooks: post-install,post-upgrade
+      migration.weight: 5
+    asserts:
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: post-install,post-upgrade
+      - equal:
+          path: metadata.annotations["helm.sh/hook-weight"]
+          value: "5"
+
+  - it: rejects a misspelled hook phase through the schema
+    template: templates/migration-job.yaml
+    set:
+      config.storage: postgres
+      postgres.host: db-rw
+      migration.hooks: pre-installl
+    asserts:
+      - failedTemplate: {}
+
+  - it: renders no warm Job by default
+    template: templates/warm-job.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders the warm Job as a post-upgrade hook after the migration
+    template: templates/warm-job.yaml
+    set:
+      warm.enabled: true
+    asserts:
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: post-upgrade
+      - equal:
+          path: metadata.annotations["helm.sh/hook-weight"]
+          value: "10"

@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "pc-lib.fullname" . }}-test-connection
+  labels:
+    {{- include "pc-lib.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  securityContext:
+    {{- include "pc-lib.podSecurityContext" . | nindent 4 }}
+  containers:
+    - name: probe
+      image: {{ default (include "pc-lib.image" .) .Values.tests.image | quote }}
+      command:
+        - python
+        - -c
+        - >-
+          import urllib.request as u;
+          u.urlopen("http://{{ include "pc-lib.fullname" . }}:{{ .Values.service.port }}/healthz", timeout=10).read()
+      securityContext:
+        {{- include "pc-lib.containerSecurityContext" . | nindent 8 }}

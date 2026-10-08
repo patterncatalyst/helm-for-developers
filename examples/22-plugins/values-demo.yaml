@@ -1,0 +1,5 @@
+# Offline demo values: in-memory storage, a dev token.
+config:
+  storage: memory
+auth:
+  token: demo-token

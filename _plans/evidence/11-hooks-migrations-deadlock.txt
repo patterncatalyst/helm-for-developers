@@ -1,0 +1,67 @@
+$ ./demo.sh deadlock
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "open-telemetry" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "grafana" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Deleting outdated charts
+release "shipping" uninstalled
+namespace "hfd-11" deleted
+Release "shipping" does not exist. Installing it now.
+Error: resource Deployment/hfd-11/shipping-shipping-service not ready. status: InProgress, message: Available: 0/1
+context deadline exceeded
+install failed as expected (rc=1)
+NAME                                         READY   STATUS    RESTARTS   AGE
+shipping-postgres-1                          1/1     Running   0          86s
+shipping-shipping-service-755c7f94cd-bksx4   0/1     Running   0          90s
+exit=0
+--- jobs and pods
+NAME                                             READY   STATUS    RESTARTS   AGE
+pod/shipping-postgres-1                          1/1     Running   0          86s
+pod/shipping-shipping-service-755c7f94cd-bksx4   0/1     Running   0          90s
+--- events (namespace)
+LAST SEEN   TYPE      REASON                        OBJECT                                            MESSAGE
+90s         Normal    CreatingServiceAccount        cluster/shipping-postgres                         Creating ServiceAccount
+90s         Normal    Pulled                        pod/shipping-shipping-service-755c7f94cd-bksx4    Container image "shipping-service:0.1.0" already present on machine and can be accessed by the pod
+90s         Normal    Created                       pod/shipping-postgres-1-initdb-h7s92              Container created
+90s         Normal    Started                       pod/shipping-postgres-1-initdb-h7s92              Container started
+90s         Normal    Scheduled                     pod/shipping-postgres-1-initdb-h7s92              Successfully assigned hfd-11/shipping-postgres-1-initdb-h7s92 to helm4dev
+90s         Normal    CreatingPodDisruptionBudget   cluster/shipping-postgres                         Creating PodDisruptionBudget shipping-postgres-primary
+90s         Normal    NoPods                        poddisruptionbudget/shipping-postgres-primary     No matching pods found
+90s         Normal    SuccessfulCreate              job/shipping-postgres-1-initdb                    Created pod: shipping-postgres-1-initdb-h7s92
+90s         Normal    ScalingReplicaSet             deployment/shipping-shipping-service              Scaled up replica set shipping-shipping-service-755c7f94cd from 0 to 1
+90s         Normal    ExternalProvisioning          persistentvolumeclaim/shipping-postgres-1         Waiting for a volume to be created either by the external provisioner 'k8s.io/minikube-hostpath' or manually by the system administrator. If volume creation i
+90s         Normal    Provisioning                  persistentvolumeclaim/shipping-postgres-1         External provisioner is provisioning volume for claim "hfd-11/shipping-postgres-1"
+90s         Normal    ProvisioningSucceeded         persistentvolumeclaim/shipping-postgres-1         Successfully provisioned volume pvc-3279960e-775a-43dc-9361-ac580674a869
+90s         Normal    SuccessfulCreate              replicaset/shipping-shipping-service-755c7f94cd   Created pod: shipping-shipping-service-755c7f94cd-bksx4
+90s         Normal    Started                       pod/shipping-shipping-service-755c7f94cd-bksx4    Container started
+90s         Normal    Pulled                        pod/shipping-postgres-1-initdb-h7s92              Container image "ghcr.io/cloudnative-pg/cloudnative-pg:1.30.1" already present on machine and can be accessed by the pod
+90s         Normal    Created                       pod/shipping-shipping-service-755c7f94cd-bksx4    Container created
+90s         Normal    CreatingRole                  cluster/shipping-postgres                         Creating Cluster Role
+90s         Normal    Scheduled                     pod/shipping-shipping-service-755c7f94cd-bksx4    Successfully assigned hfd-11/shipping-shipping-service-755c7f94cd-bksx4 to helm4dev
+90s         Normal    CreatingInstance              cluster/shipping-postgres                         Primary instance (initdb)
+89s         Normal    Started                       pod/shipping-postgres-1-initdb-h7s92              Container started
+89s         Normal    Created                       pod/shipping-postgres-1-initdb-h7s92              Container created
+89s         Normal    Pulled                        pod/shipping-postgres-1-initdb-h7s92              Container image "ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie" already present on machine and can be accessed by the pod
+86s         Normal    Completed                     job/shipping-postgres-1-initdb                    Job completed
+86s         Normal    Scheduled                     pod/shipping-postgres-1                           Successfully assigned hfd-11/shipping-postgres-1 to helm4dev
+85s         Normal    Started                       pod/shipping-postgres-1                           Container started
+85s         Normal    Created                       pod/shipping-postgres-1                           Container created
+85s         Normal    Started                       pod/shipping-postgres-1                           Container started
+85s         Normal    Pulled                        pod/shipping-postgres-1                           Container image "ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie" already present on machine and can be accessed by the pod
+85s         Normal    Pulled                        pod/shipping-postgres-1                           Container image "ghcr.io/cloudnative-pg/cloudnative-pg:1.30.1" already present on machine and can be accessed by the pod
+85s         Normal    Created                       pod/shipping-postgres-1                           Container created
+0s          Warning   Unhealthy                     pod/shipping-shipping-service-755c7f94cd-bksx4    Readiness probe failed: HTTP probe failed with statuscode: 503
+--- helm status
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 10:56:07 2026
+NAMESPACE: hfd-11
+STATUS: failed
+REVISION: 1
+DESCRIPTION: Release "shipping" failed: resource Deployment/hfd-11/shipping-shipping-service not ready. status: InProgress, message: Available: 0/1
+context deadline exceeded
+RESOURCES:
+REVISION	UPDATED                 	STATUS	CHART                  	APP VERSION	DESCRIPTION                                                                                                                           
+1       	Thu Oct  8 10:56:07 2026	failed	shipping-service-0.11.0	0.1.0      	Release "shipping" failed: resource Deployment/hfd-11/shipping-shipping-service not ready. status: InProgress, message: Available: ...

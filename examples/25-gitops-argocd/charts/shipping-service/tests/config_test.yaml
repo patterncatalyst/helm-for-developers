@@ -1,0 +1,69 @@
+suite: shipping-service config, secret, service
+templates:
+  - templates/configmap.yaml
+  - templates/secret.yaml
+  - templates/service.yaml
+tests:
+  - it: exposes the contract env names in the ConfigMap
+    template: templates/configmap.yaml
+    asserts:
+      - equal:
+          path: data.SHIPPING_STORAGE
+          value: memory
+      - equal:
+          path: data.SHIPPING_DEFAULT_CARRIER
+          value: ACME-Post
+      - equal:
+          path: data.KAFKA_TOPIC_DISPATCHED
+          value: shipment.dispatched
+      - equal:
+          path: data.KAFKA_ENABLED
+          value: "false"
+
+  - it: lets global.environment override DEPLOY_ENV
+    template: templates/configmap.yaml
+    set:
+      global.environment: prod
+    asserts:
+      - equal:
+          path: data.DEPLOY_ENV
+          value: prod
+
+  - it: creates no Secret by default
+    template: templates/secret.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: creates a Secret holding api-token when auth.token is set
+    template: templates/secret.yaml
+    set:
+      auth.token: abc
+    asserts:
+      - isKind:
+          of: Secret
+      - equal:
+          path: stringData.api-token
+          value: abc
+
+  - it: skips the Secret when an existing Secret is named
+    template: templates/secret.yaml
+    set:
+      auth.token: abc
+      auth.existingSecret: external
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders a NodePort Service on the requested port
+    template: templates/service.yaml
+    set:
+      service.type: NodePort
+      service.nodePort: 30080
+    asserts:
+      - equal:
+          path: spec.ports[0].nodePort
+          value: 30080
+      - equal:
+          path: spec.ports[0].port
+          value: 8080

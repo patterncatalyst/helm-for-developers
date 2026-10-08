@@ -1,0 +1,61 @@
+# 22 plugins, 2026-10-08, Helm 4.3.0
+$ examples/22-plugins/demo.sh
+== chart: lint and render
+==> Linting chart
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+== wasm-hello: build with GOOS=wasip1
+make: Entering directory '/home/rsedor/Dev/helm-for-developers/examples/22-plugins/plugins/wasm-hello'
+make: Nothing to be done for 'build'.
+make: Leaving directory '/home/rsedor/Dev/helm-for-developers/examples/22-plugins/plugins/wasm-hello'
+== install both plugins from local directories
+Installing plugin from local directory (development mode)
+Installed plugin: shipping-env
+Installing plugin from local directory (development mode)
+Installed plugin: wasm-hello
+NAME        	VERSION	TYPE  	APIVERSION	PROVENANCE	SOURCE 
+shipping-env	0.1.0  	cli/v1	v1        	unknown   	unknown
+wasm-hello  	0.1.0  	cli/v1	v1        	local dev 	unknown
+== helm shipping-env --chart chart -f values-demo.yaml
+# deployment/shipping-shipping-service
+API_TOKEN=<secret shipping-shipping-service/api-token>
+OTEL_SDK_DISABLED=true
+OTEL_SERVICE_NAME=shipping-shipping-service
+OTEL_RESOURCE_ATTRIBUTES=service.namespace=shipping,deployment.environment=dev,service.version=0.1.0
+== helm wasm-hello Helm4
+Hello, Helm4! (from a Wasm Helm plugin)
+== signature policy: a packaged plugin without .prov
+WARNING: Skipping plugin signing. This is not recommended for plugins intended for distribution.
+Successfully packaged plugin and saved it to: .tmp/pkg/shipping-env-0.1.0.tgz
+Uninstalled plugin: shipping-env
+Verifying plugin signature...
+Error: plugin verification failed: no provenance file (.prov) found
+WARNING: Skipping plugin signature verification
+Installed plugin: shipping-env
+NAME        	VERSION	TYPE  	APIVERSION	PROVENANCE	SOURCE 
+shipping-env	0.1.0  	cli/v1	v1        	unsigned  	unknown
+wasm-hello  	0.1.0  	cli/v1	v1        	local dev 	unknown
+plugins stay installed under .tmp until ./demo.sh clean
+OK
+
+# live release form (shipping installed from examples/22-plugins/chart in hfd-22, plugins in isolated HELM_PLUGINS)
+$ helm shipping-env shipping -n hfd-22
+# deployment/shipping-shipping-service
+API_TOKEN=<secret shipping-shipping-service/api-token>
+OTEL_SDK_DISABLED=true
+OTEL_SERVICE_NAME=shipping-shipping-service
+OTEL_RESOURCE_ATTRIBUTES=service.namespace=shipping,deployment.environment=dev,service.version=0.1.0
+-> diff against `helm shipping-env --chart chart -f values-demo.yaml`: identical; kubectl get deploy -o yaml shows the same OTEL_* values.
+# env exported to subprocess plugin (env | grep ^HELM_ added temporarily)
+HELM_BIN=helm
+HELM_NAMESPACE=hfd-22
+HELM_PLUGIN_DIR=.../examples/22-plugins/.tmp/data/plugins/shipping-env
+HELM_PLUGIN_NAME=shipping-env  (plus HELM_PLUGINS, HELM_DATA_HOME, HELM_CACHE_HOME, ...)
+# ignoreFlags: true on shipping-env: plugin receives no args
+usage: helm shipping-env RELEASE [-n NAMESPACE]   (exit 2, "Error: plugin "shipping-env" exited with error")
+# wasm-hello
+maxPages: 16 -> Error: failed to create existing plugin: section memory: min 42 pages (2 Mi) over limit of 16 pages (1 Mi)
+ignoreFlags: true -> Hello, world! (from a Wasm Helm plugin)
+ignoreFlags: false -> Hello, Helm4! (from a Wasm Helm plugin)
+# clean module cache: GOPATH=<empty tmp dir>; make clean; make -> "go: downloading github.com/extism/go-pdk v1.1.3", plugin.wasm 3337789 bytes

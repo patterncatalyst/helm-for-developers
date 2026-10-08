@@ -1,0 +1,26 @@
+apiVersion: {{ .Values.strimzi.apiVersion }}
+kind: KafkaNodePool
+metadata:
+  name: dual
+  labels:
+    {{- include "shipping-kafka.labels" . | nindent 4 }}
+    strimzi.io/cluster: {{ .Values.clusterName }}
+spec:
+  replicas: {{ .Values.replicas }}
+  roles:
+    - controller
+    - broker
+  storage:
+    {{- if eq .Values.storage.type "persistent-claim" }}
+    type: jbod
+    volumes:
+      - id: 0
+        type: persistent-claim
+        size: {{ .Values.storage.size }}
+        deleteClaim: true
+        kraftMetadata: shared
+    {{- else }}
+    type: ephemeral
+    {{- end }}
+  resources:
+    {{- toYaml .Values.resources | nindent 4 }}
