@@ -678,7 +678,7 @@ Sources consulted for version facts:
 | Step | Status |
 |---|---|
 | S1 | done |
-| S2 | pending |
+| S2 | done |
 | S3 | done (F1: Python 3.14) |
 | S4 | done |
 | S5 | pending |
