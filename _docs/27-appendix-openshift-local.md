@@ -174,10 +174,10 @@ metadata:
   namespace: hfd-ocp
 spec:
   connectionConfig:
-    url: https://<your-chart-repo-host>/charts
+    url: https://patterncatalyst.github.io/helm-for-developers/charts
 ```
 
-Replace the placeholder URL with a classic repository that serves an `index.yaml`, the kind Chapter 19 builds. The console reads that index to list charts. The cluster accepted the resource (`oc apply` printed `projecthelmchartrepository.helm.openshift.io/hfd-charts created`, and `oc get projecthelmchartrepositories -n hfd-ocp` listed it), but the URL tried returned 404 for `index.yaml` because no chart repository was published there, so the Developer console listing was not opened. Whether the console can install from an OCI registry depends on your OpenShift release, so check the release documentation before relying on it.
+The URL is the classic repository this site publishes (Chapter 19 shows how the index is built and how `helm repo add` uses it); substitute your own repository host to serve different charts. The console reads `index.yaml` to list charts. The cluster accepted the resource earlier (`oc apply` printed `projecthelmchartrepository.helm.openshift.io/hfd-charts created`, and `oc get projecthelmchartrepositories -n hfd-ocp` listed it) against a placeholder URL, because no index was published at the time. The published repository and the console listing have not been tested together; check both after the r1.1 site deploys. Whether the console can install from an OCI registry depends on your OpenShift release, so check the release documentation before relying on it.
 
 Optionally, `[crc-host]$ oc set image-lookup shipping-service -n hfd-ocp` turns on local lookup for the ImageStream, so a short reference such as `shipping-service:0.1.0` resolves through the stream. A pod created with that short image reference ran with the image rewritten to `image-registry.openshift-image-registry.svc:5000/hfd-ocp/shipping-service@sha256:...`. The chart does not need it, because the values file uses the full registry path.
 
@@ -255,4 +255,4 @@ The next appendix collects the Helm 3 to Helm 4 changes in one place.
 
 ---
 
-*Verification status: <span class="status status--verified">verified</span> on OpenShift Local 2.64.0 (OpenShift 4.22.14), Helm 4.3.0, 2026-10-08, with both profiles (evidence: `_plans/evidence/27-openshift-crc.txt`). Not run: the Developer console Helm view (the `ProjectHelmChartRepository` was only accepted by the API) and the Streams for Apache Kafka operator, so the `v1beta2` fallback for older operators is untested.*
+*Verification status: <span class="status status--verified">verified</span> on OpenShift Local 2.64.0 (OpenShift 4.22.14), Helm 4.3.0, 2026-10-08, with both profiles (evidence: `_plans/evidence/27-openshift-crc.txt`). Not run: the Developer console Helm view (the `ProjectHelmChartRepository` was only accepted by the API, and the published repository URL it now names is unverified until the r1.1 deploy) and the Streams for Apache Kafka operator, so the `v1beta2` fallback for older operators is untested.*

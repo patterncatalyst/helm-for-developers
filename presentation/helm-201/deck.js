@@ -556,11 +556,11 @@ metadata:
   namespace: hfd-ocp
 spec:
   connectionConfig:
-    url: https://<your-chart-repo-host>/charts
+    url: https://patterncatalyst.github.io/helm-for-developers/charts
 `),
-  "The console installs charts from a repository registered per project; replace the placeholder URL with a repository that publishes an index.yaml.",
-  N("A `ProjectHelmChartRepository` makes a chart repository visible in the Developer console's Helm catalog for one project. On OpenShift Local 2.64.0 the resource was accepted and listed by `oc get`. The console view was not opened, and the URL tried returned 404 because no index was published there, so the listing could not populate. The URL on the slide is a placeholder for your own repository.",
-    "`oc get projecthelmchartrepository -n hfd-ocp` on a CRC host; the console view needs a published index.",
+  "The console installs charts from a repository registered per project; the URL is this site's published chart repository, a classic index.yaml plus packaged archives.",
+  N("A `ProjectHelmChartRepository` makes a chart repository visible in the Developer console's Helm catalog for one project. On OpenShift Local 2.64.0 the resource was accepted and listed by `oc get`, tested earlier against a placeholder URL. The console view was not opened. The URL on the slide is the repository the site publishes from r1.1; check the listing after that deploy.",
+    "`oc get projecthelmchartrepository -n hfd-ocp` on a CRC host; the console listing needs the r1.1 site deploy.",
     "the YAML on this slide and the chapter 27 section on the Developer console."));
 
 // ===== TAKEAWAYS =============================================================
