@@ -3,7 +3,7 @@
 # build-and-push.sh - build the two service images and push them to the OpenShift
 # Local internal registry through its default route.
 #
-# UNTESTED on the authoring machine; run on the CRC host.
+# Verified on OpenShift Local 2.64.0 (OpenShift 4.22.14), 2026-10-08.
 #
 #   ./build-and-push.sh              build and push both images
 #   ./build-and-push.sh shipping-service     one image only

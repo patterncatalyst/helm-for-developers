@@ -1,0 +1,429 @@
+# Chapter 27 live run, 2026-10-08. CRC 2.64.0, OpenShift 4.22.14, oc 4.22.17, Helm 4.3.0, podman 5.8.7
+# Credentials and tokens redacted.
+
+$ crc version
+CRC version: 2.64.0+458092
+OpenShift version: 4.22.14
+MicroShift version: 4.22.13
+$ crc status
+CRC VM:          Running
+OpenShift:       Running (v4.22.14)
+RAM Usage:       9.063GB of 20.96GB
+Disk Usage:      26.14GB of 85.29GB (Inside the CRC VM)
+Cache Usage:     28.81GB
+Cache Directory: /home/rsedor/.crc/cache
+$ oc get nodes
+NAME   STATUS   ROLES                         AGE   VERSION
+crc    Ready    control-plane,master,worker   23d   v1.35.6
+$ oc get csv -n openshift-operators
+NAME                              DISPLAY         VERSION   RELEASE   REPLACES                          PHASE
+cloudnative-pg.v1.30.1            CloudNativePG   1.30.1              cloudnative-pg.v1.30.0            Succeeded
+strimzi-cluster-operator.v1.2.0   Strimzi         1.2.0               strimzi-cluster-operator.v1.1.0   Succeeded
+$ oc get subscription -n openshift-operators -o custom-columns=NAME:.metadata.name,CHANNEL:.spec.channel,SOURCE:.spec.source
+NAME                     CHANNEL         SOURCE
+cloudnative-pg           stable-v1       certified-operators
+strimzi-kafka-operator   strimzi-1.2.x   community-operators
+$ oc get crd kafkas.kafka.strimzi.io clusters.postgresql.cnpg.io
+NAME                          CREATED AT
+kafkas.kafka.strimzi.io       2026-10-08T17:23:55Z
+clusters.postgresql.cnpg.io   2026-10-08T17:23:58Z
+$ oc get crd kafkas.kafka.strimzi.io -o jsonpath=versions
+v1 served=true storage=true
+$ oc get packagemanifest strimzi-kafka-operator default channel / amq-streams
+stable -> strimzi-cluster-operator.v0.51.0
+stable -> amqstreams.v3.2.1-14
+
+$ oc get imagestream -n hfd-ocp
+NAME                   IMAGE REPOSITORY                                                                       TAGS    UPDATED
+notification-service   default-route-openshift-image-registry.apps-crc.testing/hfd-ocp/notification-service   0.1.0   8 seconds ago
+shipping-service       default-route-openshift-image-registry.apps-crc.testing/hfd-ocp/shipping-service       0.1.0   12 seconds ago
+
+$ helm upgrade --install platform charts/shipping-platform -n hfd-ocp -f values-openshift.yaml --wait --rollback-on-failure --timeout 10m
+Release "platform" does not exist. Installing it now.
+NAME: platform
+LAST DEPLOYED: Thu Oct  8 13:25:50 2026
+NAMESPACE: hfd-ocp
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+NOTES:
+shipping-platform 1.0.0 installed as release "platform" in namespace hfd-ocp (environment openshift).
+
+Components: shipping, notification, kafka, db
+Routes:
+  [host]$ oc -n hfd-ocp get routes
+
+Run the release tests:
+  [host]$ helm test platform -n hfd-ocp
+helm upgrade --install platform charts/shipping-platform -n hfd-ocp -f  --wai  0.63s user 0.13s system 1% cpu 57.220 total
+exit=0
+
+$ PROFILE=full ./verify-crc.sh
+PASS  helm is 4.x (v4.3.0+gbec5b06)
+PASS  crc status: OpenShift Running
+PASS  oc whoami (kubeadmin)
+PASS  oc new-project hfd-ocp (idempotent)
+PASS  image push to the internal registry
+PASS  ImageStream shipping-service has tag 0.1.0
+PASS  ImageStream notification-service has tag 0.1.0
+PASS  helm upgrade --install platform (full profile) --wait --rollback-on-failure
+PASS  pod/platform-notification-6f795cb545-lkvwc Ready, openshift.io/scc=restricted-v2
+PASS  pod/platform-shipping-6665cbb97c-97jjj Ready, openshift.io/scc=restricted-v2
+PASS  uid inside pod/platform-notification-6f795cb545-lkvwc is 1000650000 (not 1001, not 0)
+PASS  Route platform-shipping host: platform-shipping-hfd-ocp.apps-crc.testing
+PASS  Route host resolves
+PASS  curl -k https://platform-shipping-hfd-ocp.apps-crc.testing/api/info -> 200 ({"service":"platform-shipping","version":"0.1.0","environment":"openshift","defaultCarrier":"ACME-Post","storage":"postgres","kafkaEnabled":true})
+PASS  plain HTTP redirects to HTTPS (HTTP 302)
+PASS  helm test platform
+
+verify-crc: all checks passed
+exit=0
+
+# ---- Behavioral observations (full profile) ----
+$ helm list -n hfd-ocp
+NAME    	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART                  	APP VERSION
+platform	hfd-ocp  	2       	2026-10-08 13:27:00.333607529 -0400 EDT	deployed	shipping-platform-1.0.0	0.1.0      
+$ oc get pods -n hfd-ocp
+NAME                                              READY   STATUS    RESTARTS      AGE
+platform-notification-6f795cb545-lkvwc            1/1     Running   0             90s
+platform-shipping-6665cbb97c-97jjj                1/1     Running   3 (69s ago)   90s
+shipping-kafka-dual-0                             1/1     Running   0             88s
+shipping-kafka-entity-operator-69c84b689f-jvwkk   2/2     Running   0             58s
+shipping-postgres-1                               1/1     Running   0             68s
+$ oc get pod -n hfd-ocp -o custom-columns=NAME:.metadata.name,SCC:.metadata.annotations.openshift\.io/scc
+NAME                                              SCC
+platform-notification-6f795cb545-lkvwc            restricted-v2
+platform-shipping-6665cbb97c-97jjj                restricted-v2
+shipping-kafka-dual-0                             restricted-v2
+shipping-kafka-entity-operator-69c84b689f-jvwkk   restricted-v2
+shipping-postgres-1                               restricted-v2
+$ oc get ns hfd-ocp uid-range annotations
+1000650000/10000  1000650000/10000
+$ oc exec deploy/platform-shipping -- id
+uid=1000650000(1000650000) gid=0(root) groups=0(root),1000650000
+$ oc exec deploy/platform-notification -- id
+uid=1000650000(1000650000) gid=0(root) groups=0(root),1000650000
+$ oc get pod <shipping> -o jsonpath={.spec.securityContext} / container securityContext
+
+You must specify the type of resource to get. Use "oc api-resources" for a complete list of supported resources.
+
+error: Required resource not specified.
+Use "oc explain <resource>" for a detailed description of that resource (e.g. oc explain pods).
+See 'oc get -h' for help and examples
+$ oc exec: root fs writable?
+error: pod, type/name or --filename must be specified
+$ oc get routes -n hfd-ocp
+NAME                    HOST/PORT                                        PATH   SERVICES                PORT   TERMINATION     WILDCARD
+platform-notification   platform-notification-hfd-ocp.apps-crc.testing          platform-notification   http   edge/Redirect   None
+platform-shipping       platform-shipping-hfd-ocp.apps-crc.testing              platform-shipping       http   edge/Redirect   None
+$ oc get route platform-shipping -o jsonpath tls
+{"insecureEdgeTerminationPolicy":"Redirect","termination":"edge"}
+{"targetPort":"http"}
+$ getent hosts platform-shipping-hfd-ocp.apps-crc.testing
+127.0.0.1       api.crc.testing canary-openshift-ingress-canary.apps-crc.testing console-openshift-console.apps-crc.testing default-route-openshift-image-registry.apps-crc.testing downloads-openshift-console.apps-crc.testing host.crc.testing oauth-openshift.apps-crc.testing platform-shipping-hfd-ocp.apps-crc.testing platform-notification-hfd-ocp.apps-crc.testing
+$ curl -sk -i https://platform-shipping-hfd-ocp.apps-crc.testing/api/info
+HTTP/1.1 200 OK
+date: Thu, 08 Oct 2026 17:27:20 GMT
+server: uvicorn
+content-length: 145
+content-type: application/json
+set-cookie: 3ed705c1a3fc106965e820ddfc4e89f1=30c07ccc13616891c9b2915656f81493; path=/; HttpOnly; Secure; SameSite=None
+
+{"service":"platform-shipping","version":"0.1.0","environment":"openshift","defaultCarrier":"ACME-Post","storage":"postgres","kafkaEnabled":true}$ curl -sI http://platform-shipping-hfd-ocp.apps-crc.testing/api/info
+HTTP/1.1 302 Found
+content-length: 0
+location: https://platform-shipping-hfd-ocp.apps-crc.testing/api/info
+cache-control: no-cache
+
+$ curl -sk https://platform-notification-hfd-ocp.apps-crc.testing/api/info
+HTTP/1.1 404 Not Found
+date: Thu, 08 Oct 2026 17:27:20 GMT
+server: uvicorn
+content-length: 22
+content-type: application/json
+set-cookie: 236c467a1fbfcb7e25e2dc00086a1aaa=8fb7de4fe8e7714f56c93fab5e8afcef; path=/; HttpOnly; Secure; SameSite=None
+
+{"detail":"Not Found"}
+# ---- POST + dispatch + Kafka notification (token from values-openshift.yaml: openshift-token) ----
+$ curl -sk -X POST https://platform-shipping-hfd-ocp.apps-crc.testing/api/shipments (no token)
+{"detail":"missing or invalid bearer token"} HTTP 401
+$ curl -sk -X POST https://platform-shipping-hfd-ocp.apps-crc.testing/api/shipments -H 'Authorization: Bearer openshift-token'
+{"id":1,"orderId":27002,"address":"27 Route Rd, Springfield","status":"PENDING","createdAt":"2026-10-08T17:27:33.204235Z"}
+$ curl -sk -X POST https://platform-shipping-hfd-ocp.apps-crc.testing/api/shipments/1/dispatch
+{"id":1,"orderId":27002,"address":"27 Route Rd, Springfield","status":"DISPATCHED","createdAt":"2026-10-08T17:27:33.204235Z"} HTTP 200
+$ curl -sk https://platform-notification-hfd-ocp.apps-crc.testing/api/notifications
+[{"receivedAt":"2026-10-08T17:27:33.254969+00:00","topic":"shipment.dispatched","partition":0,"offset":0,"event":{"orderId":27002,"shipmentId":1,"address":"27 Route Rd, Springfield","status":"DISPATCHED","occurredAt":"2026-10-08T17:27:33.237855+00:00"}}] HTTP 200
+
+# ---- helm test, cross-check, negative control ----
+$ helm test platform -n hfd-ocp
+STATUS: deployed
+REVISION: 2
+DESCRIPTION: Upgrade complete
+TEST SUITE:     platform-notification-test-connection
+Last Started:   Thu Oct  8 13:27:45 2026
+Last Completed: Thu Oct  8 13:27:48 2026
+Phase:          Succeeded
+TEST SUITE:     platform-shipping-test-connection
+Last Started:   Thu Oct  8 13:27:50 2026
+Last Completed: Thu Oct  8 13:27:52 2026
+Phase:          Succeeded
+TEST SUITE:     platform-platform-test
+Last Started:   Thu Oct  8 13:27:48 2026
+Last Completed: Thu Oct  8 13:27:50 2026
+Phase:          Succeeded
+$ helm get manifest platform -n hfd-ocp | grep -c "kind: Route"
+2
+$ oc get routes -n hfd-ocp --no-headers | wc -l
+2
+$ helm get manifest platform | grep -c runAsUser
+0
+--- negative control: helm template WITHOUT --api-versions (no cluster flag; helm template does not contact the cluster)
+0
+--- helm template WITH --api-versions route.openshift.io/v1
+2
+--- helm install --dry-run=server (cluster serves route.openshift.io/v1 itself, no flag)
+Error: INSTALLATION FAILED: unable to continue with install: Cluster "shipping-postgres" in namespace "hfd-ocp" exists and cannot be imported into the current release: invalid ownership metadata; annotation validation error: key "meta.helm.sh/release-name" must equal "platform-dry": current value is "platform"
+--- helm install --dry-run=client (no cluster contact; Capabilities from defaults)
+0
+--- minikube-style values (no values-openshift) against CRC server dry-run
+Error: INSTALLATION FAILED: unable to continue with install: Cluster "shipping-postgres" in namespace "hfd-ocp" exists and cannot be imported into the current release: invalid ownership metadata; annotation validation error: key "meta.helm.sh/release-name" must equal "platform-dry2": current value is "platform"
+
+--- helm upgrade platform --dry-run=server (cluster serves route.openshift.io/v1; no --api-versions)
+$ helm upgrade platform charts/shipping-platform -n hfd-ocp -f values-openshift.yaml --dry-run=server | grep -c "^kind: Route$"
+2
+$ helm template platform charts/shipping-platform -n hfd-ocp -f values-openshift.yaml --validate | grep -c "^kind: Route$"   (--validate asks the cluster for its API list)
+2
+$ helm template ... (same, without --validate)
+0
+$ oc api-versions | grep route
+route.openshift.io/v1
+
+# ---- ProjectHelmChartRepository, image-lookup ----
+$ oc api-resources --api-group=helm.openshift.io
+NAME                           SHORTNAMES   APIVERSION                  NAMESPACED   KIND
+helmchartrepositories                       helm.openshift.io/v1beta1   false        HelmChartRepository
+projecthelmchartrepositories                helm.openshift.io/v1beta1   true         ProjectHelmChartRepository
+$ oc apply -f projecthelmchartrepository.yaml
+projecthelmchartrepository.helm.openshift.io/hfd-charts created
+$ oc get projecthelmchartrepositories -n hfd-ocp
+NAME         AGE
+hfd-charts   0s
+
+$ curl -sI https://patterncatalyst.github.io/helm-for-developers/index.yaml | head -1 (is the repo published yet?)
+HTTP/2 404 
+$ oc set image-lookup shipping-service -n hfd-ocp
+imagestream.image.openshift.io/shipping-service image lookup updated
+lookupPolicy: {"local":true}
+$ oc run lookup-test --image=shipping-service:0.1.0 (short reference)
+Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "lookup-test" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "lookup-test" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "lookup-test" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "lookup-test" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+pod/lookup-test created
+image-registry.openshift-image-registry.svc:5000/hfd-ocp/shipping-service:0.1.0  Running
+image-registry.openshift-image-registry.svc:5000/hfd-ocp/shipping-service@sha256:e0e3d1502ce29c9313b02258f3843698914208ca823b983e4a7ead17402413ec
+pod "lookup-test" deleted from hfd-ocp namespace
+
+$ curl -sk -H "Authorization: Bearer <redacted>" https://console-openshift-console.apps-crc.testing/api/helm/charts/index.yaml -> head
+
+HTTP 401
+
+# ---- Minimal profile (messaging off) ----
+$ helm uninstall platform -n hfd-ocp --wait
+Error: uninstallation completed with 1 error(s): resource KafkaTopic/hfd-ocp/shipment.dispatched still exists. status: Terminating, message: Resource scheduled for deletion
+context deadline exceeded
+No resources found in hfd-ocp namespace.
+$ ./verify-crc.sh   (default PROFILE=minimal)
+PASS  helm is 4.x (v4.3.0+gbec5b06)
+PASS  crc status: OpenShift Running
+PASS  oc whoami (kubeadmin)
+PASS  oc new-project hfd-ocp (idempotent)
+PASS  image push to the internal registry
+PASS  ImageStream shipping-service has tag 0.1.0
+PASS  ImageStream notification-service has tag 0.1.0
+PASS  helm upgrade --install platform (minimal profile) --wait --rollback-on-failure
+PASS  pod/platform-shipping-69fffc59c-7mmlf Ready, openshift.io/scc=restricted-v2
+PASS  uid inside pod/platform-shipping-69fffc59c-7mmlf is 1000650000 (not 1001, not 0)
+PASS  Route platform-shipping host: platform-shipping-hfd-ocp.apps-crc.testing
+PASS  Route host resolves
+FAIL  curl -k https://platform-shipping-hfd-ocp.apps-crc.testing/api/info -> 200
+      got HTTP '503'
+PASS  plain HTTP redirects to HTTPS (HTTP 302)
+PASS  helm test platform
+
+verify-crc: 1 check(s) FAILED
+exit=1
+$ oc get pods,routes -n hfd-ocp
+NAME                                    READY   STATUS    RESTARTS   AGE
+pod/platform-shipping-69fffc59c-7mmlf   1/1     Running   0          8s
+
+NAME                                         HOST/PORT                                    PATH   SERVICES            PORT   TERMINATION     WILDCARD
+route.route.openshift.io/platform-shipping   platform-shipping-hfd-ocp.apps-crc.testing          platform-shipping   http   edge/Redirect   None
+{"id":1,"orderId":27003,"address":"minimal","status":"PENDING","createdAt":"2026-10-08T17:33:57.548017Z"}
+{"id":1,"orderId":27003,"address":"minimal","status":"DISPATCHED","createdAt":"2026-10-08T17:33:57.548017Z"} HTTP 200
+
+# First minimal run above: 1 FAIL (HTTP 503 right after install, router had not programmed the Route yet). Fixed verify-crc.sh with curl --retry 10 --retry-delay 2; also UID check now covers every app pod. Rerun on the already-installed release:
+$ ./verify-crc.sh
+PASS  helm is 4.x (v4.3.0+gbec5b06)
+PASS  crc status: OpenShift Running
+PASS  oc whoami (kubeadmin)
+PASS  oc new-project hfd-ocp (idempotent)
+PASS  image push to the internal registry
+PASS  ImageStream shipping-service has tag 0.1.0
+PASS  ImageStream notification-service has tag 0.1.0
+PASS  helm upgrade --install platform (minimal profile) --wait --rollback-on-failure
+PASS  pod/platform-shipping-69fffc59c-7mmlf Ready, openshift.io/scc=restricted-v2
+PASS  uid inside pod/platform-shipping-69fffc59c-7mmlf is 1000650000 (not 1001, not 0)
+PASS  Route platform-shipping host: platform-shipping-hfd-ocp.apps-crc.testing
+PASS  Route host resolves
+PASS  curl -k https://platform-shipping-hfd-ocp.apps-crc.testing/api/info -> 200 ({"service":"platform-shipping","version":"0.1.0","environment":"openshift","defaultCarrier":"ACME-Post","storage":"memory","kafkaEnabled":false})
+PASS  plain HTTP redirects to HTTPS (HTTP 302)
+PASS  helm test platform
+
+verify-crc: all checks passed
+exit=0
+
+# ---- helm uninstall of the full profile (KafkaTopic finalizer observation) ----
+$ helm uninstall platform -n hfd-ocp --wait --timeout 3m
+Error: uninstall: Release not loaded: platform: release: not found
+helm uninstall platform -n $N --wait --timeout 3m 2>&1  0.05s user 0.01s system 107% cpu 0.052 total
+$ oc get kafkatopic,kafka,cluster.postgresql.cnpg.io,pods -n hfd-ocp
+NAME                                                  READY   STATUS        RESTARTS        AGE
+pod/platform-notification-6f795cb545-lgbhl            1/1     Terminating   0               10m
+pod/platform-shipping-6665cbb97c-v4qrm                1/1     Terminating   3 (9m41s ago)   10m
+pod/shipping-kafka-dual-0                             1/1     Terminating   0               9m59s
+pod/shipping-kafka-entity-operator-869879846f-2t7zr   2/2     Terminating   0               9m36s
+pod/shipping-postgres-1                               1/1     Terminating   0               9m54s
+$ helm list -n hfd-ocp -a
+Error: unknown shorthand flag: 'a' in -a
+
+# ---- helm test (full) + uninstall of the full profile ----
+$ helm test platform -n hfd-ocp
+TEST SUITE:     platform-notification-test-connection
+Phase:          Succeeded
+TEST SUITE:     platform-shipping-test-connection
+Phase:          Succeeded
+TEST SUITE:     platform-platform-test
+Phase:          Succeeded
+$ helm uninstall platform -n hfd-ocp --wait --timeout 3m
+Error: uninstallation completed with 1 error(s): resource KafkaTopic/hfd-ocp/shipment.dispatched still exists. status: Terminating, message: Resource scheduled for deletion
+context deadline exceeded
+elapsed 180s
+$ oc get kafkatopic,kafka,clusters.postgresql.cnpg.io,pods -n hfd-ocp
+NAME                                              CLUSTER          PARTITIONS   REPLICATION FACTOR   READY
+kafkatopic.kafka.strimzi.io/shipment.dispatched   shipping-kafka   1            1                    True
+
+NAME                      READY   STATUS        RESTARTS   AGE
+pod/shipping-postgres-1   0/1     Terminating   0          5m20s
+
+# Stuck topic: finalizer strimzi.io/topic-operator remains because the entity operator pod was deleted with the Kafka cluster. Clear it:
+$ oc patch kafkatopic shipment.dispatched -n hfd-ocp --type=merge -p {"metadata":{"finalizers":null}}
+kafkatopic.kafka.strimzi.io/shipment.dispatched patched
+No resources found in hfd-ocp namespace.
+
+# Mitigation: install full, delete the KafkaTopic while the entity operator runs, then uninstall
+STATUS: deployed
+REVISION: 1
+$ oc delete kafkatopic --all -n hfd-ocp --wait --timeout=120s
+kafkatopic.kafka.strimzi.io "shipment.dispatched" deleted from hfd-ocp namespace
+$ helm uninstall platform -n hfd-ocp --wait --timeout 3m
+release "platform" uninstalled
+elapsed 0s
+NAME                                                  READY   STATUS        RESTARTS      AGE
+pod/platform-notification-6f795cb545-7bjl7            1/1     Terminating   0             50s
+pod/platform-shipping-6665cbb97c-4nbdm                1/1     Terminating   3 (31s ago)   50s
+pod/shipping-kafka-dual-0                             1/1     Terminating   0             48s
+pod/shipping-kafka-entity-operator-7bc7d6fb5c-67rj7   2/2     Terminating   0             25s
+pod/shipping-postgres-1                               1/1     Terminating   0             43s
+
+# ---- Kafka apiVersion check against the installed operator (Strimzi 1.2.0 serves v1 only) ----
+$ helm template ... --set kafka.strimzi.apiVersion=kafka.strimzi.io/v1beta2 | oc apply --dry-run=server -f -  (Kafka kinds only)
+resource mapping not found for name: "shipping-kafka" namespace: "" from "/tmp/claude-1000/-home-rsedor-Dev/0dea024d-0bf0-4ae5-bddd-7dec0cf60b22/scratchpad/kafka-v1beta2.yaml": no matches for kind "Kafka" in version "kafka.strimzi.io/v1beta2"
+ensure CRDs are installed first
+resource mapping not found for name: "dual" namespace: "" from "/tmp/claude-1000/-home-rsedor-Dev/0dea024d-0bf0-4ae5-bddd-7dec0cf60b22/scratchpad/kafka-v1beta2.yaml": no matches for kind "KafkaNodePool" in version "kafka.strimzi.io/v1beta2"
+ensure CRDs are installed first
+resource mapping not found for name: "shipment.dispatched" namespace: "" from "/tmp/claude-1000/-home-rsedor-Dev/0dea024d-0bf0-4ae5-bddd-7dec0cf60b22/scratchpad/kafka-v1beta2.yaml": no matches for kind "KafkaTopic" in version "kafka.strimzi.io/v1beta2"
+ensure CRDs are installed first
+$ oc get packagemanifest amq-streams (not installed): stable channel -> amqstreams.v3.2.1-14
+
+# ---- PROFILE=full ./demo.sh (build, push, install, test, Route) ----
+==> registry: default-route-openshift-image-registry.apps-crc.testing
+Login Succeeded!
+
+==> shipping-service:0.1.0
+838dd1d2fef89041ab0c72edc03ebb4d230c190c2c96d4750a254251f3950b66
+
+==> notification-service:0.1.0
+1713ba3ef4b3b45750d790054d33d469198f58463e50733e7186861da4f91d05
+
+==> image streams in hfd-ocp:
+NAME                   IMAGE REPOSITORY                                                                       TAGS    UPDATED
+notification-service   default-route-openshift-image-registry.apps-crc.testing/hfd-ocp/notification-service   0.1.0   28 minutes ago
+shipping-service       default-route-openshift-image-registry.apps-crc.testing/hfd-ocp/shipping-service       0.1.0   28 minutes ago
+Release "platform" does not exist. Installing it now.
+NAME: platform
+LAST DEPLOYED: Thu Oct  8 13:54:08 2026
+NAMESPACE: hfd-ocp
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+NOTES:
+shipping-platform 1.0.0 installed as release "platform" in namespace hfd-ocp (environment openshift).
+
+Components: shipping, notification, kafka, db
+Routes:
+  [host]$ oc -n hfd-ocp get routes
+
+Run the release tests:
+  [host]$ helm test platform -n hfd-ocp
+NAME: platform
+LAST DEPLOYED: Thu Oct  8 13:54:08 2026
+NAMESPACE: hfd-ocp
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE:     platform-notification-test-connection
+Last Started:   Thu Oct  8 13:54:58 2026
+Last Completed: Thu Oct  8 13:55:01 2026
+Phase:          Succeeded
+TEST SUITE:     platform-shipping-test-connection
+Last Started:   Thu Oct  8 13:55:04 2026
+Last Completed: Thu Oct  8 13:55:06 2026
+Phase:          Succeeded
+TEST SUITE:     platform-platform-test
+Last Started:   Thu Oct  8 13:55:01 2026
+Last Completed: Thu Oct  8 13:55:04 2026
+Phase:          Succeeded
+
+POD LOGS: platform-notification-test-connection (probe)
+
+POD LOGS: platform-platform-test (probe)
+
+POD LOGS: platform-shipping-test-connection (probe)
+
+
+NAME                    HOST/PORT                                        PATH   SERVICES                PORT   TERMINATION     WILDCARD
+platform-notification   platform-notification-hfd-ocp.apps-crc.testing          platform-notification   http   edge/Redirect   None
+platform-shipping       platform-shipping-hfd-ocp.apps-crc.testing              platform-shipping       http   edge/Redirect   None
+[crc-host]$ curl -sk https://platform-shipping-hfd-ocp.apps-crc.testing/api/info
+{"service":"platform-shipping","version":"0.1.0","environment":"openshift","defaultCarrier":"ACME-Post","storage":"postgres","kafkaEnabled":true}
+exit=
+
+# ---- final: PROFILE=full ./verify-crc.sh (updated script) ----
+PASS  helm is 4.x (v4.3.0+gbec5b06)
+PASS  crc status: OpenShift Running
+PASS  oc whoami (kubeadmin)
+PASS  oc new-project hfd-ocp (idempotent)
+PASS  image push to the internal registry
+PASS  ImageStream shipping-service has tag 0.1.0
+PASS  ImageStream notification-service has tag 0.1.0
+PASS  helm upgrade --install platform (full profile) --wait --rollback-on-failure
+PASS  pod/platform-notification-6f795cb545-946bk Ready, openshift.io/scc=restricted-v2
+PASS  pod/platform-shipping-6665cbb97c-vgfzn Ready, openshift.io/scc=restricted-v2
+PASS  uid inside pod/platform-notification-6f795cb545-946bk is 1000650000 (not 1001, not 0)
+PASS  uid inside pod/platform-shipping-6665cbb97c-vgfzn is 1000650000 (not 1001, not 0)
+PASS  Route platform-shipping host: platform-shipping-hfd-ocp.apps-crc.testing
+PASS  Route host resolves
+PASS  curl -k https://platform-shipping-hfd-ocp.apps-crc.testing/api/info -> 200 ({"service":"platform-shipping","version":"0.1.0","environment":"openshift","defaultCarrier":"ACME-Post","storage":"postgres","kafkaEnabled":true})
+PASS  plain HTTP redirects to HTTPS (HTTP 302)
+PASS  helm test platform
+
+verify-crc: all checks passed
+exit=0

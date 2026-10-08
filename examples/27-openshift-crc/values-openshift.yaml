@@ -1,7 +1,7 @@
 # OpenShift Local (CRC): full profile. Routes instead of NodePorts, images from the
 # internal registry, no runAsUser anywhere (restricted-v2 assigns the UID range).
 #
-# The full profile needs the CloudNativePG and Strimzi (or AMQ Streams) operators
+# The full profile needs the CloudNativePG and Strimzi (or Streams for Apache Kafka) operators
 # installed from OperatorHub first. For a run without operators, layer
 # values-openshift-minimal.yaml after this file.
 #
@@ -35,8 +35,9 @@ notification:
 tests:
   image: image-registry.openshift-image-registry.svc:5000/hfd-ocp/shipping-service:0.1.0
 
-# Strimzi 0.49+ serves kafka.strimzi.io/v1. Red Hat Streams for Apache Kafka (AMQ Streams)
-# may lag; uncomment the next two lines if the Kafka CR is rejected for its apiVersion.
+# Strimzi 1.x (1.2.0 verified on CRC) serves only kafka.strimzi.io/v1, the chart default.
+# Uncomment the next lines only for an operator older than 0.49 that rejects the Kafka CR
+# for its apiVersion (untested here; Streams for Apache Kafka was not installed).
 # kafka:
 #   strimzi:
 #     apiVersion: kafka.strimzi.io/v1beta2

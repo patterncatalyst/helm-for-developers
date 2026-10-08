@@ -506,18 +506,18 @@ diagramSlide("DELIVERY", "Telemetry path to LGTM", "h201-telemetry-path",
 
 // ===== SECTION: OPENSHIFT ===================================================
 divider("06", "OpenShift", "Run the same umbrella chart on OpenShift Local.",
-  N("Chapter 27. The same umbrella chart installs on OpenShift Local (CRC) with an override values file. The CRC appendix is untested on the authoring machine: the chart renders and passes kubeconform offline, but the live CRC run was not performed here, and verify-crc.sh exists so a reader can check each claim on their own machine.",
-    "`cd examples/27-openshift-crc && ./demo.sh offline` for the part that was run; `./verify-crc.sh` only on a machine with CRC.",
-    "the offline render plus the chapter text; say that the cluster behavior is unverified."));
+  N("Chapter 27. The same umbrella chart installs on OpenShift Local (CRC) with an override values file. The appendix was verified on OpenShift Local 2.64.0 (OpenShift 4.22.14) on 2026-10-08: the full profile with CloudNativePG and Strimzi from OperatorHub, and the minimal profile, both passing verify-crc.sh. The Developer console Helm view and Streams for Apache Kafka were not run.",
+    "`cd examples/27-openshift-crc && ./demo.sh offline` anywhere; `PROFILE=full ./verify-crc.sh` on a CRC host.",
+    "the offline render plus the chapter text; the verify-crc.sh PASS lines from the 2026-10-08 CRC run in the chapter."));
 
 leadSlide("OPENSHIFT", "SCCs and arbitrary UIDs",
   [{ lead: "restricted-v2", text: "the default Security Context Constraint assigns each pod a UID from the project's range and sets the group to 0." },
    { lead: "runAsUser fails", text: "a manifest that asks for a specific UID, such as 1001, is rejected at admission." },
    { lead: "pc-lib avoids it", text: "renders runAsNonRoot, no privilege escalation, dropped capabilities and RuntimeDefault seccomp, and never emits runAsUser or fsGroup." },
    { lead: "Group-0 files", text: "the image makes its files group-0 readable, so the assigned UID, near 1000650000, still runs the container." }],
-  N("The one place a chart written for minikube can fail on OpenShift without a template error. The golden charts avoid it by construction: no runAsUser, no fsGroup. The Containerfile's USER 1001:0 is only a default, replaced by the project's assigned UID. This section was written against OpenShift documentation and the CRC appendix is untested on the authoring machine; verify-crc.sh checks the `openshift.io/scc: restricted-v2` annotation and that the UID inside a pod is not 1001.",
-    "`./verify-crc.sh` on a CRC host: it prints PASS or FAIL for the SCC annotation and the UID check.",
-    "the rendered Deployment from `helm template` shows no runAsUser; the CRC claim stays marked unverified."));
+  N("The one place a chart written for minikube can fail on OpenShift without a template error. The golden charts avoid it by construction: no runAsUser, no fsGroup. The Containerfile's USER 1001:0 is only a default, replaced by the project's assigned UID. On CRC every pod, the operator-managed ones included, carried `openshift.io/scc: restricted-v2`, and `id` inside the services showed uid=1000650000 gid=0, not 1001; the root filesystem stayed read-only and the app ran. verify-crc.sh checks both.",
+    "`./verify-crc.sh` on a CRC host prints PASS or FAIL for the SCC annotation and the UID check; `oc exec deploy/platform-shipping -- id` shows it directly.",
+    "the rendered Deployment from `helm template` shows no runAsUser; the `id` output from the CRC run in the chapter."));
 
 codeSlide("OPENSHIFT", "Routes and the console", "yaml · helm",
   code(`
@@ -543,7 +543,7 @@ spec:
     url: https://patterncatalyst.github.io/helm-for-developers
 `),
   "Routes replace NodePorts; the console installs charts from a repository registered per project.",
-  N("The OpenShift overrides switch Services to ClusterIP, point images at the internal registry and enable the Route template gated on `route.openshift.io/v1`. A Route is OpenShift's native entry point, served by the cluster router with edge TLS termination and a redirect from HTTP. A `ProjectHelmChartRepository` makes a chart repository visible in the Developer console's Helm catalog for one project. The CRC run is untested on the authoring machine.",
+  N("The OpenShift overrides switch Services to ClusterIP, point images at the internal registry and enable the Route template gated on `route.openshift.io/v1`. A Route is OpenShift's native entry point, served by the cluster router with edge TLS termination and a redirect from HTTP. A `ProjectHelmChartRepository` makes a chart repository visible in the Developer console's Helm catalog for one project. On CRC the Route host was generated as platform-shipping-hfd-ocp.apps-crc.testing, `/api/info` returned 200 and plain HTTP redirected with 302; the ProjectHelmChartRepository was accepted, but the console view was not opened.",
     "`cd examples/27-openshift-crc && ./demo.sh offline` for the Route render; on CRC, `./verify-crc.sh`.",
     "the offline render; the OpenShift Container Platform documentation for Routes and SCCs."));
 

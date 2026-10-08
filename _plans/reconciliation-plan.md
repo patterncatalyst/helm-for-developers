@@ -17,7 +17,7 @@ Tracks every claim the tutorial makes about behavior that a real run must confir
 
 ## Claims
 
-One row per claim in `_plans/claims/s6-*.md`, merged with the S7 results in `_plans/claims/s7-a.md`, `s7-b.md` and `s7-c.md` (Helm 4.3.0, minikube `helm4dev`, 2026-10-08). Statuses: verified, partial, not verified, failed (none left open), refuted-and-fixed (the first live run disagreed and the chapter, demo or script was corrected). Chapter 27 waits for the CRC run in the final phase.
+One row per claim in `_plans/claims/s6-*.md`, merged with the S7 results in `_plans/claims/s7-a.md`, `s7-b.md` and `s7-c.md` (Helm 4.3.0, minikube `helm4dev`, 2026-10-08). Statuses: verified, partial, not verified, failed (none left open), refuted-and-fixed (the first live run disagreed and the chapter, demo or script was corrected). Chapter 27 was verified on CRC in the final phase (`_plans/claims/s7-d.md`).
 
 | Claim | Chapter | Status | Evidence | Note |
 |---|---|---|---|---|
@@ -179,15 +179,15 @@ One row per claim in `_plans/claims/s6-*.md`, merged with the S7 results in `_pl
 | Metric `http_server_duration_milliseconds_count` exists in Mimir with label `service_name` | 26 | refuted-and-fixed | `_plans/evidence/26-observability.txt` | Metric exists; label is `job` (`shipping/platform-shipping`), no `service_name`. Dashboard panel changed in golden and example copies (identical); `helm unittest` 23 pass |
 | Loki label `service_name` exists for platform-* logs | 26 | verified | `_plans/evidence/26-observability.txt` | Values `platform-notification`, `platform-shipping` |
 | Dispatch trace holds spans from platform-shipping and platform-notification (re-run) | 26 | verified | `_plans/evidence/26-observability.txt` | Demo dispatch lacked the bearer token (401), so its trace was shipping-only, and it reused order 2601 on rerun. Demo now sends the token, uses a random order id, and asserts both services plus the Mimir query (S7 row: s7-c; result "verified, demo fixed") |
-| Whole of ch27 and its example is untested on a live OpenShift cluster | 27 | pending (CRC run in final phase) |  | Run `examples/27-openshift-crc/verify-crc.sh` on a CRC host |
-| `restricted-v2` annotates every app pod (`openshift.io/scc`) and assigns a UID that is not 1001 | 27 | pending (CRC run in final phase) |  | Run `examples/27-openshift-crc/verify-crc.sh` on a CRC host |
-| `helm upgrade --install` with `-f values-openshift.yaml -f values-openshift-minimal.yaml` reaches Ready under `--wait --rollback-on-failure` on CRC | 27 | pending (CRC run in final phase) |  | Run `examples/27-openshift-crc/verify-crc.sh` on a CRC host |
-| Registry `defaultRoute` patch publishes `default-route-openshift-image-registry.apps-crc.testing`; `podman login -p $(oc whoami -t)` and push create… | 27 | pending (CRC run in final phase) |  | Run `examples/27-openshift-crc/verify-crc.sh` on a CRC host |
-| Route host `platform-shipping-hfd-ocp.apps-crc.testing` generated, `/api/info` returns 200 with `"environment":"openshift"`, HTTP redirects to HTTPS | 27 | pending (CRC run in final phase) |  | Run `examples/27-openshift-crc/verify-crc.sh` on a CRC host |
-| `helm test` passes with `tests.image` set to the registry path (umbrella test reads that key directly) | 27 | pending (CRC run in final phase) |  | Run `examples/27-openshift-crc/verify-crc.sh` on a CRC host |
-| Full profile: CNPG and Strimzi/Streams for Apache Kafka from OperatorHub; Streams may require `kafka.strimzi.io/v1beta2` | 27 | pending (CRC run in final phase) |  | Run `examples/27-openshift-crc/verify-crc.sh` on a CRC host |
-| `ProjectHelmChartRepository` (`helm.openshift.io/v1beta1`) lists a classic repo in the Developer console; OCI support in console depends on release | 27 | pending (CRC run in final phase) |  | Run `examples/27-openshift-crc/verify-crc.sh` on a CRC host |
-| `oc set image-lookup shipping-service` enables short image references | 27 | pending (CRC run in final phase) |  | Run `examples/27-openshift-crc/verify-crc.sh` on a CRC host |
+| Whole of ch27 and its example is untested on a live OpenShift cluster | 27 | verified | `_plans/evidence/27-openshift-crc.txt` | Both profiles on CRC 2.64.0 / OCP 4.22.14. Console Helm view and Streams operator not run |
+| `restricted-v2` annotates every app pod (`openshift.io/scc`) and assigns a UID that is not 1001 | 27 | verified | `_plans/evidence/27-openshift-crc.txt` | All 5 pods incl. operator-managed carry restricted-v2; UID 1000650000, GID 0; chapter cross-check corrected (SCC injects runAsUser/fsGroup into the live pod) |
+| `helm upgrade --install` with `-f values-openshift.yaml -f values-openshift-minimal.yaml` reaches Ready under `--wait --rollback-on-failure` on CRC | 27 | verified | `_plans/evidence/27-openshift-crc.txt` | Minimal passed; first run's Route check got 503 (router lag), `verify-crc.sh` now retries. Full profile installed in 57 s |
+| Registry `defaultRoute` patch publishes `default-route-openshift-image-registry.apps-crc.testing`; `podman login -p $(oc whoami -t)` and push create… | 27 | verified | `_plans/evidence/27-openshift-crc.txt` | podman 5.8.7; both ImageStreams created with tag 0.1.0 |
+| Route host `platform-shipping-hfd-ocp.apps-crc.testing` generated, `/api/info` returns 200 with `"environment":"openshift"`, HTTP redirects to HTTPS | 27 | verified | `_plans/evidence/27-openshift-crc.txt` | 200 with environment openshift, HTTP 302 to HTTPS |
+| `helm test` passes with `tests.image` set to the registry path (umbrella test reads that key directly) | 27 | verified | `_plans/evidence/27-openshift-crc.txt` | Full (3 suites) and minimal (1 suite) both Succeeded |
+| Full profile: CNPG and Strimzi/Streams for Apache Kafka from OperatorHub; Streams may require `kafka.strimzi.io/v1beta2` | 27 | partial | `_plans/evidence/27-openshift-crc.txt` | CNPG 1.30.1 (certified, stable-v1) and Strimzi 1.2.0 (community, strimzi-1.2.x) installed; CRD serves v1 only, v1beta2 rejected. Streams for Apache Kafka not installed. Uninstall needs KafkaTopic deleted first (demo.sh clean fixed) |
+| `ProjectHelmChartRepository` (`helm.openshift.io/v1beta1`) lists a classic repo in the Developer console; OCI support in console depends on release | 27 | partial | `_plans/evidence/27-openshift-crc.txt` | CR accepted and listed by `oc get`; console view not opened; GitHub Pages index.yaml returns 404 (unpublished) |
+| `oc set image-lookup shipping-service` enables short image references | 27 | verified | `_plans/evidence/27-openshift-crc.txt` | lookupPolicy local=true; short ref `shipping-service:0.1.0` resolved to the registry digest |
 | Helm 3 era `--force` and `--atomic` still work with deprecation warnings in 4.3.0 | 28 | not verified |  | Not exercised by S7: no live check; read from `--help` and official pages only |
 | Release compatibility: Helm 4 reads and upgrades Helm 3 releases; `auto` SSA keeps previous method | 28 | not verified |  | Not exercised by S7: no live check; read from `--help` and official pages only |
 | `helm-mapkubeapis` works with Helm 4 | 28 | not verified |  | Not exercised by S7: no live check; read from `--help` and official pages only |
@@ -236,14 +236,14 @@ Claim counts come from the merged table above; the footer column is the current 
 | 24-environment-promotion | 4 | 3 verified, 1 refuted-and-fixed | verified | 24-environments.txt | yes |
 | 25-gitops-argocd | 9 | 7 verified, 1 refuted-and-fixed, 1 not verified | verified | 25-gitops-argocd.txt | yes |
 | 26-observability-lgtm | 6 | 5 verified, 1 refuted-and-fixed | verified | 26-observability.txt | yes |
-| 27-appendix-openshift-local | 9 | 9 pending (CRC run in final phase) | unverified | none | n/a |
+| 27-appendix-openshift-local | 9 | 7 verified, 2 partial | verified | 27-openshift-crc.txt | yes |
 | 28-appendix-helm3-to-helm4 | 3 | 3 not verified | unverified | none | n/a |
 | 29-appendix-cheat-sheet | 1 | 1 not verified | unverified | none | n/a |
 | 30-appendix-further-reading | 1 | 1 not verified | unverified | none | n/a |
 
 ### Footer check
 
-No footer says verified without an evidence file. Every `verified` footer cites an existing `_plans/evidence/NN-*.txt` for its own chapter. Chapters 01 and 14 say partially verified, and 27 to 30 say unverified; 00 has no footer.
+No footer says verified without an evidence file. Every `verified` footer cites an existing `_plans/evidence/NN-*.txt` for its own chapter. Chapters 01 and 14 say partially verified, and 28 to 30 say unverified; 00 has no footer.
 
 ## Iteration log
 
@@ -256,4 +256,4 @@ No footer says verified without an evidence file. Every `verified` footer cites 
 | Date | Item | Decision | Reason |
 |---|---|---|---|
 | 2026-10-08 | Python base | F1: CPython 3.14.8 on UBI 10 ubi-minimal via uv | uv offered only 3.15.0rc3; aiokafka 0.14.0 has no cp315 wheel. Swap `ARG PYTHON_VERSION` when available. |
-| 2026-10-08 | Arbitrary UID test | `--user 54321:0` instead of `123456:0` | Rootless podman maps 65536 ids; OpenShift-sized UID checked on CRC host (ch27). |
+| 2026-10-08 | Arbitrary UID test | `--user 54321:0` instead of `123456:0` | Rootless podman maps 65536 ids; OpenShift-sized UID checked on CRC (ch27): uid 1000650000, gid 0, app works. |

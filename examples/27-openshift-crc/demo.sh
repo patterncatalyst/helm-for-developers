@@ -2,7 +2,7 @@
 #
 # examples/27-openshift-crc/demo.sh
 #
-# UNTESTED on the authoring machine; run on the CRC host (offline mode excepted).
+# Verified on OpenShift Local 2.64.0 (OpenShift 4.22.14), 2026-10-08.
 #
 #   ./demo.sh            full run: build and push images, install, test, show Routes
 #   ./demo.sh offline    dependency build, lint, template (both profiles), kubeconform.
@@ -67,10 +67,14 @@ full() {
     echo; oc get routes -n "$NAMESPACE"
     host="$(oc get route "$RELEASE-shipping" -n "$NAMESPACE" -o jsonpath='{.spec.host}')"
     echo "[crc-host]\$ curl -sk https://$host/api/info"
-    curl -sk "https://$host/api/info"; echo
+    curl -sk --retry 10 --retry-delay 2 "https://$host/api/info"; echo
 }
 
 clean() {
+    # Delete the KafkaTopic while the entity operator still runs. If helm removes the Kafka
+    # cluster first, the topic keeps its strimzi.io/topic-operator finalizer and the uninstall
+    # (and later the project) hangs on it.
+    command -v oc >/dev/null && oc delete kafkatopic --all -n "$NAMESPACE" --wait --timeout=120s 2>/dev/null || true
     helm uninstall "$RELEASE" -n "$NAMESPACE" --ignore-not-found || true
     command -v oc >/dev/null && oc delete project "$NAMESPACE" --ignore-not-found || true
 }

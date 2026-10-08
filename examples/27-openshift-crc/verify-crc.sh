@@ -2,7 +2,7 @@
 #
 # verify-crc.sh - check the OpenShift Local deployment end to end.
 #
-# UNTESTED on the authoring machine; run on the CRC host.
+# Verified on OpenShift Local 2.64.0 (OpenShift 4.22.14), both profiles, 2026-10-08.
 #
 #   ./verify-crc.sh                 minimal profile (no operators needed)
 #   PROFILE=full ./verify-crc.sh    full profile (CloudNativePG + Strimzi installed)
@@ -81,20 +81,20 @@ for p in $pods; do
     else fail "$p Ready with restricted-v2" "ready=$ready scc=$scc"; fi
 done
 
-# 7. arbitrary UID inside a running pod
-first="$(head -1 <<<"$pods")"
-if [[ -n "$first" ]]; then
-    uid="$(oc exec -n "$NAMESPACE" "$first" -- id -u 2>/dev/null || true)"
-    if [[ -n "$uid" && "$uid" != "1001" && "$uid" != "0" ]]; then pass "uid inside $first is $uid (not 1001, not 0)"
-    else fail "uid inside $first differs from the image USER 1001" "uid='${uid:-unreadable}'"; fi
-fi
+# 7. arbitrary UID inside every running application pod
+for p in $pods; do
+    uid="$(oc exec -n "$NAMESPACE" "$p" -- id -u 2>/dev/null || true)"
+    if [[ -n "$uid" && "$uid" != "1001" && "$uid" != "0" ]]; then pass "uid inside $p is $uid (not 1001, not 0)"
+    else fail "uid inside $p differs from the image USER 1001" "uid='${uid:-unreadable}'"; fi
+done
 
 # 8. Route resolves and answers
 host="$(oc get route "$RELEASE-shipping" -n "$NAMESPACE" -o jsonpath='{.spec.host}' 2>/dev/null || true)"
 if [[ -n "$host" ]]; then
     pass "Route $RELEASE-shipping host: $host"
     check "Route host resolves" getent hosts "$host"
-    code="$(curl -sk -o /tmp/hfd-ocp-info.json -w '%{http_code}' "https://$host/api/info" 2>/dev/null || true)"
+    # The router needs a moment to program a new Route: retry transient 503s.
+    code="$(curl -sk --retry 10 --retry-delay 2 -o /tmp/hfd-ocp-info.json -w '%{http_code}' "https://$host/api/info" 2>/dev/null || true)"
     if [[ "$code" == "200" ]]; then pass "curl -k https://$host/api/info -> 200 ($(cat /tmp/hfd-ocp-info.json))"
     else fail "curl -k https://$host/api/info -> 200" "got HTTP '${code:-none}'"; fi
     code="$(curl -sk -o /dev/null -w '%{http_code}' --max-redirs 0 "http://$host/api/info" 2>/dev/null || true)"

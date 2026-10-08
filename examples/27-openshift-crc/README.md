@@ -1,6 +1,6 @@
 # Example 27: OpenShift Local
 
-> **Untested on the authoring machine; run on the CRC host.** Everything except `./demo.sh offline` needs an OpenShift Local (CRC) cluster, which the authoring machine does not have.
+> **Verified on OpenShift Local 2.64.0 (OpenShift 4.22.14) on 2026-10-08**, full and minimal profiles. Everything except `./demo.sh offline` needs an OpenShift Local (CRC) cluster.
 
 The final umbrella chart (`shipping-platform` 1.0.0 and its subcharts) deployed to OpenShift Local. The chart is unchanged from the minikube chapters except for the values file: `values-openshift.yaml` swaps NodePorts for ClusterIP plus Routes, points images at the internal registry, and sets no `runAsUser` anywhere, so the `restricted-v2` SCC can assign the UID.
 
@@ -35,10 +35,14 @@ Without a cluster:
 
 That renders both profiles with `--api-versions route.openshift.io/v1`, asserts the Routes appear (and do not appear without the flag), asserts no `runAsUser` is rendered, and runs kubeconform with the custom resource kinds (`Route`, `Cluster`, `Kafka`, `KafkaNodePool`, `KafkaTopic`) skipped.
 
-## Local deviation from the golden chart
+## Chart copy
 
-`charts/shipping-platform/templates/route.yaml` and `templates/tests/test-connection.yaml` are gated on `tags.messaging` in this snapshot. The golden umbrella renders a notification Route and probes the notification service even when `tags.messaging=false`, which breaks the minimal profile. See `_plans/claims/s6-8.md`.
+`charts/` is a snapshot of the golden charts (Chapter 16 umbrella and dependencies). The umbrella's Route and test templates are gated on `tags.messaging`, so the minimal profile renders one Route and probes only the shipping service.
+
+## Cleaning up
+
+`./demo.sh clean` deletes the `KafkaTopic` before `helm uninstall`. Without that, the uninstall of the full profile times out on a topic that keeps its `strimzi.io/topic-operator` finalizer after the entity operator pod is gone.
 
 ## Verification status
 
-Unverified. Not run on a CRC cluster. A real run must confirm every check in `verify-crc.sh` prints PASS, and that the pod UID differs from 1001.
+Verified on OpenShift Local 2.64.0 (OpenShift 4.22.14), Helm 4.3.0, 2026-10-08: `PROFILE=full ./verify-crc.sh` and the default minimal run print PASS on every check (evidence `_plans/evidence/27-openshift-crc.txt`). Operators came from OperatorHub: CloudNativePG 1.30.1 (certified-operators, `stable-v1`) and Strimzi 1.2.0 (community-operators, `strimzi-1.2.x`). Not run: the Developer console Helm view and Streams for Apache Kafka.

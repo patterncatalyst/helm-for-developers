@@ -1,6 +1,6 @@
 # OpenShift Local checklist
 
-> Untested on the authoring machine; run on the CRC host.
+> Verified on OpenShift Local 2.64.0 (OpenShift 4.22.14), 2026-10-08.
 
 Tick each box in order. `verify-crc.sh` automates steps 5 to 10.
 
@@ -24,9 +24,9 @@ Tick each box in order. `verify-crc.sh` automates steps 5 to 10.
 ## 3. Operators (full profile only)
 
 - [ ] Console, Operators, OperatorHub: CloudNativePG installed (all namespaces)
-- [ ] Console, Operators, OperatorHub: Strimzi, or Streams for Apache Kafka, installed (all namespaces)
+- [ ] Console, Operators, OperatorHub: Strimzi (channel `strimzi-1.2.x` for the v1 API), or Streams for Apache Kafka, installed (all namespaces)
 - [ ] `[crc-host]$ oc get crd clusters.postgresql.cnpg.io kafkas.kafka.strimzi.io` lists both
-- [ ] If the Kafka CR is rejected for its `apiVersion`, `kafka.strimzi.apiVersion` is set to `kafka.strimzi.io/v1beta2` in `values-openshift.yaml`
+- [ ] `oc get crd kafkas.kafka.strimzi.io -o jsonpath='{.spec.versions[*].name}'` prints `v1`; if it prints only `v1beta2`, set `kafka.strimzi.apiVersion` to `kafka.strimzi.io/v1beta2` in `values-openshift.yaml`
 
 ## 4. Project and images
 
@@ -55,4 +55,4 @@ Tick each box in order. `verify-crc.sh` automates steps 5 to 10.
 
 - [ ] `[crc-host]$ helm test platform -n hfd-ocp` passes
 - [ ] `[crc-host]$ ./verify-crc.sh` prints PASS on every line and exits 0
-- [ ] `[crc-host]$ ./demo.sh clean` removes the release and the project
+- [ ] `[crc-host]$ ./demo.sh clean` removes the release and the project (it deletes the KafkaTopic first)

@@ -683,7 +683,7 @@ Sources consulted for version facts:
 | S4 | done |
 | S5 | done (7/7 met) |
 | S6.0–S6.8 | done (+ repair pass) |
-| S7 | done (minikube; ch27 pending CRC) |
+| S7 | done (minikube; ch27 verified on CRC, see _plans/claims/s7-d.md) |
 | S8a/S8b | pending |
 | S9 | done (hub branch, not pushed) |
 | S10 | pending |
