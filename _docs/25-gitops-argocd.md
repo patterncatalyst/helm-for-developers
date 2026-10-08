@@ -82,7 +82,28 @@ source:
 
 `destination.namespace: hfd-25` with `CreateNamespace=true` creates the namespace. `ServerSideApply=true` makes Argo CD use server-side apply, matching Helm 4's default.
 
-A second manifest, `apps/shipping-platform-git.yaml`, sources the same chart from `https://github.com/patterncatalyst/helm-for-developers` at `path: charts/shipping-platform`. It is pending: the repository does not exist until the project is pushed, and the demo does not apply it. Argo CD resolves the `file://` dependencies from the checkout.
+### Sourcing from Git
+
+`apps/shipping-service-git.yaml` sources a chart from `https://github.com/patterncatalyst/helm-for-developers` instead of a registry:
+
+```yaml
+source:
+  repoURL: https://github.com/patterncatalyst/helm-for-developers
+  targetRevision: r1.0
+  path: examples/25-gitops-argocd/charts/shipping-service
+  helm:
+    releaseName: shipping
+    valuesObject:
+      service:
+        type: NodePort
+        nodePort: 30090
+```
+
+`targetRevision` is a Git revision: a branch follows every push, a tag or commit SHA pins. The Application records the resolved commit in `status.sync.revision` (`c0eef4bf298636416b0e02bec59daeb1149c73a8` for `r1.0`). `path` replaces `chart`. Argo CD runs `helm dependency build` in that directory, so the one `file://../pc-lib` dependency resolves from the same checkout, and the Application reached Synced and Healthy with `helm list -n hfd-25-git` empty, as in the OCI case.
+
+The umbrella is a different matter. Pointing the same manifest at `examples/25-gitops-argocd/charts/shipping-platform` leaves the Application at `Unknown` with a `ComparisonError`: `template: no template "pc-lib.fullname" associated with template "gotpl"`. The repository ignores the packaged dependency tarballs (`examples/**/charts/*.tgz`), so a clean checkout has no `pc-lib` inside the service charts. Argo CD builds dependencies for the top chart only. That packages `shipping-service` into the umbrella's `charts/` as a directory without its own `charts/pc-lib`, and rendering fails. The demo's `deps` function builds bottom-up for exactly this reason, and a clean clone reproduces the error with `helm dependency build charts/shipping-platform` followed by `helm template`. Two ways around it are to commit the packaged dependencies, or to publish the umbrella to a registry and use the OCI source, which is what the primary Application does.
+
+Two changes show the loop without a push to the repository. Patching the Application's `valuesObject` (`defaultCarrier: GIT-Post`) re-rendered the chart and the new value appeared at `/api/info`. Scaling the Deployment to 3 by hand was reverted to 1 by `selfHeal` in about a second. Run `./demo.sh git` against an installed Argo CD to repeat both.
 
 ## Sync waves and hook weights
 
@@ -96,7 +117,7 @@ Within a phase, order comes from weights and waves. Helm's `helm.sh/hook-weight`
 [host]$ cd examples/25-gitops-argocd && ./demo.sh offline
 ```
 
-Offline mode renders Argo CD's chart under Helm 4 through kubeconform, renders the umbrella the way Argo CD would (`values-dev.yaml`, then the `valuesObject` extracted from the manifest), confirms the override reached the output, lists the hook annotations that become sync hooks, and parses the manifests. The full run, `./demo.sh`, installs Argo CD, pushes the chart, applies the Secret and the Application and waits for `Synced` and `Healthy`. Open `https://127.0.0.1:8443` after `scripts/tunnel.sh argocd`, accept the self-signed certificate, and log in as `admin`.
+Offline mode renders Argo CD's chart under Helm 4 through kubeconform, renders the umbrella the way Argo CD would (`values-dev.yaml`, then the `valuesObject` extracted from the manifest), confirms the override reached the output, lists the hook annotations that become sync hooks, and parses the manifests. The full run, `./demo.sh`, installs Argo CD, pushes the chart, applies the Secret and the Application, waits for `Synced` and `Healthy`, and then repeats the exercise with the Git-sourced Application. Open `https://127.0.0.1:8443` after `scripts/tunnel.sh argocd`, accept the self-signed certificate, and log in as `admin`.
 
 ## Cross-check
 
@@ -129,4 +150,4 @@ The last chapter in this part uses the same umbrella to follow a request through
 
 ---
 
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/25-gitops-argocd.txt`. Observed on Helm 4.3.0 with Argo CD chart 10.10.1: the demo ran end to end; the OCI Application reached Synced and Healthy once the repository Secret used the key `insecureOCIForceHttp` (the first run, with the key spelled `insecureOciForceHttp`, failed with an HTTPS pull); `helm list -n hfd-25` was empty; the PostSync migration ran; `ARGO-Post` showed at `/api/info`; self-heal reverted a scaled Deployment; `lookup` was empty under Argo CD. The Git-sourced Application (`apps/shipping-platform-git.yaml`) is not verified: the repository is not pushed yet.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/25-gitops-argocd.txt` and `_plans/evidence/25-gitops-argocd-git.txt`. Observed on Helm 4.3.0 with Argo CD chart 10.10.1: the demo ran end to end; the OCI Application reached Synced and Healthy once the repository Secret used the key `insecureOCIForceHttp` (the first run, with the key spelled `insecureOciForceHttp`, failed with an HTTPS pull); `helm list -n hfd-25` was empty; the PostSync migration ran; `ARGO-Post` showed at `/api/info`; self-heal reverted a scaled Deployment; `lookup` was empty under Argo CD. The Git-sourced Application (tag `r1.0` of the public repository, `shipping-service` chart) reached Synced and Healthy, a `valuesObject` change reached `/api/info`, and self-heal reverted a manual scale. The umbrella chart from Git failed with the `pc-lib.fullname` error described above and was not made to work.*

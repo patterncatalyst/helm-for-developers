@@ -10,7 +10,7 @@
 #
 # Installs (all checksum-verified against the upstream release checksum file):
 #   Helm 4, kubeconform, chart-testing (ct) + yamllint/yamale in .tools/venv,
-#   cosign, helmfile (1.2+ supports Helm 4), then the helm-unittest and helm-diff
+#   cosign, helmfile (1.2+ supports Helm 4), sops, age, then the helm-unittest and helm-diff
 #   plugins into HELM_PLUGINS (.tools/helm/plugins).
 
 set -euo pipefail
@@ -23,6 +23,8 @@ COSIGN_VERSION="${COSIGN_VERSION:-3.1.3}"        # sigstore/cosign
 HELMFILE_VERSION="${HELMFILE_VERSION:-1.8.1}"    # helmfile/helmfile (Helm 4 support since 1.2.0)
 UNITTEST_VERSION="${UNITTEST_VERSION:-1.2.1}"    # helm-unittest/helm-unittest
 HELM_DIFF_VERSION="${HELM_DIFF_VERSION:-3.15.15}" # databus23/helm-diff
+SOPS_VERSION="${SOPS_VERSION:-3.13.3}"           # getsops/sops
+AGE_VERSION="${AGE_VERSION:-1.3.2}"              # FiloSottile/age
 YAMLLINT_VERSION="${YAMLLINT_VERSION:-1.37.1}"
 YAMALE_VERSION="${YAMALE_VERSION:-6.0.0}"
 
@@ -155,6 +157,42 @@ else
     d="$DL/helmfile-x"; rm -rf "$d"; mkdir -p "$d"; tar -xzf "$DL/$f" -C "$d"
     install -m 0755 "$d/helmfile" "$BIN/helmfile"
     ok "installed helmfile"
+fi
+
+# ─── sops + age (chapter 08, helm-secrets) ─────────────────────────────────
+step "sops ${SOPS_VERSION}"
+if have_version sops "${SOPS_VERSION}" --version; then
+    ok "already installed"
+else
+    f="sops-v${SOPS_VERSION}.${OS}.${ARCH}"  # linux and darwin assets share this pattern
+    base="https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}"
+    fetch "$base/$f" "$DL/$f"; fetch "$base/sops-v${SOPS_VERSION}.checksums.txt" "$DL/sops.checksums.txt"
+    verify_sum "$DL/$f" "$(sum_from_file "$DL/sops.checksums.txt" "$f")"
+    install -m 0755 "$DL/$f" "$BIN/sops"
+    ok "installed sops"
+fi
+
+step "age ${AGE_VERSION}"
+if have_version age "${AGE_VERSION}" --version; then
+    ok "already installed"
+else
+    f="age-v${AGE_VERSION}-${OS}-${ARCH}.tar.gz"
+    base="https://github.com/FiloSottile/age/releases/download/v${AGE_VERSION}"
+    fetch "$base/$f" "$DL/$f"
+    # age publishes no checksum file; the pinned digest below was taken from the
+    # GitHub release asset digest on 2026-10-08 (gh release view --json assets).
+    case "${OS}-${ARCH}" in
+        linux-amd64)  AGE_SHA256="cbe24006683f8eb669266162894b9a522a1af52f2665fbc63a4bb032ed26ac10" ;;
+        linux-arm64)  AGE_SHA256="6b8dc4333c53a5a57c9e5834e3a48f92605d7154014cd07269ff3327db5d37f4" ;;
+        darwin-amd64) AGE_SHA256="1d1e4bc66e1427edad7739ae7616157de0e79db8b6d2a1497d7d9925fb06a539" ;;
+        darwin-arm64) AGE_SHA256="e2020b073c44f692685a24d6abc378817eb81ffaaf49fd0531ef8565f767f2f5" ;;
+        *) AGE_SHA256="" ;;
+    esac
+    [[ -n "$AGE_SHA256" ]] || fail "no pinned age digest for ${OS}-${ARCH}; add one to install-tools.sh"
+    verify_sum "$DL/$f" "$AGE_SHA256"
+    d="$DL/age-x"; rm -rf "$d"; mkdir -p "$d"; tar -xzf "$DL/$f" -C "$d"
+    install -m 0755 "$d/age/age" "$BIN/age"; install -m 0755 "$d/age/age-keygen" "$BIN/age-keygen"
+    ok "installed age $("$BIN/age" --version)"
 fi
 
 # ─── Helm plugins ──────────────────────────────────────────────────────────

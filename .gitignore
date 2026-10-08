@@ -34,3 +34,10 @@ __pycache__/
 
 # Vendored dependency tarballs: rebuilt by helm dependency build in every demo
 examples/**/charts/*.tgz
+
+# Throwaway age keys and decrypted scratch files for the SOPS demo
+.work/
+*.agekey
+
+# Claude Code agent worktrees
+/.claude/

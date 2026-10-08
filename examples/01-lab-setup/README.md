@@ -22,4 +22,4 @@ Python 3.14 note: the service images currently build on CPython 3.14.8 (the fall
 
 ## Verification status
 
-Partially verified on 2026-10-08 (`_plans/evidence/01-lab-setup.txt`): preflight passes, `cluster-status.sh` reports healthy, global Helm 3 unchanged. The from-scratch run from a deleted profile was not repeated.
+Verified on 2026-10-08 (`_plans/evidence/01-lab-setup.txt`, `_plans/evidence/01-lab-setup-fresh.txt`). Preflight passes, the global Helm 3 is unchanged, and a from-scratch bring-up (`teardown.sh --yes`, `setup-profile.sh`, `bootstrap.sh`, `build-images.sh`) took about five minutes with a warm image cache and ended with `ok: platform healthy`.

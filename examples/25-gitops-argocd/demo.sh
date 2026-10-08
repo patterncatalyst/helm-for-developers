@@ -2,13 +2,14 @@
 #
 # examples/25-gitops-argocd/demo.sh
 #
-#   ./demo.sh           offline checks, then install Argo CD and sync the OCI Application
+#   ./demo.sh           offline checks, then install Argo CD and sync the OCI and Git Applications
+#   ./demo.sh git       only the Git-sourced Application (Argo CD already installed)
 #   ./demo.sh offline   render Argo CD, render the chart the way Argo does, parse the manifests
 #   ./demo.sh clean     delete the Application, uninstall Argo CD, remove namespaces
 #
 # Argo CD: namespace argocd, release argocd, https://127.0.0.1:8443 after `scripts/tunnel.sh argocd`.
 # Workload: namespace hfd-25, release name platform (set by helm.releaseName).
-# apps/shipping-platform-git.yaml is pending until the GitHub repository exists; it is not applied.
+# Git Application shipping-git: shipping-service at tag r1.0 of the public repository, namespace hfd-25-git, NodePort 30090.
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)" && cd "$SCRIPT_DIR"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
@@ -75,6 +76,39 @@ live() {
     echo "Argo CD UI: https://127.0.0.1:8443 (admin / $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d))"
 }
 
+# Probe a NodePort from inside the node (the tunnel script maps only the OCI release's ports).
+node_curl() { minikube -p helm4dev ssh -- curl -s --retry 10 --retry-all-errors --retry-delay 1 "$@"; }
+
+git_app() {
+    echo "==> the Git-sourced Application: tag r1.0, path examples/25-gitops-argocd/charts/shipping-service"
+    kubectl apply -f apps/shipping-service-git.yaml
+    kubectl -n argocd wait application/shipping-git --for=jsonpath='{.status.sync.status}'=Synced --timeout=15m
+    kubectl -n argocd wait application/shipping-git --for=jsonpath='{.status.health.status}'=Healthy --timeout=15m
+    kubectl -n argocd get application shipping-git -o jsonpath='{.status.sync.revision}{"\n"}'
+    kubectl -n argocd get application shipping-git
+    echo "==> no Helm release behind it:"
+    helm list -n hfd-25-git
+    kubectl -n hfd-25-git get deploy,svc
+    node_curl http://127.0.0.1:30090/api/info; echo
+    echo "==> change through the Application spec (a push to the tag would do the same): defaultCarrier -> GIT-Post"
+    kubectl -n argocd patch application shipping-git --type merge \
+        -p '{"spec":{"source":{"helm":{"valuesObject":{"config":{"defaultCarrier":"GIT-Post"}}}}}}'
+    for _ in $(seq 1 60); do
+        node_curl http://127.0.0.1:30090/api/info | grep -q GIT-Post && break || sleep 3
+    done
+    node_curl http://127.0.0.1:30090/api/info; echo
+    echo "==> drift: scale the Deployment to 3 by hand; selfHeal restores 1"
+    kubectl -n hfd-25-git scale deploy/shipping-shipping-service --replicas=3
+    echo "spec.replicas right after the edit: $(kubectl -n hfd-25-git get deploy/shipping-shipping-service -o jsonpath='{.spec.replicas}')"
+    start=$SECONDS
+    for _ in $(seq 1 60); do
+        [ "$(kubectl -n hfd-25-git get deploy/shipping-shipping-service -o jsonpath='{.spec.replicas}')" = 1 ] && break || sleep 1
+    done
+    echo "spec.replicas reverted to $(kubectl -n hfd-25-git get deploy/shipping-shipping-service -o jsonpath='{.spec.replicas}') after about $((SECONDS - start)) s"
+    kubectl -n hfd-25-git get deploy/shipping-shipping-service
+    kubectl -n argocd wait application/shipping-git --for=jsonpath='{.status.health.status}'=Healthy --timeout=5m
+}
+
 case "${1:-all}" in
     offline) offline ;;
     clean)
@@ -83,6 +117,7 @@ case "${1:-all}" in
         kubectl delete ns argocd hfd-25 hfd-25-git --ignore-not-found
         # The Argo CD chart keeps its CRDs on uninstall (crds.keep=true); remove them for a clean lab.
         kubectl delete crd applications.argoproj.io applicationsets.argoproj.io appprojects.argoproj.io --ignore-not-found ;;
-    all|"") offline; live ;;
-    *) echo "usage: $0 [offline|clean]" >&2; exit 2 ;;
+    git) git_app ;;
+    all|"") offline; live; git_app ;;
+    *) echo "usage: $0 [offline|git|clean]" >&2; exit 2 ;;
 esac

@@ -1,0 +1,507 @@
+# 01 lab setup from scratch, 2026-10-08, Helm 4.3.0, minikube helm4dev (docker driver, Docker Desktop)
+# Sequence: teardown.sh --yes, setup-profile.sh, bootstrap.sh, build-images.sh, cluster-status.sh. Build engine: docker (warm layer cache, so the 11 s image build is not a cold build).
+# Summary: teardown 5 s, setup-profile 43 s, bootstrap 235 s, build-images 11 s, cluster-status <1 s; every step rc=0; no script fix needed.
+
+=== scripts/platform/teardown.sh --yes (start 2026-10-08T16:02:05-04:00)
+* Deleting "helm4dev" in docker ...
+* Deleting container "helm4dev" ...
+* Removing /home/rsedor/.minikube/machines/helm4dev ...
+* Removed all traces of the "helm4dev" cluster.
+Profile helm4dev deleted.
+=== rc=0 elapsed=5s
+=== scripts/platform/setup-profile.sh (start 2026-10-08T16:02:10-04:00)
+
+==> Starting helm4dev (12g RAM, 8 CPUs, 60g disk, docker driver, containerd runtime)
+* [helm4dev] minikube v1.38.1 on Fedora 44
+  - MINIKUBE_PROFILE=helm4dev
+* Using the docker driver based on user configuration
+* Using Docker driver with root privileges
+! For an improved experience it's recommended to use Docker Engine instead of Docker Desktop.
+Docker Engine installation instructions: https://docs.docker.com/engine/install/#server
+* Starting "helm4dev" primary control-plane node in "helm4dev" cluster
+* Pulling base image v0.0.50 ...
+* Preparing Kubernetes v1.35.1 on containerd 2.2.1 ...
+* Configuring CNI (Container Networking Interface) ...
+* Verifying Kubernetes components...
+  - Using image registry.k8s.io/metrics-server/metrics-server:v0.8.1
+  - Using image gcr.io/k8s-minikube/storage-provisioner:v5
+* Enabled addons: storage-provisioner, default-storageclass, metrics-server
+
+! /usr/bin/kubectl is version 1.32.13, which may have incompatibilities with Kubernetes 1.35.1.
+  - Want kubectl v1.35.1? Try 'minikube kubectl -- get pods -A'
+* Done! kubectl is now configured to use "helm4dev" cluster and "default" namespace by default
+
+==> Enabling the registry addon
+* registry is an addon maintained by minikube. For any concerns contact minikube on GitHub.
+You can view the list of minikube maintainers at: https://github.com/kubernetes/minikube/blob/master/OWNERS
+╭──────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                                      │
+│    Registry addon with docker driver uses port 46635 please use that instead of default port 5000    │
+│                                                                                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯
+* For more information see: https://minikube.sigs.k8s.io/docs/drivers/docker
+  - Using image docker.io/registry:3.0.0
+  - Using image registry.k8s.io/minikube/kube-registry-proxy:v0.0.11
+* Verifying registry addon...
+* The 'registry' addon is enabled
+
+==> Verifying cluster health
+NAME       STATUS   ROLES           AGE   VERSION
+helm4dev   Ready    control-plane   26s   v1.35.1
+NAME                               READY   STATUS    RESTARTS   AGE
+coredns-7d764666f9-hgf9f           1/1     Running   0          18s
+etcd-helm4dev                      1/1     Running   0          24s
+kindnet-4t927                      1/1     Running   0          18s
+kube-apiserver-helm4dev            1/1     Running   0          24s
+kube-controller-manager-helm4dev   1/1     Running   0          24s
+kube-proxy-wmhnl                   1/1     Running   0          18s
+kube-scheduler-helm4dev            1/1     Running   0          24s
+metrics-server-9d74bb658-nwxpp     1/1     Running   0          18s
+registry-7984dc5f99-rqpfz          1/1     Running   0          18s
+registry-proxy-zddqr               1/1     Running   0          5s
+storage-provisioner                1/1     Running   0          23s
+
+Profile helm4dev is ready (kubectl context: helm4dev).
+Next: scripts/platform/bootstrap.sh
+=== rc=0 elapsed=43s
+=== scripts/platform/bootstrap.sh (start 2026-10-08T16:02:53-04:00)
+==> Active configuration
+    profile:   helm4dev
+    CNPG:      true
+    Strimzi:   true
+    LGTM:      true
+
+==> 1/4 Profile and registry
+
+==> Profile helm4dev already running
+    ok: nothing to do
+NAME       STATUS   ROLES           AGE   VERSION
+helm4dev   Ready    control-plane   27s   v1.35.1
+    ok: cluster reachable (context helm4dev)
+
+==> 2/4 CloudNativePG operator
+
+==> Adding the CloudNativePG helm repository
+
+==> Installing CloudNativePG 0.29.1 into cnpg-system
+Release "cnpg" does not exist. Installing it now.
+NAME: cnpg
+LAST DEPLOYED: Thu Oct  8 16:02:55 2026
+NAMESPACE: cnpg-system
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+CloudNativePG operator should be installed in namespace "cnpg-system".
+You can now create a PostgreSQL cluster with 3 nodes as follows:
+
+cat <<EOF | kubectl apply -f -
+# Example of PostgreSQL cluster
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster-example
+  
+spec:
+  instances: 3
+  storage:
+    size: 1Gi
+EOF
+
+kubectl get -A cluster
+
+==> Waiting for the operator and its CRDs
+customresourcedefinition.apiextensions.k8s.io/clusters.postgresql.cnpg.io condition met
+deployment.apps/cnpg-cloudnative-pg condition met
+    ok: CloudNativePG operator ready (CRDs: 11 cnpg.io)
+
+==> 3/4 Strimzi operator
+
+==> Installing the Strimzi operator 1.2.0 into strimzi (watchAnyNamespace=true)
+Release "strimzi-cluster-operator" does not exist. Installing it now.
+Pulled: quay.io/strimzi-helm/strimzi-kafka-operator:1.2.0
+Digest: sha256:1cd4b16c080360b911b5002eaf9e0cc0964f94ec564f234e2fc754b70a046b59
+NAME: strimzi-cluster-operator
+LAST DEPLOYED: Thu Oct  8 16:03:03 2026
+NAMESPACE: strimzi
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+Thank you for installing strimzi-kafka-operator-1.2.0
+
+To create a Kafka cluster refer to the following documentation.
+
+https://strimzi.io/docs/operators/latest/deploying.html#deploying-cluster-operator-helm-chart-str
+
+==> Waiting for the operator and its CRDs
+customresourcedefinition.apiextensions.k8s.io/kafkas.kafka.strimzi.io condition met
+deployment "strimzi-cluster-operator" successfully rolled out
+    ok: Strimzi operator ready
+kafkabridges.kafka.strimzi.io
+kafkaconnectors.kafka.strimzi.io
+kafkaconnects.kafka.strimzi.io
+kafkamirrormaker2s.kafka.strimzi.io
+kafkanodepools.kafka.strimzi.io
+kafkarebalances.kafka.strimzi.io
+kafkas.kafka.strimzi.io
+kafkatopics.kafka.strimzi.io
+kafkausers.kafka.strimzi.io
+
+==> 4/4 LGTM observability stack
+
+==> Ensuring helm repos are registered
+
+==> Namespace observability
+
+==> Applying Grafana datasource and dashboard ConfigMaps
+configmap/grafana-datasources created
+configmap/grafana-dashboard-loki created
+configmap/grafana-dashboard-mimir created
+configmap/grafana-dashboard-overview created
+configmap/grafana-dashboard-tempo created
+
+==> Loki 6.16.0 (single-binary)
+Release "loki" does not exist. Installing it now.
+NAME: loki
+LAST DEPLOYED: Thu Oct  8 16:03:43 2026
+NAMESPACE: observability
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+***********************************************************************
+ Welcome to Grafana Loki
+ Chart version: 6.16.0
+ Chart Name: loki
+ Loki version: 3.1.1
+***********************************************************************
+
+** Please be patient while the chart is being deployed **
+
+Tip:
+
+  Watch the deployment status using the command: kubectl get pods -w --namespace observability
+
+If pods are taking too long to schedule make sure pod affinity can be fulfilled in the current cluster.
+
+***********************************************************************
+Installed components:
+***********************************************************************
+* loki
+
+Loki has been deployed as a single binary.
+This means a single pod is handling reads and writes. You can scale that pod vertically by adding more CPU and memory resources.
+
+
+***********************************************************************
+Sending logs to Loki
+***********************************************************************
+
+Loki has been configured with a gateway (nginx) to support reads and writes from a single component.
+
+You can send logs from inside the cluster using the cluster DNS:
+
+http://loki-gateway.observability.svc.cluster.local/loki/api/v1/push
+
+You can test to send data from outside the cluster by port-forwarding the gateway to your local machine:
+
+  kubectl port-forward --namespace observability svc/loki-gateway 3100:80 &
+
+And then using http://127.0.0.1:3100/loki/api/v1/push URL as shown below:
+
+```
+curl -H "Content-Type: application/json" -XPOST -s "http://127.0.0.1:3100/loki/api/v1/push"  \
+--data-raw "{\"streams\": [{\"stream\": {\"job\": \"test\"}, \"values\": [[\"$(date +%s)000000000\", \"fizzbuzz\"]]}]}"
+```
+
+Then verify that Loki did received the data using the following command:
+
+```
+curl "http://127.0.0.1:3100/loki/api/v1/query_range" --data-urlencode 'query={job="test"}' | jq .data.result
+```
+
+***********************************************************************
+Connecting Grafana to Loki
+***********************************************************************
+
+If Grafana operates within the cluster, you'll set up a new Loki datasource by utilizing the following URL:
+
+http://loki-gateway.observability.svc.cluster.local/
+
+==> Tempo 1.10.0 (monolithic)
+Release "tempo" does not exist. Installing it now.
+NAME: tempo
+LAST DEPLOYED: Thu Oct  8 16:04:45 2026
+NAMESPACE: observability
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+==> Mimir 5.4.0 (mimir-distributed, trimmed for one node)
+Release "mimir" does not exist. Installing it now.
+I1008 16:04:49.656013 2621488 warnings.go:107] "Warning: metadata.name: this is used in Pod names and hostnames, which can result in surprising behavior; a DNS label is recommended: [must not contain dots]"
+NAME: mimir
+LAST DEPLOYED: Thu Oct  8 16:04:49 2026
+NAMESPACE: observability
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+NOTES:
+Welcome to Grafana Mimir!
+Remote write endpoints for Prometheus or Grafana Agent:
+Ingress is not enabled, see the nginx.ingress values.
+From inside the cluster:
+  http://mimir-nginx.observability.svc:80/api/v1/push
+
+Read address, Grafana data source (Prometheus) URL:
+Ingress is not enabled, see the nginx.ingress values.
+From inside the cluster:
+  http://mimir-nginx.observability.svc:80/prometheus
+
+**IMPORTANT**: Always consult CHANGELOG.md file at https://github.com/grafana/mimir/blob/main/operations/helm/charts/mimir-distributed/CHANGELOG.md and the deprecation list there to learn about breaking changes that require action during upgrade.
+
+==> OpenTelemetry Collector 0.97.0
+configmap/otel-collector-config created
+Release "otel-collector" does not exist. Installing it now.
+NAME: otel-collector
+LAST DEPLOYED: Thu Oct  8 16:06:22 2026
+NAMESPACE: observability
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+[WARNING] "configMap" wil not be created and "config" will not take effect.
+
+[WARNING] No resource limits or requests were set. Consider setter resource requests and limits for your collector(s) via the `resources` field.
+
+[WARNING] "useGOMEMLIMIT" is enabled but memory limits have not been supplied, which means no GOMEMLIMIT env var was configured but the Memory Ballast Extension was removed. It is highly recommended to only use "useGOMEMLIMIT" when memory limits have been set.
+
+==> Grafana 8.5.0 (NodePort 30300)
+Release "grafana" does not exist. Installing it now.
+NAME: grafana
+LAST DEPLOYED: Thu Oct  8 16:06:26 2026
+NAMESPACE: observability
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+NOTES:
+1. Get your 'admin' user password by running:
+
+   kubectl get secret --namespace observability grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+
+2. The Grafana server can be accessed via port 80 on the following DNS name from within your cluster:
+
+   grafana.observability.svc.cluster.local
+
+   Get the Grafana URL to visit by running these commands in the same shell:
+     export NODE_PORT=$(kubectl get --namespace observability -o jsonpath="{.spec.ports[0].nodePort}" services grafana)
+     export NODE_IP=$(kubectl get nodes --namespace observability -o jsonpath="{.items[0].status.addresses[0].address}")
+     echo http://$NODE_IP:$NODE_PORT
+
+3. Login with the password from step 1 and the username: admin
+
+LGTM stack installed in namespace observability.
+  Grafana (after scripts/tunnel.sh): http://127.0.0.1:3000  (admin/admin)
+  OTLP HTTP in-cluster: http://otel-collector.observability.svc.cluster.local:4318
+  OTLP gRPC in-cluster: otel-collector.observability.svc.cluster.local:4317
+
+==> Bring-up complete
+
+    Status:          scripts/platform/cluster-status.sh
+    Host access:     scripts/tunnel.sh   (shipping 8080, notification 8081, Grafana 3000, Argo CD 8443)
+    Images:          scripts/build-images.sh
+    Tear down:       scripts/platform/teardown.sh
+
+    Operators installed; each example chart creates its own database and broker.
+=== rc=0 elapsed=235s
+=== scripts/build-images.sh (start 2026-10-08T16:06:48-04:00)
+==> engine=docker mode=build tag=0.1.0
+
+==> shipping-service:0.1.0
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Containerfile
+#1 transferring dockerfile: 2.17kB done
+
+#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+
+#3 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+
+#5 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
+#5 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.0s done
+
+#6 [builder 1/6] FROM registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
+#6 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.0s done
+
+#7 [internal] load build context
+#7 transferring context: 36.27kB done
+
+#8 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+
+#9 [runtime 5/6] COPY shipping-service/ /app/
+
+#10 [runtime 2/6] WORKDIR /app
+
+#11 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+
+#12 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+
+#13 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+
+#14 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+
+#15 [builder 4/6] COPY common /src/common
+
+#16 [builder 5/6] COPY shipping-service/pyproject.toml /src/service/pyproject.toml
+
+#17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
+
+#18 exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:ac2cd575e5eb17d6172e2a77a94099ac903d80c1770bd98aeb3eb10d2f70f3ec done
+#18 exporting config sha256:d7577a9165c2732d167d639f1ad0b130db9a6ed6dab6eddc2c9002561802d5a3 done
+#18 exporting attestation manifest sha256:0b6ee017567a9453f5bd78164c40d26785702ef9fc658fa33d69122aeb7c363e 0.0s done
+#18 exporting manifest list sha256:7d2b914add6f37fca3e07aaf03ee20e5e95fb5c1637fd45da47f3d6b3939deda
+#18 exporting manifest list sha256:7d2b914add6f37fca3e07aaf03ee20e5e95fb5c1637fd45da47f3d6b3939deda 0.0s done
+#18 naming to docker.io/library/shipping-service:0.1.0 done
+#18 unpacking to docker.io/library/shipping-service:0.1.0 done
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/1zky5qkga485nphl10df62133
+
+==> notification-service:0.1.0
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Containerfile
+#1 transferring dockerfile: 2.17kB done
+
+#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+
+#3 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+
+#5 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
+#5 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.0s done
+
+#6 [builder 1/6] FROM registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
+#6 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.0s done
+
+#7 [internal] load build context
+#7 transferring context: 10.71kB done
+
+#8 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+
+#9 [builder 4/6] COPY common /src/common
+
+#10 [runtime 2/6] WORKDIR /app
+
+#11 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+
+#12 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+
+#13 [runtime 5/6] COPY notification-service/ /app/
+
+#14 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+
+#15 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+
+#16 [builder 5/6] COPY notification-service/pyproject.toml /src/service/pyproject.toml
+
+#17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
+
+#18 exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:9b7868487b929dac4e2855b558a0ed0c5dc4fa7d84c567df9ea5c3e725ad8a7a done
+#18 exporting config sha256:729ca706dc57d9db1ea09c441e64c81ccb956e853287c5c6b94bd53dac842f0b done
+#18 exporting attestation manifest sha256:31d7b2650f1bce82d469c9f6ee91f0358ddfaadb5a2e0a10fb4609cb1c54d232 0.0s done
+#18 exporting manifest list sha256:4ce9f22c6393ac0954404bdc1cf6b68a8f6c3651b2b5cbc9db6212d9a42c7d5e
+#18 exporting manifest list sha256:4ce9f22c6393ac0954404bdc1cf6b68a8f6c3651b2b5cbc9db6212d9a42c7d5e 0.0s done
+#18 naming to docker.io/library/notification-service:0.1.0 done
+#18 unpacking to docker.io/library/notification-service:0.1.0 done
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/l2w1foizgfncl4aj7bhmpbsyx
+
+==> images in the profile:
+docker.io/library/shipping-service:0.1.0
+docker.io/library/notification-service:0.1.0
+=== rc=0 elapsed=11s
+=== scripts/platform/cluster-status.sh (start 2026-10-08T16:06:59-04:00)
+
+==> minikube profile helm4dev
+    ok: running
+
+==> Control plane
+    ok: API server /readyz
+    ok: control-plane pods Running
+
+==> Registry addon
+    ok: registry addon enabled
+
+==> Operators
+    ok: CloudNativePG operator (cnpg-system): pods Running
+    ok: Strimzi operator (strimzi): pods Running
+    ok: CRD clusters.postgresql.cnpg.io
+    ok: CRD kafkas.kafka.strimzi.io
+
+==> Observability
+    ok: LGTM (observability): pods Running
+
+==> Examples (hfd-* namespaces)
+
+==> Verdict
+    ok: platform healthy
+=== rc=0 elapsed=0s
+DONE
+
+=== post-check: kubectl --context helm4dev get pods -A
+NAMESPACE       NAME                                       READY   STATUS      RESTARTS   AGE
+cnpg-system     cnpg-cloudnative-pg-84cd4568f9-qhh87       1/1     Running     0          4m20s
+kube-system     coredns-7d764666f9-hgf9f                   1/1     Running     0          4m40s
+kube-system     etcd-helm4dev                              1/1     Running     0          4m46s
+kube-system     kindnet-4t927                              1/1     Running     0          4m40s
+kube-system     kube-apiserver-helm4dev                    1/1     Running     0          4m46s
+kube-system     kube-controller-manager-helm4dev           1/1     Running     0          4m46s
+kube-system     kube-proxy-wmhnl                           1/1     Running     0          4m40s
+kube-system     kube-scheduler-helm4dev                    1/1     Running     0          4m46s
+kube-system     metrics-server-9d74bb658-nwxpp             1/1     Running     0          4m40s
+kube-system     registry-7984dc5f99-rqpfz                  1/1     Running     0          4m40s
+kube-system     registry-proxy-zddqr                       1/1     Running     0          4m27s
+kube-system     storage-provisioner                        1/1     Running     0          4m45s
+observability   grafana-5977f6479-m9j76                    3/3     Running     0          49s
+observability   loki-0                                     2/2     Running     0          3m32s
+observability   loki-gateway-6f476c5856-k86k6              1/1     Running     0          3m32s
+observability   mimir-compactor-0                          1/1     Running     0          2m26s
+observability   mimir-distributor-54cfc9cfd6-wm2gk         1/1     Running     0          2m26s
+observability   mimir-ingester-0                           1/1     Running     0          2m26s
+observability   mimir-make-minio-buckets-5.0.14-9cm4d      0/1     Completed   0          2m26s
+observability   mimir-minio-6fd5fb769f-gzbzf               1/1     Running     0          2m26s
+observability   mimir-nginx-7788bc587-9rn8h                1/1     Running     0          2m26s
+observability   mimir-querier-89cd47655-6w79s              1/1     Running     0          2m26s
+observability   mimir-query-frontend-5b67bf4889-n25th      1/1     Running     0          2m26s
+observability   mimir-query-scheduler-66f56b9849-4q25v     1/1     Running     0          2m26s
+observability   mimir-store-gateway-0                      1/1     Running     0          2m26s
+observability   otel-collector-5c89db968f-qgmrh            1/1     Running     0          53s
+observability   tempo-0                                    1/1     Running     0          2m30s
+strimzi         strimzi-cluster-operator-b65c68c4b-k8f2p   1/1     Running     0          4m12s
+=== helm4dev profile list
+┌──────────┬────────┬────────────┬──────────────┬─────────┬─────────┬───────┬────────────────┬────────────────────┐
+│ PROFILE  │ DRIVER │  RUNTIME   │      IP      │ VERSION │ STATUS  │ NODES │ ACTIVE PROFILE │ ACTIVE KUBECONTEXT │
+├──────────┼────────┼────────────┼──────────────┼─────────┼─────────┼───────┼────────────────┼────────────────────┤
+│ datamesh │ docker │ containerd │ 192.168.49.2 │ v1.35.1 │ Stopped │ 1     │                │                    │
+│ [32mhelm4dev[0m │ [32mdocker[0m │ [32mcontainerd[0m │ [32m192.168.58.2[0m │ [32mv1.35.1[0m │ [32mOK[0m      │ [32m1[0m     │ [32m*[0m              │ [32m*[0m                  │
+└──────────┴────────┴────────────┴──────────────┴─────────┴─────────┴───────┴────────────────┴────────────────────┘
+=== datamesh untouched (still Stopped above)
+=== helm version / command -v helm
+v4.3.0+gbec5b06
+/home/rsedor/Dev/helm-for-developers/.tools/bin/helm
