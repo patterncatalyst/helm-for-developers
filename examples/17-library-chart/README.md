@@ -12,4 +12,4 @@ Snapshot for chapter 17 (`_docs/17-library-charts.md`). `charts/pc-lib` is a `ty
 
 ## Verification status
 
-unverified. A live run must confirm: release `platform` installs from the library-based charts, and the Deployments and Services carry `patterncatalyst.io/domain`, `owner` and `data-product`.
+`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/17-library-chart.txt`. The full demo exits 0: before and after renders are identical apart from the chart label and checksum, release `platform` installs, the `patterncatalyst.io/*` annotations are on the live Deployments and Services, and `helm test platform` passes.

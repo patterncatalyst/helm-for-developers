@@ -82,7 +82,7 @@ Within a release Helm sorts resources by kind, not by chart: Secrets, ConfigMaps
 
 The umbrella owns the CloudNativePG `Cluster`, so the `<cluster>-app` Secret that the migration Job reads does not exist before install. A `pre-install` hook would run before the Secret does. The umbrella therefore sets `shipping.migration.hooks: post-install,post-upgrade`, which the shipping template writes into the Job's `helm.sh/hook` annotation.
 
-That choice interacts with `--wait`. Post-install hooks run after Helm sees every resource ready. shipping's default readiness path, `/healthz`, fails until the tables exist, and the tables are created by the hook. In the first platform run the release waited on the pod and the hook waited on the release; after the full timeout Helm reported:
+That choice interacts with `--wait`. Post-install hooks run after Helm sees every resource ready. shipping's default readiness path, `/healthz`, fails until the tables exist, and the tables are created by the hook. In the first platform run the release waited on the pod and the hook waited on the release; after the full timeout Helm reported (the live run in `hfd-16` printed the same text with `hfd-16` in the name, after 3 minutes with `--timeout 3m`):
 
 ```text
 Error: release platform failed, and has been uninstalled due to rollback-on-failure being set: resource Deployment/hfd-26/platform-shipping not ready. status: InProgress, message: Available: 0/1
@@ -118,4 +118,4 @@ Chapter 17 removes the helper code the two service charts still duplicate.
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. A live run must confirm that the release installs with `post-install` hooks and the `/health` readiness override, that the unmodified `/healthz` readiness deadlocks until the timeout, and that `tags.messaging=false` with `shipping.kafka.enabled=false` installs without Kafka.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/16-umbrella.txt`. Observed on Helm 4.3.0 and minikube: release `platform` installed with the `post-install` migration Job hook and `/health` readiness; a shipment dispatched through shipping appeared in notification with the same `shipmentId`; `helm test platform` passed three test pods; with readiness `/healthz` the install timed out at 3 minutes and `--rollback-on-failure` uninstalled it; `tags.messaging=false` with `shipping.kafka.enabled=false` installed only shipping and Postgres; a `condition` that is set overrode a `tags` switch. The `import-values` default trap and the kind ordering were checked at template level only (the manifest lists Secret, ConfigMap, Service, Deployment, then Cluster and the Strimzi kinds).*

@@ -1,0 +1,326 @@
+
+==> Rung 1: helm lint --strict on the good chart
+==> Linting charts/shipping-service
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+
+==> Rung 2: helm template --debug --show-only (stdout only; the DEBUG log lines go to stderr)
+---
+# Source: shipping-service/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shipping-shipping-service
+  labels:
+    helm.sh/chart: shipping-service-0.13.0
+    app.kubernetes.io/name: shipping-service
+    app.kubernetes.io/instance: shipping
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: shipping-platform
+data:
+  SERVICE_NAME: "shipping-shipping-service"
+  SERVICE_VERSION: "0.1.0"
+  DEPLOY_ENV: "dev"
+  LOG_LEVEL: "INFO"
+  SHIPPING_DEFAULT_CARRIER: "ACME-Post"
+  SHIPPING_STORAGE: "memory"
+  KAFKA_ENABLED: "false"
+  KAFKA_TOPIC_DISPATCHED: "shipment.dispatched"
+
+
+
+==> Rung 3: kubeconform on the rendered chart, then on a CNPG Cluster using the CRDs-catalog
+Summary: 3 resources found parsing stdin - Valid: 3, Invalid: 0, Errors: 0, Skipped: 0
+Summary: 1 resource found parsing stdin - Valid: 1, Invalid: 0, Errors: 0, Skipped: 0
+
+==> Rung 3b: the same CR with a wrong type is rejected by its CRD schema
+stdin - Cluster shipping-postgres is invalid: problem validating schema. Check JSON formatting: jsonschema validation failed with 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/postgresql.cnpg.io/cluster_v1.json#' - at '/spec/instances': got string, want integer
+Summary: 1 resource found parsing stdin - Valid: 0, Invalid: 1, Errors: 0, Skipped: 0
+
+==> Rung 4: helm diff local shows what a values change does, with no cluster
+default, release-shipping-service, ConfigMap (v1) has changed:
+  # Source: shipping-service/templates/configmap.yaml
+  apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: release-shipping-service
+    labels:
+      helm.sh/chart: shipping-service-0.13.0
+      app.kubernetes.io/name: shipping-service
+      app.kubernetes.io/instance: release
+      app.kubernetes.io/version: "0.1.0"
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/part-of: shipping-platform
+  data:
+    SERVICE_NAME: "release-shipping-service"
+    SERVICE_VERSION: "0.1.0"
+    DEPLOY_ENV: "dev"
+    LOG_LEVEL: "INFO"
+-   SHIPPING_DEFAULT_CARRIER: "ACME-Post"
++   SHIPPING_DEFAULT_CARRIER: "Globex-Freight"
+    SHIPPING_STORAGE: "memory"
+    KAFKA_ENABLED: "false"
+    KAFKA_TOPIC_DISPATCHED: "shipment.dispatched"
+default, release-shipping-service, Deployment (apps) has changed:
+  # Source: shipping-service/templates/deployment.yaml
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: release-shipping-service
+    labels:
+
+==> The broken chart, one fault per rung
+--- fault 1: values violate values.schema.json (lint and template stop before rendering)
+==> Linting /tmp/tmp.k5CCND4tIm/broken
+[INFO] Chart.yaml: icon is recommended
+[ERROR] values.yaml: - at '/replicaCount': got string, want integer
+
+[ERROR] templates/: values don't meet the specifications of the schema(s) in the following chart(s):
+shipping-service:
+- at '/replicaCount': got string, want integer
+
+
+Error: 1 chart(s) linted, 1 chart(s) failed
+--- fault 2: a nil pointer in a template (the error names the file and line)
+Error: shipping-service/templates/deployment.yaml:1:18
+  executing "shipping-service/templates/deployment.yaml" at <include (print $.Template.BasePath "/configmap.yaml") .>:
+    error calling include:
+shipping-service/templates/configmap.yaml:11:23
+  executing "shipping-service/templates/configmap.yaml" at <.Values.logging.level>:
+    nil pointer evaluating interface {}.level
+
+Use --debug flag to render out invalid YAML
+--- fault 3: valid template, invalid YAML after rendering
+Error: YAML parse error on shipping-service/templates/service.yaml: error converting YAML to JSON: yaml: line 5: mapping values are not allowed in this context
+
+Use --debug flag to render out invalid YAML
+    --debug prints the rendered text that failed to parse:
+---
+# Source: shipping-service/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: shipping-shipping-service
+  labels:    helm.sh/chart: shipping-service-0.13.0
+    app.kubernetes.io/name: shipping-service
+--- fault 4: lint passes, lint --strict fails on a deprecated API
+[WARNING] templates/pdb.yaml: policy/v1beta1 PodDisruptionBudget is deprecated in v1.21+, unavailable in v1.25+; use policy/v1 PodDisruptionBudget
+
+1 chart(s) linted, 0 chart(s) failed
+==> Linting /tmp/tmp.k5CCND4tIm/broken
+[INFO] Chart.yaml: icon is recommended
+[WARNING] templates/pdb.yaml: policy/v1beta1 PodDisruptionBudget is deprecated in v1.21+, unavailable in v1.25+; use policy/v1 PodDisruptionBudget
+
+Error: 1 chart(s) linted, 1 chart(s) failed
+--- fault 5: lint and template pass, kubeconform rejects a string containerPort
+
+1 chart(s) linted, 0 chart(s) failed
+stdin - Deployment shipping-shipping-service is invalid: problem validating schema. Check JSON formatting: jsonschema validation failed with 'https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.34.0-standalone-strict/deployment-apps-v1.json#' - at '/spec/template/spec/containers/0/ports/0/containerPort': got string, want integer
+Summary: 4 resources found parsing stdin - Valid: 3, Invalid: 1, Errors: 0, Skipped: 0
+--- all five fixed
+
+1 chart(s) linted, 0 chart(s) failed
+Summary: 4 resources found parsing stdin - Valid: 4, Invalid: 0, Errors: 0, Skipped: 0
+    the fixed copy differs from the good chart only by the PodDisruptionBudget:
+Only in /tmp/tmp.k5CCND4tIm/broken/templates: pdb.yaml
+
+==> Build the image and install
+==> engine=docker mode=build tag=0.1.0
+
+==> shipping-service:0.1.0
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Containerfile
+#1 transferring dockerfile: 2.17kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#2 ...
+
+#3 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
+#3 DONE 0.3s
+
+#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#2 DONE 0.3s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 DONE 0.0s
+
+#6 [builder 1/6] FROM registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
+#6 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
+#6 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.0s done
+#6 DONE 0.0s
+
+#7 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
+#7 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.0s done
+#7 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 1.42kB done
+#5 DONE 0.0s
+
+#8 [builder 4/6] COPY common /src/common
+#8 CACHED
+
+#9 [builder 5/6] COPY shipping-service/pyproject.toml /src/service/pyproject.toml
+#9 CACHED
+
+#10 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+#10 CACHED
+
+#11 [runtime 2/6] WORKDIR /app
+#11 CACHED
+
+#12 [runtime 5/6] COPY shipping-service/ /app/
+#12 CACHED
+
+#13 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+#13 CACHED
+
+#14 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+#14 CACHED
+
+#15 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+#15 CACHED
+
+#16 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+#16 CACHED
+
+#17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
+#17 CACHED
+
+#18 exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:ac2cd575e5eb17d6172e2a77a94099ac903d80c1770bd98aeb3eb10d2f70f3ec done
+#18 exporting config sha256:d7577a9165c2732d167d639f1ad0b130db9a6ed6dab6eddc2c9002561802d5a3 done
+#18 exporting attestation manifest sha256:9294da9f28ab3e9b72af9ce0be59c854893445860c069ad42b27136d8674e970 0.0s done
+#18 exporting manifest list sha256:6d2fb296609c38de1f7cdb4c3b218cd8be489cd2c021ffa725efcdf6347fbf06 0.0s done
+#18 naming to docker.io/library/shipping-service:0.1.0 done
+#18 unpacking to docker.io/library/shipping-service:0.1.0 done
+#18 DONE 0.1s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/4mxhpdz88j9jfixnv40uuniqo
+
+==> images in the profile:
+docker.io/library/shipping-service:0.1.0
+docker.io/library/notification-service:0.1.0
+Release "shipping" does not exist. Installing it now.
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 11:14:13 2026
+NAMESPACE: hfd-13
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+shipping-shipping-service 0.1.0 installed as release "shipping" in namespace hfd-13.
+Storage: memory
+
+Reach the service:
+  [host]$ kubectl -n hfd-13 get svc shipping-shipping-service
+
+==> --dry-run=client renders locally; --dry-run=server also resolves kinds and lookup against the cluster
+Release "shipping" has been upgraded. Happy Helming!
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 11:14:15 2026
+NAMESPACE: hfd-13
+STATUS: pending-upgrade
+REVISION: 2
+Release "shipping" has been upgraded. Happy Helming!
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 11:14:15 2026
+NAMESPACE: hfd-13
+STATUS: pending-upgrade
+REVISION: 2
+
+==> An unknown kind: helm template renders it, helm upgrade --dry-run=server stops at the cluster
+helm template: ok
+Error: UPGRADE FAILED: resource mapping not found for name: "x" namespace: "" from "": no matches for kind "Widget" in version "example.com/v1"
+ensure CRDs are installed first
+
+==> A string containerPort: both Helm dry-runs pass on Helm 4.3.0, the API server's own dry-run rejects it
+helm --dry-run=client: ok
+helm --dry-run=server: ok (no schema validation)
+configmap/shipping-shipping-service serverside-applied (server dry run)
+service/shipping-shipping-service serverside-applied (server dry run)
+Error from server: failed to create typed patch object (hfd-13/shipping-shipping-service; apps/v1, Kind=Deployment): .spec.template.spec.containers[name="shipping-service"].ports[containerPort="8080",protocol="TCP"].containerPort: expected numeric (int or float), got string
+
+==> helm diff upgrade against the live release
+hfd-13, shipping-shipping-service, ConfigMap (v1) has changed:
+  # Source: shipping-service/templates/configmap.yaml
+  apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: shipping-shipping-service
+    labels:
+      helm.sh/chart: shipping-service-0.13.0
+      app.kubernetes.io/name: shipping-service
+      app.kubernetes.io/instance: shipping
+      app.kubernetes.io/version: "0.1.0"
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/part-of: shipping-platform
+  data:
+    SERVICE_NAME: "shipping-shipping-service"
+    SERVICE_VERSION: "0.1.0"
+    DEPLOY_ENV: "dev"
+-   LOG_LEVEL: "INFO"
++   LOG_LEVEL: "DEBUG"
+    SHIPPING_DEFAULT_CARRIER: "ACME-Post"
+    SHIPPING_STORAGE: "memory"
+    KAFKA_ENABLED: "false"
+    KAFKA_TOPIC_DISPATCHED: "shipment.dispatched"
+hfd-13, shipping-shipping-service, Deployment (apps) has changed:
+  # Source: shipping-service/templates/deployment.yaml
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: shipping-shipping-service
+    labels:
+      helm.sh/chart: shipping-service-0.13.0
+      app.kubernetes.io/name: shipping-service
+      app.kubernetes.io/instance: shipping
+      app.kubernetes.io/version: "0.1.0"
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/part-of: shipping-platform
+    annotations:
+      patterncatalyst.io/domain: "shipping"
+      patterncatalyst.io/owner: "team-shipping"
+      patterncatalyst.io/data-product: "shipments"
+
+==> helm get manifest is what the cluster was sent; validate it
+Summary: 3 resources found parsing stdin - Valid: 3, Invalid: 0, Errors: 0, Skipped: 0
+
+## S7 extra: manifest vs template
+same kinds and names
+149a150,151
+> 
+> 
+## bad tag upgrade with --wait --timeout 60s
+level=WARN msg="upgrade failed" name=shipping error="resource Deployment/hfd-13/shipping-shipping-service not ready. status: InProgress, message: Pending termination: 1\ncontext deadline exceeded"
+Error: UPGRADE FAILED: resource Deployment/hfd-13/shipping-shipping-service not ready. status: InProgress, message: Pending termination: 1
+context deadline exceeded
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 11:14:22 2026
+NAMESPACE: hfd-13
+STATUS: failed
+REVISION: 2
+DESCRIPTION: Upgrade "shipping" failed: resource Deployment/hfd-13/shipping-shipping-service not ready. status: InProgress, message: Pending termination: 1
+context deadline exceeded
+RESOURCES:
+NAME                                        READY   STATUS         RESTARTS   AGE
+shipping-shipping-service-8595bd47c-78l6d   1/1     Running        0          70s
+shipping-shipping-service-cdb85599c-mhnc4   0/1     ErrImagePull   0          61s
+Error: UPGRADE FAILED: resource Deployment/hfd-13/shipping-shipping-service not ready. status: InProgress, message: Pending termination: 1
+context deadline exceeded
+NAME                                        READY   STATUS             RESTARTS   AGE
+shipping-shipping-service-8595bd47c-78l6d   1/1     Running            0          110s
+shipping-shipping-service-cdb85599c-mhnc4   0/1     ImagePullBackOff   0          101s
+      Reason:        ImagePullBackOff
+  Warning  Failed     25s (x5 over 99s)   kubelet            Error: ImagePullBackOff
+  Warning  Failed     11s (x4 over 100s)  kubelet            Failed to pull image "shipping-service:9.9.9": failed to pull and unpack image "docker.io/library/shipping-service:9.9.9": failed to resolve reference "docker.io/library/shipping-service:9.9.9": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed

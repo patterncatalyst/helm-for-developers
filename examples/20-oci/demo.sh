@@ -111,6 +111,7 @@ addon() {
 
 clean() {
     helm uninstall "$REL" -n "$NS" 2>/dev/null || true
+    kubectl delete namespace "$NS" --ignore-not-found --wait=false
     helm registry logout "$AUTH" 2>/dev/null || true
     "$ENGINE" rm -f hfd-registry hfd-registry-auth >/dev/null 2>&1 || true
     rm -rf "$WORK"

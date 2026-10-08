@@ -97,4 +97,4 @@ Chapter 19 packages these charts as `1.0.0` and serves them from a repository.
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. A live run must confirm that the chart generated from the starter installs and that its `helm test` pod passes against the shipping image.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/18-starters.txt`. Observed on Helm 4.3.0 and minikube: `helm create --starter pc-fastapi` found the starter by name in `$HELM_DATA_HOME/starters`, rewrote `Chart.yaml` without dependencies and copied `pc-lib-dependency.yaml`; one file kept `<CHARTNAME>`; the chart failed to render until the dependency was appended; the scaffolded chart installed with `image.repository=shipping-service` and its `helm test` pod reported `Phase: Succeeded`.*

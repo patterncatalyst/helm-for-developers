@@ -133,8 +133,23 @@ cluster_install() {
     helm list -n "$NS"
 }
 
+cache_caveat() {
+    step "content cache: a byte-identical unsigned copy passes install --verify only while the cache holds the .prov"
+    mkdir -p "$WORK/copy" "$WORK/pull-copy"
+    cp "$WORK/signed/shipping-service-1.0.0.tgz" "$WORK/copy/"   # the .prov stays behind
+    helm push "$WORK/copy/shipping-service-1.0.0.tgz" "oci://$REG/unsigned-copy" --plain-http | grep -E '^(Pushed|Digest)'
+    local ref="oci://$REG/unsigned-copy/shipping-service"
+    echo "pull --verify, warm cache (expected: fails):"
+    helm pull "$ref" --version 1.0.0 --plain-http --verify -d "$WORK/pull-copy" 2>&1 | grep -E '^Error' || true
+    echo "install --verify, warm cache (expected: passes):"
+    helm install probe "$ref" --version 1.0.0 --plain-http --verify -n "$NS" --dry-run=client 2>&1 | grep -E '^(Error|STATUS)' || true
+    echo "install --verify, empty cache (expected: fails):"
+    HELM_CACHE_HOME="$WORK/empty-cache" helm install probe "$ref" --version 1.0.0 --plain-http --verify -n "$NS" --dry-run=client 2>&1 | grep -E '^(Error|STATUS)' || true
+}
+
 clean() {
     helm uninstall "$REL" -n "$NS" 2>/dev/null || true
+    kubectl delete namespace "$NS" --ignore-not-found --wait=false
     "$ENGINE" rm -f hfd-registry >/dev/null 2>&1 || true
     fpr="$(gpg --list-secret-keys --with-colons "$KEYNAME" 2>/dev/null | awk -F: '/^fpr:/ {print $10; exit}')"
     [ -n "$fpr" ] && gpg --batch --yes --delete-secret-and-public-key "$fpr" 2>/dev/null || true
@@ -146,7 +161,7 @@ case "${1:-}" in
     offline) offline ;;
     clean) clean ;;
     "")
-        offline; make_gpg_key; sign_and_verify; start_registry; oci_signed; cosign_flow; cluster_install
+        offline; make_gpg_key; sign_and_verify; start_registry; oci_signed; cosign_flow; cluster_install; cache_caveat
         echo "The registry stays up for inspection. Run ./demo.sh clean to remove it, the throwaway GPG key and .work/." ;;
     *) echo "usage: $0 [offline|clean]" >&2; exit 2 ;;
 esac

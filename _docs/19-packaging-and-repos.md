@@ -156,4 +156,4 @@ Next, the same archive moves into an OCI registry, where the version is a tag an
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. To confirm on a live run: the install from `hfd-local` reaches Ready in `hfd-19`, `helm get metadata` reports chart 1.0.0 and appVersion 0.1.0, and `helm search repo` hides `1.1.0-rc.1` until `--devel`.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/19-packaging-repos.txt`. Observed on Helm 4.3.0 and minikube: `helm package` without `--dependency-update` failed with `missing in charts/ directory: pc-lib`; `--version` and `--app-version` changed the file name and the rendered image tag (`shipping-service:0.1.1`); the index digest equalled the `sha256sum` of the archive; `helm search repo` hid `1.1.0-rc.1` until `--devel`; `1.0` and `v1.0.2` were accepted as written; `helm pull -d` into a missing directory failed; the archive kept `templates/tests/`; the install from `hfd-local` reached Ready, `helm get metadata` reported chart 1.0.0 and appVersion 0.1.0, and `/api/info` answered through the NodePort tunnel.*

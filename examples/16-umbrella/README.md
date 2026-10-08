@@ -18,4 +18,4 @@ The full run needs the Strimzi and CloudNativePG operators. The offline run copi
 
 ## Verification status
 
-unverified. A live run must confirm: the release installs with `post-install` hooks and `shipping.probes.readiness.path=/health`; with `/healthz` readiness the release waits until the timeout; `tags.messaging=false` plus `shipping.kafka.enabled=false` installs without Kafka.
+`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/16-umbrella.txt`. The full demo exits 0 and `helm test platform` passes. Also observed: `/healthz` readiness times out and `--rollback-on-failure` uninstalls the release; `tags.messaging=false` plus `shipping.kafka.enabled=false` installs without Kafka and notification; a set `condition` overrides `tags`.

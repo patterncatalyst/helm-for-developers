@@ -14,4 +14,4 @@ The starter ships its dependency block as `pc-lib-dependency.yaml` because `helm
 
 ## Verification status
 
-unverified. A live run must confirm: the generated chart installs, and its `helm test` pod passes against the shipping image.
+`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/18-starters.txt`. The full demo exits 0: the generated chart installs and its `helm test` pod passes against the shipping image.

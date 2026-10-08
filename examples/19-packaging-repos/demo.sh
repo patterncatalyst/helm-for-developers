@@ -59,6 +59,7 @@ serve_and_use() {
 
 clean() {
     helm uninstall "$REL" -n "$NS" 2>/dev/null || true
+    kubectl delete namespace "$NS" --ignore-not-found --wait=false
     helm repo remove "$REPO_NAME" 2>/dev/null || true
     [ -f "$WORK/http.pid" ] && kill "$(cat "$WORK/http.pid")" 2>/dev/null || true
     rm -rf "$WORK"

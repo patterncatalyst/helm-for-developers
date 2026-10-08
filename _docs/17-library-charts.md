@@ -123,4 +123,4 @@ Chapter 18 turns this into a scaffold so the next service starts on the library.
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. A live run must confirm that release `platform` installs from the library-based charts and that `kubectl get deploy -o yaml` carries the `patterncatalyst.io/*` annotations.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/17-library-chart.txt`. Observed on Helm 4.3.0 and minikube: the library-based and copied charts rendered identically apart from the chart label and checksum for both services, with line counts 224 to 16 and 295 to 87; release `platform` installed from the library charts, the shipping and notification Deployments and Services carried `patterncatalyst.io/domain`, `owner` and `data-product`, and `helm test platform` passed.*

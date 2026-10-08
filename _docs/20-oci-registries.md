@@ -78,7 +78,7 @@ Helm saves the archive as `shipping-service@sha256-<digest>.tgz`. The same refer
 [host]$ helm upgrade --install shipping oci://127.0.0.1:5001/charts/shipping-service@sha256:<manifest digest> --plain-http -n hfd-20 --create-namespace --set service.type=NodePort --set service.nodePort=30080 --wait --rollback-on-failure
 ```
 
-If someone re-pushes a different chart to tag `1.0.0`, the tag moves and this install does not. In the demo run, pushing the same archive to both registries produced the same manifest digest (`sha256:a16196c9...`), so a digest you recorded stays valid after you mirror the artifact to another registry.
+If someone re-pushes a different chart to tag `1.0.0`, the tag moves and this install does not. In the demo run, pushing the same archive to both registries produced the same manifest digest (`sha256:d3392d33...` in the 2026-10-08 run; the value changes whenever the archive is rebuilt, so record yours), so a digest you recorded stays valid after you mirror the artifact to another registry.
 
 That property is why the signing flow in chapter 21 signs a digest and not a tag: a reference that names bytes is something you can verify, and a reference that names a tag is something you have to trust.
 
@@ -147,4 +147,4 @@ Chapter 21 signs both the package and the registry artifact so a consumer can ch
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. To confirm on a live run: install by digest reaches Ready in `hfd-20`, the registry addon push through `scripts/tunnel.sh start registry` succeeds, and a tag re-pushed with different content does not affect the digest install.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/20-oci.txt`. Observed on Helm 4.3.0 and minikube: the push without `--plain-http` failed with the HTTP-to-HTTPS error; pull by tag and by digest worked; the chart layer digest equalled the `sha256sum` of the archive while the manifest digest differed; the same archive pushed to the anonymous, authenticated and minikube-addon registries (through `scripts/tunnel.sh start registry`) produced one manifest digest; the authenticated push failed with `basic credential not found` before `helm registry login`; `helm dependency update --plain-http` pulled `pc-lib` from the registry; install by digest reached Ready in `hfd-20` from both the local registry and the addon registry and `/api/info` answered; after a different chart was pushed to tag `1.0.0` the tag returned appVersion 9.9.9 while the digest still returned 0.1.0.*

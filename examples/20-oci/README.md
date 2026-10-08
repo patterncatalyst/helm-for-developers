@@ -24,4 +24,4 @@ The registries use plain HTTP, so every command that talks to them carries `--pl
 
 ## Verification status
 
-`unverified`. `./demo.sh offline` passes. The registry flow ran locally during authoring; the cluster install by digest and the registry addon path are for the S7 sweep.
+`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/20-oci.txt`. `REGISTRY_ADDON=1 ./demo.sh` exits 0: push, pull by tag and digest, authenticated registry, OCI dependency, install by digest, and the push to the minikube registry addon through `scripts/tunnel.sh start registry`. The registry containers were removed afterwards.
