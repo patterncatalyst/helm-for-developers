@@ -7,7 +7,7 @@ const H = require("./deck-helpers.js");
 const {
   COLOR, FONT, W, PNG, ASSETS,
   newDeck, addFooter, addContentTitle, addTwoColBullets,
-  addStatusTable, addCaption, addCodeSlide, addSectionDivider, addNotes,
+  addStatusTable, addCaption, addCodeSlide, addSectionDivider, addNotes, patchSlide,
 } = H;
 
 const OUT = "Helm-101-r1.0.pptx";
@@ -17,27 +17,12 @@ const pres = newDeck();
 pres.title = "Helm for Developers 101";
 let pageNum = 0;
 
-function S() { const s = pres.addSlide(); pageNum += 1; addFooter(s, pageNum); return s; }
+function S() { const s = patchSlide(pres.addSlide()); pageNum += 1; addFooter(s, pageNum); return s; }
 function divider(code, title, subtitle, notes) {
-  const s = pres.addSlide(); pageNum += 1; addSectionDivider(s, code, title, subtitle); addNotes(s, notes);
+  const s = patchSlide(pres.addSlide()); pageNum += 1; addSectionDivider(s, code, title, subtitle); addNotes(s, notes);
 }
 // Code block text: template literal, one slide line per source line.
 function L(text) { return text.replace(/^\n/, "").replace(/\s+$/, "").split("\n"); }
-
-// Flags in running text are set as code runs so they read as literals.
-function pushText(runs, text, fontSize, last, para) {
-  const parts = text.split(/(--[a-z][a-z0-9-]*(?:=[A-Za-z|]+)?)/);
-  parts.forEach((part, i) => {
-    if (!part) return;
-    const isFlag = /^--[a-z]/.test(part);
-    const o = isFlag
-      ? { fontFace: FONT.mono, fontSize: fontSize - 1, color: COLOR.ink }
-      : { fontFace: FONT.body, fontSize, color: COLOR.body };
-    if (para && i === 0) Object.assign(o, para, o);
-    if (i === parts.length - 1 && last) o.breakLine = true;
-    runs.push({ text: part, options: o });
-  });
-}
 
 // ---- bold-lead bullets ------------------------------------------------------
 function leadBullets(slide, items, opts = {}) {
@@ -47,14 +32,14 @@ function leadBullets(slide, items, opts = {}) {
   items.forEach((b) => {
     const para = {
       fontFace: FONT.body, fontSize,
-      bullet: { code: "25CF", indent: 18 }, indentLevel: 0,
+      bullet: { code: "25CF", indent: 24 }, indentLevel: 0,
       paraSpaceBefore: 4, paraSpaceAfter: 16,
     };
     if (b.lead) {
       runs.push({ text: b.lead, options: { ...para, bold: true, color: COLOR.ink } });
-      pushText(runs, (b.sep === undefined ? ": " : b.sep) + b.text, fontSize, true);
+      runs.push({ text: (b.sep === undefined ? ": " : b.sep) + b.text, options: { fontFace: FONT.body, fontSize, color: COLOR.body, breakLine: true } });
     } else {
-      pushText(runs, b.text, fontSize, true, para);
+      runs.push({ text: b.text, options: { ...para, color: COLOR.body, breakLine: true } });
     }
   });
   slide.addText(runs, { x, y, w, h, valign: "top", margin: 0, lineSpacingMultiple: 1.12 });
@@ -68,18 +53,9 @@ function leadSlide(eyebrow, title, items, notes, opts) {
 function codeBulletsSlide(eyebrow, title, lang, code, caption, items, notes, opts = {}) {
   const s = S();
   const cw = opts.codeW ?? 7.0;
-  const fs = opts.fontSize ?? 11;
-  const co = { w: cw, fontSize: fs, captionW: cw };
-  if (opts.autoH) {
-    co.h = Math.min(4.65, Math.max(2.0, code.length * fs * 0.0215 + 0.55));
-    co.captionW = cw;
-    addCodeSlide(s, eyebrow, title, lang, code, null, co);
-    addCaption(s, caption, 1.85 + co.h + 0.08, cw);
-  } else {
-    addCodeSlide(s, eyebrow, title, lang, code, caption, co);
-  }
+  addCodeSlide(s, eyebrow, title, lang, code, caption, { w: cw, captionW: cw, fontSize: opts.fontSize });
   const bx = 0.62 + cw + 0.35;
-  leadBullets(s, items, { x: bx, y: 1.95, w: W - 0.62 - bx, h: 4.5, fontSize: opts.bulletSize ?? 15 });
+  leadBullets(s, items, { x: bx, y: 1.75, w: W - 0.62 - bx, h: 4.7, fontSize: opts.bulletSize ?? 15 });
   addNotes(s, notes);
   return s;
 }
@@ -95,7 +71,7 @@ function codeSlide(eyebrow, title, lang, code, caption, notes, opts = {}) {
 function diagramSlide(eyebrow, title, png, caption, notes) {
   const s = S();
   addContentTitle(s, eyebrow, title);
-  const w = 12.09, h = 4.55, x = 0.62, y = 1.85;
+  const w = 12.09, h = 4.90, x = 0.62, y = 1.55;
   s.addImage({ path: `${PNG}/${png}.png`, x, y, w, h, sizing: { type: "contain", w, h } });
   addCaption(s, caption, 6.50);
   addNotes(s, notes);
@@ -198,7 +174,7 @@ shipping-service/
    { lead: "values.yaml", text: "defaults, read by templates as .Values." },
    { lead: "templates/", text: "Go templates; Helm renders each file to YAML." },
    { lead: ".helmignore", text: "gitignore syntax; /tests/ with a leading slash matches only the top-level directory." }],
-  "What it shows: the smallest useful chart, built by hand from the chapter 03 manifests. helm create generates a larger scaffold (service account, HPA, ingress, HTTPRoute, test pod), which is a reference and too much to start from. The hand-built chart replaces only what must change per release. What to show: in examples/04-first-chart, ./demo.sh offline prints the generated helm create file list so the two layouts can be compared. Fallback: chapter 04, section helm create and a lean chart. The .helmignore entry is /tests/ with a leading slash because an unanchored tests/ would also match templates/tests/, which the 201 relies on.", { fontSize: 14, codeW: 7.6, autoH: true });
+  "What it shows: the smallest useful chart, built by hand from the chapter 03 manifests. helm create generates a larger scaffold (service account, HPA, ingress, HTTPRoute, test pod), which is a reference and too much to start from. The hand-built chart replaces only what must change per release. What to show: in examples/04-first-chart, ./demo.sh offline prints the generated helm create file list so the two layouts can be compared. Fallback: chapter 04, section helm create and a lean chart. The .helmignore entry is /tests/ with a leading slash because an unanchored tests/ would also match templates/tests/, which the 201 relies on.", { codeW: 7.6 });
 
 codeBulletsSlide("FIRST CHART · METADATA", "Chart metadata fields", "yaml",
   L(`
@@ -213,7 +189,7 @@ appVersion: "0.1.0"
    { lead: "type", text: "application is installable; library is not (201)." },
    { lead: "version", text: "identifies the chart package, SemVer. A template fix bumps it." },
    { lead: "appVersion", text: "identifies the application. A new image bumps it. Quoted, so 1.10 stays a string." }],
-  "What it shows: the five fields every chart needs. version and appVersion move independently: a template fix bumps the chart version, a new image bumps appVersion, and the image tag in values.yaml defaults to .Chart.AppVersion so the two never need a second edit. In the tutorial the chart version follows the chapter number (0.4.0) until chapter 19, which releases 1.0.0. What to show: helm show chart ./shipping-service from examples/04-first-chart. Fallback: chapter 04, How the code works. apiVersion is quoted nowhere because it is a plain string; appVersion is quoted because an unquoted 1.10 would be read as the number 1.1.", { fontSize: 20, autoH: true });
+  "What it shows: the five fields every chart needs. version and appVersion move independently: a template fix bumps the chart version, a new image bumps appVersion, and the image tag in values.yaml defaults to .Chart.AppVersion so the two never need a second edit. In the tutorial the chart version follows the chapter number (0.4.0) until chapter 19, which releases 1.0.0. What to show: helm show chart ./shipping-service from examples/04-first-chart. Fallback: chapter 04, How the code works. apiVersion is quoted nowhere because it is a plain string; appVersion is quoted because an unquoted 1.10 would be read as the number 1.1.", {});
 
 diagramSlide("FIRST CHART · LIFECYCLE", "Install, upgrade, rollback", "h101-revisions",
   "Each command writes one revision Secret; the rollback in revision 3 carries the contents of revision 1.",
@@ -232,8 +208,7 @@ codeSlide("FIRST CHART · STORAGE", "Release history and storage", "bash",
 # --history-max (default 10) prunes the oldest revisions on upgrade
 `),
   "examples/04-first-chart, examples/12-release-lifecycle",
-  "What it shows: the read side of a release. helm history lists revisions, helm get values prints the user-supplied values (--all adds the merged result), helm get manifest prints the rendered objects stored in the latest revision, and kubectl shows the Secrets behind them. The Secret holds the chart, merged values, manifest and status, gzipped and base64-encoded. Uninstall removes the Secrets with the workload; --keep-history leaves the release listed as uninstalled. What to show: examples/12-release-lifecycle, ./demo.sh steps 5 through 7, which read the history, run each helm get subcommand and decode the newest release Secret with base64 -d, base64 -d and gunzip. Fallback: chapter 12, section Revisions live in Secrets. Only one revision per release is deployed at a time.",
-  { fontSize: 18 });
+  "What it shows: the read side of a release. helm history lists revisions, helm get values prints the user-supplied values (--all adds the merged result), helm get manifest prints the rendered objects stored in the latest revision, and kubectl shows the Secrets behind them. The Secret holds the chart, merged values, manifest and status, gzipped and base64-encoded. Uninstall removes the Secrets with the workload; --keep-history leaves the release listed as uninstalled. What to show: examples/12-release-lifecycle, ./demo.sh steps 5 through 7, which read the history, run each helm get subcommand and decode the newest release Secret with base64 -d, base64 -d and gunzip. Fallback: chapter 12, section Revisions live in Secrets. Only one revision per release is deployed at a time.");
 
 // ===== VALUES ==================================================================
 divider("04", "Values", "The chart's public interface.",
@@ -262,8 +237,7 @@ codeSlide("VALUES · COMMAND LINE", "Override flags", "bash",
 # --set-literal keeps commas: renders "ACME,Post"
 `),
   "Run from examples/05-values; demo.sh in the same directory",
-  "What it shows: the five ways to set a value from the command line and how each types its input. The commands assume the working directory examples/05-values, so the chart is ./shipping-service. --set guesses, so a comma in a value breaks it (--set config.defaultCarrier=ACME,Post fails with key Post has no value). --set-string forces a string, which matters for an image tag such as 12345. --set-json passes structured data. --set-file reads a file. --set-literal keeps commas and special characters verbatim. What to show: run the first command and then the --set-string variant with the unquoted --set, to see the schema reject the number. Fallback: chapter 05, section Precedence, which lists the five variants with the observed error text. For repeatable deployments, prefer -f files committed to Git and treat --set as the exception.",
-  { fontSize: 13 });
+  "What it shows: the five ways to set a value from the command line and how each types its input. The commands assume the working directory examples/05-values, so the chart is ./shipping-service. --set guesses, so a comma in a value breaks it (--set config.defaultCarrier=ACME,Post fails with key Post has no value). --set-string forces a string, which matters for an image tag such as 12345. --set-json passes structured data. --set-file reads a file. --set-literal keeps commas and special characters verbatim. What to show: run the first command and then the --set-string variant with the unquoted --set, to see the schema reject the number. Fallback: chapter 05, section Precedence, which lists the five variants with the observed error text. For repeatable deployments, prefer -f files committed to Git and treat --set as the exception.");
 
 codeBulletsSlide("VALUES · VALIDATION", "Values schema", "json",
   L(`
@@ -278,12 +252,6 @@ codeBulletsSlide("VALUES · VALIDATION", "Values schema", "json",
       "properties": {
         "pullPolicy": {"enum": ["Always", "IfNotPresent", "Never"]}
       }
-    },
-    "service": {
-      "properties": {
-        "nodePort": {"type": ["integer", "null"],
-                     "minimum": 30000, "maximum": 32767}
-      }
     }
   }
 }
@@ -294,7 +262,7 @@ codeBulletsSlide("VALUES · VALIDATION", "Values schema", "json",
    { lead: "enum, minimum, maximum", text: "close sets and ranges, such as the NodePort range." },
    { lead: "Strict by design", text: "a new value needs a schema entry in the same commit." }],
   "What it shows: an abridged values.schema.json. Helm checks the schema after all values are merged and before any template runs, on install, upgrade, template and lint. With additionalProperties false at the top level, a typo such as replicas for replicaCount fails with a path into the values. The type array integer-or-null is how a nullable default is expressed. The draft-07 declaration follows the Helm charts documentation; Helm 4.3.0 also accepted a 2020-12 declaration when linted locally. What to show: examples/05-values, ./demo.sh offline, which proves the schema rejects both a wrong type and an unknown key. Fallback: the error block in chapter 05 Build run observe. Cross-check: helm lint with --skip-schema-validation passes a bad value, which shows the schema is the only guard.",
-  { codeW: 7.8, fontSize: 12 });
+  { codeW: 8.4, bulletSize: 14 });
 
 // ===== TEMPLATES ===============================================================
 divider("05", "Templates", "Go templates, Sprig and named templates.",
@@ -319,7 +287,7 @@ metadata:
    { lead: "Variables", text: "declared with := and read as $name." },
    { lead: "Whitespace", text: "{{- and -}} trim newlines; the file still starts with apiVersion." }],
   "What it shows: the top of the chapter 06 Deployment template. Everything inside double braces is evaluated against a context, written dot. $fullname removes the four repeated name expressions from chapter 04. printf builds the image reference. The pipeline .Values.image.tag | default .Chart.AppVersion means: use the tag, or the application version when the tag is empty. Sprig supplies default, quote, trunc, trimSuffix, printf, sha256sum and b64enc; Helm adds toYaml, fromYaml, include, tpl, required and lookup. What to show: helm template shipping examples/06-templates/shipping-service -n hfd-06 --show-only templates/deployment.yaml. Fallback: chapter 06, section Pipelines, whitespace and flow control. Whitespace is literal: a misplaced space in YAML changes the meaning, and helm template --debug prints the output even when it is not valid YAML.",
-  { codeW: 8.2, fontSize: 12, autoH: true });
+  { codeW: 8.8, bulletSize: 14 });
 
 codeSlide("TEMPLATES · CONTROL", "Flow control and scope", "yaml",
   L(`
@@ -340,8 +308,7 @@ nodePort: {{ .Values.service.nodePort }}
 {{- end }}
 `),
   "examples/06-templates/shipping-service/templates (deployment.yaml, service.yaml)",
-  "What it shows: the three flow-control actions, each closed by end. if runs a block when the condition is truthy; empty strings, 0, false, null, empty maps and empty lists are false. with runs the block only for a non-empty value and rebinds dot to it, so an empty imagePullSecrets list removes the whole key. range loops over a list or, with $key, $value :=, over a map. Inside with and range, dot is rebound, so $ reaches the root context. What to show: helm template shipping examples/06-templates/shipping-service -n hfd-06 -f examples/06-templates/values-dev.yaml --show-only templates/deployment.yaml, then the same command without -f: the first renders the annotations and env blocks, the second has neither. Fallback: chapter 06, Build run observe. A nodePort set while the type is ClusterIP would be rejected by the API server, which is why service.yaml drops it.",
-  { fontSize: 16 });
+  "What it shows: the three flow-control actions, each closed by end. if runs a block when the condition is truthy; empty strings, 0, false, null, empty maps and empty lists are false. with runs the block only for a non-empty value and rebinds dot to it, so an empty imagePullSecrets list removes the whole key. range loops over a list or, with $key, $value :=, over a map. Inside with and range, dot is rebound, so $ reaches the root context. What to show: helm template shipping examples/06-templates/shipping-service -n hfd-06 -f examples/06-templates/values-dev.yaml --show-only templates/deployment.yaml, then the same command without -f: the first renders the annotations and env blocks, the second has neither. Fallback: chapter 06, Build run observe. A nodePort set while the type is ClusterIP would be rejected by the API server, which is why service.yaml drops it.");
 
 codeBulletsSlide("TEMPLATES · REUSE", "Named templates", "yaml",
   L(`
@@ -365,7 +332,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
    { lead: "template", text: "inserts output directly and cannot be piped; use include." },
    { lead: "Pass the context", text: "the trailing dot; omit it and .Release fails." }],
   "What it shows: a named template defined once and included from every manifest. Files that begin with an underscore are loaded as libraries and never rendered as manifests. Names are global across the chart and its subcharts, so the convention is chartname.helper; two charts defining fullname would silently overwrite each other. The pattern include ... | nindent 4 is the idiom for a multi-line helper: the helper emits unindented lines and the call site picks the depth. Selector labels stay minimal and stable because a Deployment's selector cannot change after creation; the full recommended label set goes on metadata and pod templates. What to show: helm template shipping examples/07-helpers-notes/shipping-service --show-only templates/service.yaml, and the offline assertions in ./demo.sh offline for the fullname cases. Fallback: chapter 07, section Named templates. The fullname helper handles nameOverride, fullnameOverride and a release name that already contains the chart name.",
-  { codeW: 8.4, fontSize: 12 });
+  { codeW: 8.8, bulletSize: 14 });
 
 tableSlide("TEMPLATES · FUNCTIONS", "tpl, required, fail, lookup",
   [{ code: "tpl", name: "Render a string", purpose: "tpl $value $ evaluates a value as a template; apply it only to values the operator controls" },
@@ -378,9 +345,6 @@ tableSlide("TEMPLATES · FUNCTIONS", "tpl, required, fail, lookup",
 
 codeSlide("TEMPLATES · POST-INSTALL", "Post-install notes", "text",
   L(`
-{{ include "pc-lib.fullname" . }} {{ .Chart.AppVersion }} installed as release "{{ .Release.Name }}" in namespace {{ .Release.Namespace }}.
-Storage: {{ .Values.config.storage }}
-
 Reach the service:
 {{- if eq .Values.service.type "NodePort" }}
   [host]$ minikube -p helm4dev service {{ include "pc-lib.fullname" . }} -n {{ .Release.Namespace }} --url
@@ -391,9 +355,8 @@ Reach the service:
 Run the chart test:
   [host]$ helm test {{ .Release.Name }} -n {{ .Release.Namespace }}
 `),
-  "charts/shipping-service/templates/NOTES.txt",
-  "What it shows: a NOTES.txt template. It renders with the same context as any template and is printed by helm install and helm upgrade; helm get notes reprints it later. This one branches on service.type so a NodePort release gets the minikube service command and every other type gets kubectl get svc. The file in templates/ is the place for the next command the reader needs. The same context gives access to .Files: .Files.Get returns a chart file as a string, and .Files.Glob with .AsConfig renders files as ConfigMap data. What to show: examples/07-helpers-notes, helm install with --dry-run=client prints the NOTES block, and helm get notes shipping -n hfd-07 after a live install. Fallback: the observed NOTES output in chapter 07. helm template never prints notes.",
-  { fontSize: 13 });
+  "charts/shipping-service/templates/NOTES.txt (abridged: the header and storage lines are omitted)",
+  "What it shows: a NOTES.txt template. It renders with the same context as any template and is printed by helm install and helm upgrade; helm get notes reprints it later. This one branches on service.type so a NodePort release gets the minikube service command and every other type gets kubectl get svc. The file in templates/ is the place for the next command the reader needs. The same context gives access to .Files: .Files.Get returns a chart file as a string, and .Files.Glob with .AsConfig renders files as ConfigMap data. What to show: examples/07-helpers-notes, helm install with --dry-run=client prints the NOTES block, and helm get notes shipping -n hfd-07 after a live install. Fallback: the observed NOTES output in chapter 07. helm template never prints notes.");
 
 // ===== CONFIG, DATA, HOOKS =====================================================
 divider("06", "Config, data, hooks", "Rollouts, secrets, dependencies and migrations.",
@@ -413,7 +376,7 @@ codeBulletsSlide("CONFIG · ROLLOUTS", "Config rollouts with checksums", "yaml",
    { lead: "Deterministic input only", text: "hashing a Secret built with randAlphaNum would roll pods on every render." },
    { lead: "Alternative", text: "immutable ConfigMap with a content hash in its name." }],
   "What it shows: the standard Helm answer to configuration changes that do not restart pods. Kubernetes rolls a Deployment only when its pod template changes, and a ConfigMap update changes nothing in the Deployment. The annotation holds a sha256 of the rendered ConfigMap text; include with a path renders that template file as a string with the current context. An unchanged ConfigMap gives the same hash and no restart. The checksum covers only the ConfigMap: a generated Secret renders differently on every run, so hashing it would defeat the point. What to show: examples/08-config-secrets, ./demo.sh offline asserts that the checksum is stable for equal input and changes with config.logLevel; live, ./demo.sh upgrades the carrier and lists pods before and after. Fallback: the two observed checksum lines in chapter 08. The immutable ConfigMap alternative orphans old objects but guarantees configuration cannot change under a running pod.",
-  { codeW: 8.0, fontSize: 12, autoH: true });
+  { codeW: 8.8, bulletSize: 14 });
 
 tableSlide("CONFIG · SECRETS", "Secret management options",
   [{ code: "existingSecret", name: "Nothing in Git", purpose: "Secret created out of band; the chart references the name through secretKeyRef" },
@@ -467,7 +430,7 @@ due to rollback-on-failure being set: ... not ready. status: InProgress
    { lead: "--cleanup-on-fail", text: "removes only what the upgrade created; revision stays failed." },
    { lead: "Read the pod next", text: "kstatus reports the Deployment; the cause is on the pod." }],
   "What it shows: an induced failure and the two recovery behaviors. The commands assume the working directory examples/12-release-lifecycle. Setting image.tag to a tag that does not exist makes the new pod fail to pull; with --wait the upgrade times out, the revision is marked failed, and --rollback-on-failure rolls back to the last successful revision as a new revision. The failed attempt keeps its own revision number, and the rollback is revision 5 with the description Rollback to 3, not a return to 3. The old ReplicaSet kept serving during the whole failure. --timeout bounds each wait and defaults to five minutes; --wait-for-jobs adds Jobs to the wait. What to show: examples/12-release-lifecycle, ./demo.sh steps 3 and 4, then kubectl describe pod, because Helm's message (Pending termination: 1) describes the Deployment and not the cause. Fallback: the observed failure path in chapter 12.",
-  { codeW: 7.9, fontSize: 12, bulletSize: 14, autoH: true });
+  { codeW: 8.8, bulletSize: 14 });
 
 leadSlide("SAFE RELEASES · APPLY", "Server-side apply",
   [{ lead: "Default for new releases", text: "helm install --server-side is true; upgrade defaults to auto and follows the previous revision's method." },
@@ -491,8 +454,7 @@ codeSlide("SAFE RELEASES · VERIFY", "Lint, template, dry-run", "bash",
 [host]$ helm upgrade --install shipping ./shipping-service -n hfd-05 --dry-run=server
 `),
   "Run from examples/05-values; demo.sh in the same directory",
-  "What it shows: four levels of checking before anything changes in the cluster. The commands assume the working directory examples/05-values. helm lint renders every template and checks structure and the schema. helm template renders locally and, piped through kubeconform -strict, validates each object against the Kubernetes schemas; custom resources without a schema in the default catalog are skipped and reported in the summary. --dry-run=client renders and prints notes with no cluster connection. --dry-run=server connects, so kinds resolve against the API server, lookup returns live objects and .Capabilities.APIVersions reflects the real cluster. On Helm 4.3.0 it does not schema-validate fields: a string containerPort, an unknown field or a Pod Security violation all pass, so use kubeconform, or kubectl apply --server-side --dry-run=server on helm template output, for that. In Helm 4, --dry-run takes none, client or server. What to show: ./demo.sh offline in examples/05-values and examples/10-crds-operators; the second expects the postgres render to fail without the operator and shows the guard message. Fallback: chapter 10, the operator guard section, and chapter 13 in the 201 for the full debugging ladder. Lint does not resolve import-values.",
-  { fontSize: 14 });
+  "What it shows: four levels of checking before anything changes in the cluster. The commands assume the working directory examples/05-values. helm lint renders every template and checks structure and the schema. helm template renders locally and, piped through kubeconform -strict, validates each object against the Kubernetes schemas; custom resources without a schema in the default catalog are skipped and reported in the summary. --dry-run=client renders and prints notes with no cluster connection. --dry-run=server connects, so kinds resolve against the API server, lookup returns live objects and .Capabilities.APIVersions reflects the real cluster. On Helm 4.3.0 it does not schema-validate fields: a string containerPort, an unknown field or a Pod Security violation all pass, so use kubeconform, or kubectl apply --server-side --dry-run=server on helm template output, for that. In Helm 4, --dry-run takes none, client or server. What to show: ./demo.sh offline in examples/05-values and examples/10-crds-operators; the second expects the postgres render to fail without the operator and shows the guard message. Fallback: chapter 10, the operator guard section, and chapter 13 in the 201 for the full debugging ladder. Lint does not resolve import-values.");
 
 leadSlide("NEXT STEPS", "Next: Helm 201",
   [{ lead: "Testing and debugging", text: "the debug ladder, helm diff, helm-unittest, chart-testing, kubeconform and a chart CI pipeline." },
@@ -515,4 +477,4 @@ tableSlide("APPENDIX · MIGRATION", "Helm 3 to 4 flag map",
   "What it shows: the renamed and changed flags for readers with existing scripts and CI. This is the only slide in the deck that writes Helm 3 flags, and each such line carries a helm3-reference marker in the source. The old spellings of the rename pair still work in Helm 4 with a deprecation warning, which makes them findable in CI logs. Charts themselves are unchanged. What to show: helm install --help and helm upgrade --help from the project binary to confirm each Helm 4 flag. Fallback: chapter 28, the migration appendix, which lists the official source for each row (the Helm 4 overview, the changelog and the v4.0.0 release notes). New flags worth knowing: --server-side, --force-conflicts, --take-ownership, --wait-for-jobs, --skip-schema-validation and --history-max. The first step of a migration is to replace the renamed flags, make --wait explicit, wrap each post-renderer script in a plugin and drop oci:// from registry login.",
   { rowH: 0.74 });
 
-pres.writeFile({ fileName: OUT }).then(() => console.log("wrote " + OUT + " (" + pageNum + " slides)"));
+pres.writeFile({ fileName: OUT }).then((f) => H.finalizePptx(f).then(() => console.log("wrote " + OUT + " (" + pageNum + " slides)")));

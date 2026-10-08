@@ -37,7 +37,7 @@ def main():
 
     # 3) Report
     rendered = sorted(glob.glob(f"{PNG}/*.png"))
-    print(f"\nRendered {len(rendered)} deck PNGs:")
+    print(f"\nRendered {len(rendered)} PNGs:")
     for p in rendered:
         print(f"  {os.path.basename(p)}")
 

@@ -7,7 +7,7 @@ const H = require("./deck-helpers.js");
 const {
   COLOR, FONT, W, PNG, ASSETS,
   newDeck, addFooter, addContentTitle, addBullets, addTwoColBullets,
-  addStatusTable, addCaption, addCodeSlide, addDiagramSlide, addSectionDivider, addNotes,
+  addStatusTable, addCaption, addCodeSlide, addDiagramSlide, addSectionDivider, addNotes, patchSlide,
 } = H;
 
 const OUT = "Helm-201-r1.0.pptx";
@@ -17,29 +17,9 @@ const pres = newDeck();
 pres.title = "Helm for Developers 201";
 let pageNum = 0;
 
-// Keep flags and hyphenated tool names on one line: swap hyphen-minus for U+2011 in
-// non-code text (code runs in Red Hat Mono are left untouched).
-const NB_NAMES = /\b(helm-unittest|helm-diff|chart-testing|post-renderers?|server-side|read-only|group-0|Wasm-hello)\b/g;
-function nb(t) {
-  if (typeof t !== "string") return t;
-  return t.replace(/(^|[\s(])(--?[A-Za-z][\w.-]*)/g, (m, a, f) => a + f.replace(/-/g, "\u2011"))
-          .replace(NB_NAMES, (m) => m.replace(/-/g, "\u2011"));
-}
-function nbRuns(t, o) {
-  if (typeof t === "string") return (o && o.fontFace === FONT.mono) ? t : nb(t);
-  if (Array.isArray(t)) return t.map((r) => (r && r.options && r.options.fontFace === FONT.mono) ? r : { ...r, text: nb(r.text) });
-  return t;
-}
-function patch(s) {
-  const at = s.addText.bind(s);
-  s.addText = (t, o) => at(nbRuns(t, o), o);
-  const atb = s.addTable.bind(s);
-  s.addTable = (rows, o) => atb(rows.map((r) => r.map((c) => (c && c.options && c.options.fontFace === FONT.mono) ? c : { ...c, text: nb(c.text) })), o);
-  return s;
-}
-function S() { const s = patch(pres.addSlide()); pageNum += 1; addFooter(s, pageNum); return s; }
+function S() { const s = patchSlide(pres.addSlide()); pageNum += 1; addFooter(s, pageNum); return s; }
 function divider(code, title, subtitle, notes) {
-  const s = patch(pres.addSlide()); pageNum += 1; addSectionDivider(s, code, title, subtitle); addNotes(s, notes);
+  const s = patchSlide(pres.addSlide()); pageNum += 1; addSectionDivider(s, code, title, subtitle); addNotes(s, notes);
 }
 
 // Notes: "What it shows / What to show / Fallback".
@@ -56,7 +36,7 @@ function leadBullets(slide, items, opts = {}) {
   const fontSize = opts.fontSize ?? 20;
   const runs = [];
   items.forEach((b) => {
-    const para = { fontFace: FONT.body, fontSize, bullet: { code: "25CF", indent: 18 }, paraSpaceBefore: 4, paraSpaceAfter: 13 };
+    const para = { fontFace: FONT.body, fontSize, bullet: { code: "25CF", indent: 24 }, paraSpaceBefore: 4, paraSpaceAfter: 13 };
     runs.push({ text: b.lead, options: { ...para, bold: true, color: COLOR.ink } });
     runs.push({ text: " — " + b.text, options: { fontFace: FONT.body, fontSize, color: COLOR.body, breakLine: true } });
   });
@@ -69,7 +49,7 @@ function codeSlide(eyebrow, title, lang, lines, caption, notes, opts) {
   const s = S(); addCodeSlide(s, eyebrow, title, lang, lines, caption, opts || {}); addNotes(s, notes); return s;
 }
 function diagramSlide(eyebrow, title, png, caption, notes) {
-  const s = S(); addDiagramSlide(s, eyebrow, title, png, caption, { x: 0.97, y: 1.80, w: 11.4, h: 4.65 }); addNotes(s, notes); return s;
+  const s = S(); addDiagramSlide(s, eyebrow, title, png, caption, { x: 0.62, y: 1.55, w: 12.09, h: 4.90 }); addNotes(s, notes); return s;
 }
 function tableSlide(eyebrow, title, rows, colW, notes, rowH, fs) {
   const s = S(); addContentTitle(s, eyebrow, title); addStatusTable(s, rows, { colW, rowH: rowH ?? 0.86, fs: fs ?? [17, 16, 15] }); addNotes(s, notes); return s;
@@ -160,8 +140,6 @@ templates:
 tests:
   - it: renders a Deployment with the default image tag from appVersion
     asserts:
-      - isKind:
-          of: Deployment
       - equal:
           path: spec.template.spec.containers[0].image
           value: shipping-service:0.1.0
@@ -225,12 +203,6 @@ spec:
         port: 9092
         type: internal
         tls: false
-    config:
-      offsets.topic.replication.factor: 1
-      min.insync.replicas: 1
-  entityOperator:
-    topicOperator: {}
-    userOperator: {}
 # values.yaml: the contract other charts import
 exports:
   kafka:
@@ -252,8 +224,6 @@ codeSlide("MULTI-SERVICE", "Conditions, tags, alias", "yaml · Chart.yaml",
 dependencies:
   - name: shipping-service
     alias: shipping
-    version: 0.16.0
-    repository: file://../shipping-service
     condition: shipping.enabled
   - name: notification-service
     alias: notification
@@ -261,9 +231,6 @@ dependencies:
   - name: shipping-postgres
     alias: db
     condition: db.enabled
-    import-values:
-      - child: exports.postgres
-        parent: shipping.postgres
   - name: shipping-kafka
     alias: kafka
     tags: [messaging]
@@ -524,18 +491,14 @@ codeSlide("DELIVERY", "Observability via pc-lib", "go template · _otel.tpl",
 {{- define "pc-lib.otelEnv" -}}
 {{- $global := default (dict) .Values.global -}}
 {{- $endpoint := default (default "" $global.otlpEndpoint) .Values.otel.endpoint -}}
-{{- $svc := default (include "pc-lib.fullname" .) .Values.otel.serviceName -}}
 - name: OTEL_SDK_DISABLED
   value: {{ if $endpoint }}"false"{{ else }}"true"{{ end }}
 {{- if $endpoint }}
 - name: OTEL_EXPORTER_OTLP_ENDPOINT
   value: {{ $endpoint | quote }}
 {{- end }}
-- name: OTEL_SERVICE_NAME
-  value: {{ $svc | quote }}
 # umbrella values.yaml
 global:
-  environment: dev
   otlpEndpoint: http://otel-collector.observability.svc.cluster.local:4318
 `),
   "One endpoint on the umbrella; an empty endpoint disables the SDK so the chart runs without a collector.",
@@ -650,4 +613,4 @@ tableSlide("APPENDIX · REFERENCE", "Cheat sheet",
     "chapter 30."));
 }
 
-pres.writeFile({ fileName: OUT }).then((f) => console.log("wrote", f, "slides:", pageNum));
+pres.writeFile({ fileName: OUT }).then((f) => H.finalizePptx(f).then(() => console.log("wrote", f, "slides:", pageNum)));

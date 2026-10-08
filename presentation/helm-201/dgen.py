@@ -176,8 +176,9 @@ class Scene:
         """Alias for label."""
         self.label(x, y, text, size=size, weight=weight, color=color, anchor=anchor)
 
-    def arrow(self, x1, y1, x2, y2, label=None, kind="neutral", dashed=False, label_offset=-6):
-        """Arrow with optional mid-label."""
+    def arrow(self, x1, y1, x2, y2, label=None, kind="neutral", dashed=False, label_offset=-6, label_dx=0):
+        """Arrow with optional mid-label. label_dx moves the label sideways (vertical arrows):
+        positive puts it to the right of the line, negative to the left."""
         stroke = PALETTE[kind]
         dash = ' stroke-dasharray="6,4"' if dashed else ""
         marker = f'_arrow_{kind}_{1 if dashed else 0}'
@@ -187,17 +188,18 @@ class Scene:
             f'marker-end="url(#{marker})"/>'
         )
         if label:
-            mx = (x1 + x2) / 2
+            mx = (x1 + x2) / 2 + label_dx
             my = (y1 + y2) / 2 + label_offset
+            anchor = "start" if label_dx > 0 else "end" if label_dx < 0 else "middle"
             self._svg_parts.append(
                 f'<text x="{mx}" y="{my}" font-family="Red Hat Text, Arial, sans-serif" font-size="{11 * FS:g}" '
-                f'fill="{PALETTE["muted"]}" text-anchor="middle">{_xml(label)}</text>'
+                f'fill="{PALETTE["muted"]}" text-anchor="{anchor}">{_xml(label)}</text>'
             )
         # Excalidraw arrow
         self._excali_elements.append(_excali_arrow(x1, y1, x2, y2, kind, dashed))
         if label:
             self._excali_elements.append(
-                _excali_text((x1+x2)/2, (y1+y2)/2 + label_offset - 12, label, size=11 * FS, color=EXCALI_STROKE["muted"], align="center")
+                _excali_text((x1+x2)/2 + label_dx, (y1+y2)/2 + label_offset - 12, label, size=11 * FS, color=EXCALI_STROKE["muted"], align=anchor if label_dx else "center")
             )
 
     def divider(self, x1, y1, x2, y2, kind="grid"):

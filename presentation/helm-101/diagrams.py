@@ -16,26 +16,26 @@ def h101_yaml_sprawl():
               title="Raw manifests versus one chart",
               subtitle="Three environments: nine files to keep in step, or one template and three small override files")
     # left: sprawl
-    s.panel(40, 110, 560, 400)
-    s.label(320, 140, "Raw manifests", size=15, weight="bold", anchor="middle", color=PALETTE["danger"])
+    s.panel(40, 110, 540, 400)
+    s.label(310, 140, "Raw manifests", size=15, weight="bold", anchor="middle", color=PALETTE["danger"])
     envs = ["dev/", "stage/", "prod/"]
     for i, e in enumerate(envs):
-        x = 70 + i * 175
-        s.box(x, 175, 160, 40, e, kind="danger", mono=True)
+        x = 52 + i * 174
+        s.box(x, 175, 166, 40, e, kind="danger", mono=True)
         for j, f in enumerate(["configmap.yaml", "deployment.yaml", "service.yaml"]):
-            s.box(x, 235 + j * 52, 160, 40, f, kind="neutral", mono=True)
-    s.label(320, 440, "9 files, copied and edited per environment", size=13, anchor="middle", color=PALETTE["neutral"])
-    s.label(320, 464, "A fix in one file must be repeated in two more", size=13, anchor="middle", color=PALETTE["neutral"])
+            s.box(x, 235 + j * 52, 166, 40, f, kind="neutral", mono=True)
+    s.label(310, 440, "9 files, copied and edited per environment", size=13, anchor="middle", color=PALETTE["neutral"])
+    s.label(310, 464, "A fix in one file must be repeated in two more", size=13, anchor="middle", color=PALETTE["neutral"])
     # right: chart
-    s.panel(640, 110, 560, 400)
-    s.label(920, 140, "One chart", size=15, weight="bold", anchor="middle", color=PALETTE["platform"])
-    s.box(670, 175, 500, 100, "shipping-service/", ["Chart.yaml  values.yaml", "templates/ configmap, deployment, service"], kind="rest", mono=True)
+    s.panel(600, 110, 600, 400)
+    s.label(900, 140, "One chart", size=15, weight="bold", anchor="middle", color=PALETTE["platform"])
+    s.box(608, 175, 584, 100, "shipping-service/", ["Chart.yaml  values.yaml", "templates/ configmap, deployment, service"], kind="rest", mono=True)
     for i, f in enumerate(["values-dev.yaml", "values-stage.yaml", "values-prod.yaml"]):
-        x = 670 + i * 170
-        s.box(x, 335, 160, 44, f, kind="govern", mono=True)
-        s.arrow(x + 80, 335, 920, 275, kind="neutral")
-    s.label(920, 440, "3 override files hold only the differences", size=13, anchor="middle", color=PALETTE["neutral"])
-    s.label(920, 464, "helm install -f values-prod.yaml", size=13, anchor="middle", mono=True, color=PALETTE["neutral"])
+        x = 608 + i * 197
+        s.box(x, 335, 190, 44, f, kind="govern", mono=True)
+        s.arrow(x + 95, 335, 900, 275, kind="neutral")
+    s.label(900, 440, "3 override files hold only the differences", size=13, anchor="middle", color=PALETTE["neutral"])
+    s.label(900, 464, "helm install -f values-prod.yaml", size=13, anchor="middle", mono=True, color=PALETTE["neutral"])
     s.write()
 
 
@@ -123,7 +123,7 @@ def h101_subchart_tree():
               subtitle="The operator creates the credentials; the parent chart only references them")
     s.box(40, 150, 300, 130, "shipping-service", ["parent chart", "dependencies: shipping-postgres"], kind="rest", mono=True)
     s.box(40, 360, 300, 110, "shipping-postgres", ["subchart in charts/", "renders one Cluster"], kind="platform", mono=True)
-    s.arrow(190, 360, 190, 280, kind="neutral", label="import-values", label_offset=-14)
+    s.arrow(190, 360, 190, 280, kind="neutral", label="import-values", label_offset=4, label_dx=12)
     s.box(480, 130, 300, 100, "Deployment", ["PG_HOST = shipping-postgres-rw", "PG_PASSWORD from secretKeyRef"], kind="svc")
     s.box(480, 360, 300, 110, "Cluster (CNPG)", ["postgresql.cnpg.io/v1"], kind="data", mono=True)
     s.box(880, 130, 300, 100, "Secret shipping-postgres-app", ["dbname, username, password"], kind="data")
@@ -132,7 +132,7 @@ def h101_subchart_tree():
     s.arrow(340, 415, 480, 415, kind="neutral", label="renders", label_offset=-8)
     s.arrow(880, 180, 780, 180, kind="neutral", label="secretKeyRef", label_offset=-8)
     s.arrow(880, 415, 780, 415, kind="neutral", label="reconciles", label_offset=-8)
-    s.arrow(1030, 360, 1030, 230, kind="neutral", label="creates", label_offset=-8)
+    s.arrow(1030, 360, 1030, 230, kind="neutral", label="creates", label_offset=4, label_dx=12)
     s.write()
 
 

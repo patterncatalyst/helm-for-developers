@@ -36,7 +36,7 @@ def main():
         cairosvg.svg2png(url=svg, write_to=out, output_width=1600)
 
     # 3) Report
-    rendered = sorted(glob.glob(f"{PNG}/r*.png"))
+    rendered = sorted(glob.glob(f"{PNG}/*.png"))
     print(f"\nRendered {len(rendered)} PNGs:")
     for p in rendered:
         print(f"  {os.path.basename(p)}")

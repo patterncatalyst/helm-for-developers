@@ -221,9 +221,9 @@ function addStatusTable(slide, rows, opts = {}) {
   });
 }
 
-function addCaption(slide, text, y) {
+function addCaption(slide, text, y, w) {
   slide.addText(text, {
-    x: 0.62, y: y ?? 6.50, w: 12.09, h: 0.34,
+    x: 0.62, y: y ?? 6.50, w: w ?? 12.09, h: 0.34,
     fontFace: FONT.body, fontSize: 13, italic: true, color: COLOR.caption,
     align: "center", valign: "middle",
   });
@@ -338,7 +338,7 @@ function addCodeSlide(slide, eyebrow, title, lang, codeLines, caption, opts = {}
     // When the code box is taller than default, push the caption below it.
     const codeBottom = y + boxH;
     const captionY = Math.min(6.50, codeBottom + 0.10);
-    addCaption(slide, caption, captionY);
+    addCaption(slide, caption, captionY, opts.captionW);
   }
 }
 
@@ -381,6 +381,71 @@ function addSectionDivider(slide, code, title, subtitle) {
   } catch (e) { /* ok */ }
 }
 
+
+// ---- flags and tool names as code runs -------------------------------------
+// Command-line flags (--wait, -f) and hyphenated tool names (helm-unittest) are set as
+// Red Hat Mono runs inside body text, so a line break never lands inside them and a
+// copied flag pastes as plain ASCII. patchSlide(slide) applies this to every addText
+// and addTable call; runs that already use the mono face are left alone.
+const MONO_SRC = "(?<![\\w-])--?[A-Za-z](?:[\\w.=|-]*[\\w=|])?|\\b(?:helm-unittest|helm-diff|chart-testing|Wasm-hello)\\b";
+const MONO_SPLIT = new RegExp("(" + MONO_SRC + ")");
+const MONO_HAS = new RegExp(MONO_SRC);
+const MONO_WHOLE = new RegExp("^(?:" + MONO_SRC + ")$");
+const PARA_KEYS = ["bullet", "indentLevel", "paraSpaceBefore", "paraSpaceAfter", "align", "valign"];
+
+function monoRuns(runs, baseSize) {
+  const out = [];
+  runs.forEach((r) => {
+    const o = r.options || {};
+    if (o.fontFace === FONT.mono || typeof r.text !== "string" || !MONO_HAS.test(r.text)) { out.push(r); return; }
+    const parts = r.text.split(MONO_SPLIT).filter((x) => x !== "");
+    const size = (o.fontSize ?? baseSize ?? 18) - 1;
+    const inner = { ...o };
+    PARA_KEYS.forEach((k) => delete inner[k]);
+    parts.forEach((part, i) => {
+      const opt = i === 0 ? { ...o } : { ...inner };
+      delete opt.breakLine;
+      if (i === parts.length - 1 && o.breakLine) opt.breakLine = true;
+      if (MONO_WHOLE.test(part)) Object.assign(opt, { fontFace: FONT.mono, fontSize: size, bold: false, italic: false, color: COLOR.ink });
+      out.push({ text: part, options: opt });
+    });
+  });
+  return out;
+}
+
+function patchSlide(slide) {
+  const at = slide.addText.bind(slide);
+  slide.addText = (t, o) => {
+    if (o && o.fontFace === FONT.mono) return at(t, o);
+    const base = o && o.fontSize;
+    if (typeof t === "string") return MONO_HAS.test(t) ? at(monoRuns([{ text: t, options: {} }], base), o) : at(t, o);
+    if (Array.isArray(t)) return at(monoRuns(t, base), o);
+    return at(t, o);
+  };
+  const atb = slide.addTable.bind(slide);
+  slide.addTable = (rows, o) => atb(rows.map((r) => r.map((c) => {
+    if (!c || typeof c.text !== "string" || !MONO_HAS.test(c.text)) return c;
+    return { ...c, text: monoRuns([{ text: c.text, options: { ...(c.options || {}) } }]) };
+  })), o);
+  return slide;
+}
+
+// pptxgenjs writes a paragraph-properties element before every run of a paragraph. Only the
+// first is valid inside <a:p>; PowerPoint ignores or repairs the rest and LibreOffice lets the
+// last one win (dropping bullets). Strip every pPr that follows a run, in place.
+async function finalizePptx(file) {
+  const fs = require("fs");
+  const JSZip = require(require.resolve("jszip", { paths: [path.dirname(require.resolve("pptxgenjs"))] }));
+  const zip = await JSZip.loadAsync(fs.readFileSync(file));
+  for (const name of Object.keys(zip.files)) {
+    if (!/^ppt\/slides\/slide\d+\.xml$/.test(name)) continue;
+    const xml = await zip.file(name).async("string");
+    const out = xml.replace(/(<\/a:r>)<a:pPr\b[^>]*?(?:\/>|>[\s\S]*?<\/a:pPr>)/g, "$1");
+    if (out !== xml) zip.file(name, out);
+  }
+  fs.writeFileSync(file, await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" }));
+}
+
 function addNotes(slide, text) {
   slide.addNotes(text);
 }
@@ -389,6 +454,6 @@ module.exports = {
   PptxGenJS, COLOR, FONT, W, H, PNG, ASSETS,
   newDeck,
   addFooter, addContentTitle, addBullets, addTwoColBullets, addStatusTable,
-  addCaption, addPerfCallout,
+  addCaption, addPerfCallout, patchSlide, monoRuns, finalizePptx,
   addDiagramSlide, addCodeSlide, addLangChip, addSectionDivider, addNotes,
 };
