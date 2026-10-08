@@ -1,0 +1,25 @@
+Chapter 14 CI evidence (GitHub Actions, patterncatalyst/helm-for-developers), 2026-10-08
+
+lint-test job (no cluster)
+  PR (feature/r1-initial-build)  success  https://github.com/patterncatalyst/helm-for-developers/actions/runs/37827371593
+  push to main                   success  https://github.com/patterncatalyst/helm-for-developers/actions/runs/37827549730
+  (PRs #2 and #3 changed only docs, so the workflow path filters did not start a run for them.)
+
+ct-install job (workflow_dispatch, run_ct_install=true, branch ci/ct-install)
+  run  https://github.com/patterncatalyst/helm-for-developers/actions/runs/37836421071  conclusion: success
+  lint-test 20:02:34-20:03:29Z; ct-install 20:03:32-20:05:26Z (1m54s); whole run about 3 minutes
+  Key log lines:
+    node_image: kindest/node:v1.34.0
+    Creating cluster "charts-ci" ...
+    v4.3.0+gbec5b06                      (helm version --short in the ct step)
+    Installing charts...
+    Installing chart "shipping-service => (version: "1.0.0", path: "charts/shipping-service")"...
+    Installing chart with values file "charts/shipping-service/ci/ci-values.yaml"...
+    [host]$ helm test shipping-service-uohmsz7tum -n shipping-service-uohmsz7tum
+    TEST SUITE:     shipping-service-uohmsz7tum-test-connection
+    Phase:          Succeeded
+    Namespace "shipping-service-uohmsz7tum" terminated.
+    All charts installed successfully
+
+Scope: only shipping-service is installed. notification-service needs Kafka to be Ready;
+shipping-postgres, shipping-kafka and shipping-platform need the CloudNativePG and Strimzi operators.

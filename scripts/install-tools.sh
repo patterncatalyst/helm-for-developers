@@ -7,6 +7,7 @@
 #
 #   scripts/install-tools.sh            # install everything
 #   scripts/install-tools.sh --force    # reinstall even if the pinned version is present
+#   scripts/install-tools.sh --helm-only  # install only Helm (used by the Pages workflow)
 #
 # Installs (all checksum-verified against the upstream release checksum file):
 #   Helm 4, kubeconform, chart-testing (ct) + yamllint/yamale in .tools/venv,
@@ -29,7 +30,11 @@ YAMLLINT_VERSION="${YAMLLINT_VERSION:-1.37.1}"
 YAMALE_VERSION="${YAMALE_VERSION:-6.0.0}"
 
 FORCE=0
-[[ "${1:-}" == "--force" ]] && FORCE=1
+HELM_ONLY=0
+for a in "$@"; do
+    [[ "$a" == "--force" ]] && FORCE=1
+    [[ "$a" == "--helm-only" ]] && HELM_ONLY=1
+done
 
 export HFD_SKIP_HELM_CHECK=1
 # shellcheck source=env.sh
@@ -87,6 +92,7 @@ else
     ok "$("$BIN/helm" version --short)"
 fi
 [[ "$("$BIN/helm" version --short)" == v4.* ]] || fail "installed helm is not v4"
+[[ $HELM_ONLY -eq 1 ]] && exit 0
 
 # ─── kubeconform ───────────────────────────────────────────────────────────
 step "kubeconform ${KUBECONFORM_VERSION}"
