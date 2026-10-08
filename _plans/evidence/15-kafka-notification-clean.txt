@@ -1,3 +1,7 @@
+# SUPERSEDED. Recorded in the pre-NodePort run of r1.1 development, when host access still went through scripts/tunnel.sh
+# (since removed). The lines marked "historical" below describe that tunnel and its 127.0.0.1:8080/8081/3000 URLs, which
+# no longer exist. Current evidence with published NodePorts (127.0.0.1:30080/30081/30300): 15-kafka-notification.txt.
+#
 # ex15 live run + clean, r1.1, 2026-10-08T21:43:02Z
 $ demo.sh (full)
 kafka.kafka.strimzi.io/shipping-kafka   True    True       4.3.1           4.3-IV0
@@ -15,9 +19,9 @@ pod/shipping-kafka-entity-operator-674f94f55f-whmvr     2/2     Running   0     
 pod/shipping-shipping-service-5d99586d9f-w4x4l          1/1     Running   0          3s
 
 ==> Dispatch a shipment and read the notification
-    ok: shipping already up on 127.0.0.1:8080
-    ok: notification already up on 127.0.0.1:8081
-    stop with: scripts/tunnel.sh stop
+    [historical, tunnel era] ok: shipping already up on 127.0.0.1:8080
+    [historical, tunnel era] ok: notification already up on 127.0.0.1:8081
+    [historical, tunnel era] stop with: scripts/tunnel.sh stop
 {"id":1,"orderId":1501,"address":"1 Main St, Springfield","status":"DISPATCHED","createdAt":"2026-10-08T21:44:11.107396Z"}
 [{"receivedAt":"2026-10-08T21:44:11.172291+00:00","topic":"shipment.dispatched","partition":0,"offset":0,"event":{"orderId":1501,"shipmentId":1,"address":"1 Main St, Springfield","status":"DISPATCHED","occurredAt":"2026-10-08T21:44:11.156576+00:00"}}]
 NAME: shipping

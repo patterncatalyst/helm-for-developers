@@ -2,7 +2,7 @@ apiVersion: v2
 name: notification-service
 description: Notification service. Consumes ShipmentDispatched events from Kafka and keeps the last 50 notifications.
 type: application
-version: 1.0.0
+version: 1.0.1
 appVersion: "0.1.0"
 keywords: [notification, fastapi, kafka-consumer]
 maintainers:

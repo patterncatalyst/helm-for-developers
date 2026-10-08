@@ -17,6 +17,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)" && cd "$SCRIPT_DIR"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # shellcheck source=../../scripts/env.sh
 source "$REPO_ROOT/scripts/env.sh"
+# shellcheck source=../../scripts/kube-context.sh
+source "$REPO_ROOT/scripts/kube-context.sh"
 ARGO_CHART_VERSION=10.10.1       # Argo CD v3.5.4
 UMBRELLA=charts/shipping-platform
 WORK="$(mktemp -d)"; trap 'rm -rf "$WORK"' EXIT

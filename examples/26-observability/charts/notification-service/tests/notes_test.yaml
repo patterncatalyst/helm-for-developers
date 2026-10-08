@@ -1,0 +1,25 @@
+suite: notification-service NOTES
+templates:
+  - templates/NOTES.txt
+set:
+  kafka.bootstrap: kafka:9092
+tests:
+  - it: prints a curl against the published loopback port for a NodePort service
+    set:
+      service.type: NodePort
+      service.nodePort: 30080
+    asserts:
+      - matchRegex:
+          path: raw
+          pattern: "curl http://127.0.0.1:30080/api/notifications"
+      - notMatchRegex:
+          path: raw
+          pattern: "minikube"
+  - it: falls back to kubectl get svc for ClusterIP
+    asserts:
+      - matchRegex:
+          path: raw
+          pattern: "kubectl -n [A-Za-z0-9-]+ get svc"
+      - notMatchRegex:
+          path: raw
+          pattern: "127.0.0.1"

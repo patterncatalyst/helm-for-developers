@@ -5,8 +5,8 @@ Database: CloudNativePG cluster from the shipping-postgres subchart ({{ .Values.
 {{- end }}
 
 Reach the service:
-{{- if eq .Values.service.type "NodePort" }}
-  [host]$ minikube -p helm4dev service {{ include "shipping-service.fullname" . }} -n {{ .Release.Namespace }} --url
+{{- if and (eq .Values.service.type "NodePort") .Values.service.nodePort }}
+  [host]$ curl http://127.0.0.1:{{ .Values.service.nodePort }}/api/info
 {{- else }}
   [host]$ kubectl -n {{ .Release.Namespace }} get svc {{ include "shipping-service.fullname" . }}
 {{- end }}

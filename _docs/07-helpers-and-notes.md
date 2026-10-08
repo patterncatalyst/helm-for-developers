@@ -64,7 +64,7 @@ The pod template labels include `helm.sh/chart`, so bumping the chart version ch
 
 ## NOTES.txt and .Files
 
-`templates/NOTES.txt` is rendered like any template, with the same context, and printed by `helm install` and `helm upgrade`; `helm get notes` reprints it later. It is the place for the next command the user needs. This one prints the release, the namespace and storage mode, then branches on `service.type`: for a NodePort it gives the `minikube service` command, otherwise a `kubectl get svc` command. It ends with a line from `files/support.txt`:
+`templates/NOTES.txt` is rendered like any template, with the same context, and printed by `helm install` and `helm upgrade`; `helm get notes` reprints it later. It is the place for the next command the user needs. This one prints the release, the namespace and storage mode, then branches on `service.type` and `service.nodePort`: for a NodePort with a port set it prints `curl http://127.0.0.1:<nodePort>/api/info`, which works from the host because the profile publishes that port on loopback; otherwise it prints a `kubectl get svc` command, as in the output below. It ends with a line from `files/support.txt`:
 
 ```text
 {% raw %}{{ .Files.Get "files/support.txt" -}}{% endraw %}

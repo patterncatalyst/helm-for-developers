@@ -1,3 +1,7 @@
+# SUPERSEDED. Recorded in the pre-NodePort run of r1.1 development, when host access still went through scripts/tunnel.sh
+# (since removed). The lines marked "historical" below describe that tunnel and its 127.0.0.1:8080/8081/3000 URLs, which
+# no longer exist. Current evidence with published NodePorts (127.0.0.1:30080/30081/30300): 26-observability.txt.
+#
 # ex26 r1.1 live run, Helm v4.3.0+gbec5b06, 2026-10-08T21:35:54Z
 $ demo.sh clean
 kafkatopic.kafka.strimzi.io "shipment.dispatched" deleted
@@ -172,10 +176,10 @@ View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux
 ==> images in the profile:
 docker.io/library/shipping-service:0.1.0
 docker.io/library/notification-service:0.1.0
-    ok: shipping      127.0.0.1:8080 -> node:30080
-    ok: notification  127.0.0.1:8081 -> node:30081
-    ok: grafana       127.0.0.1:3000 -> node:30300
-    stop with: scripts/tunnel.sh stop
+    [historical, tunnel era] ok: shipping      127.0.0.1:8080 -> node:30080
+    [historical, tunnel era] ok: notification  127.0.0.1:8081 -> node:30081
+    [historical, tunnel era] ok: grafana       127.0.0.1:3000 -> node:30300
+    [historical, tunnel era] stop with: scripts/tunnel.sh stop
 ==> let the Grafana sidecar watch every namespace (default: its own)
 Release "grafana" has been upgraded. Happy Helming!
 NAME: grafana

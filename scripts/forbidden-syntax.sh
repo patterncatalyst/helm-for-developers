@@ -11,7 +11,8 @@
 #
 # Also searches _docs/ examples/ scripts/ presentation/*/deck.js and the root docs for
 # host-access tunnels, which the project forbids (published NodePorts only):
-#   tunnel.sh, kubectl port-forward, minikube tunnel, ssh -L, "SSH tunnel"
+#   tunnel.sh, kubectl port-forward, minikube [-p X] tunnel, minikube [-p X] service ... --url,
+#   ssh -L, "ssh tunnel" (any case), minikube [-p X] ssh used with curl
 # A line that states the prohibition carries the marker `forbidden-ok`
 # (HTML comment in Markdown, trailing comment in shell). The patterns are
 # assembled from fragments so this file does not match itself.
@@ -69,8 +70,9 @@ fi
 tun_targets=()
 for t in _docs examples scripts CONTRIBUTING.md CLAUDE.md README.md; do [[ -e "$t" ]] && tun_targets+=("$t"); done
 for d in presentation/*/deck.js; do [[ -f "$d" ]] && tun_targets+=("$d"); done
-tun_re="tunnel[.]sh|minikube tunnel|port-""forward|ssh .*-L |-L [0-9]+:|SSH tunnel"
-hits="$(grep -rnIE --exclude-dir=__pycache__ --exclude-dir=.tools --exclude-dir=node_modules --exclude-dir=.venv \
+mk="minikube( +(-p|--profile)[ =]+[^ ]+)*"
+tun_re="tunnel[.]sh|$mk +tunnel|$mk +service .*--url|port-""forward|ssh .*-L |-L [0-9]+:|ssh tunnel|$mk +ssh .*curl"
+hits="$(grep -rnIiE --exclude-dir=__pycache__ --exclude-dir=.tools --exclude-dir=node_modules --exclude-dir=.venv \
     --exclude=forbidden-syntax.sh -e "$tun_re" "${tun_targets[@]}" 2>/dev/null \
     | grep -v 'forbidden-ok' || true)"
 if [[ -n "$hits" ]]; then

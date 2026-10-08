@@ -11,6 +11,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)" && cd "$SCRIPT_DIR"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # shellcheck source=../../scripts/env.sh
 source "$REPO_ROOT/scripts/env.sh"
+# shellcheck source=../../scripts/kube-context.sh
+source "$REPO_ROOT/scripts/kube-context.sh"
 NS=hfd-08
 CHART=./shipping-service
 WORK="$SCRIPT_DIR/.work"            # gitignored: throwaway age key, plaintext and encrypted files
@@ -91,10 +93,12 @@ sops_demo() {
   want="$(printf 'sops-dev-token' | base64)"
   echo "--- getter: -f secrets://<file>"
   got="$(helm template shipping "$CHART" -f values-dev.yaml -f "secrets://$WORK/secrets.dev.yaml" --show-only templates/secret.yaml | awk -F'"' '/api-token/ {print $2}')"
-  [ "$got" = "$want" ] && echo "rendered api-token decodes to sops-dev-token (secrets:// getter)"
+  [ "$got" = "$want" ] || { echo "api-token mismatch (secrets:// getter): got '$got', want '$want'" >&2; exit 1; }
+  echo "rendered api-token decodes to sops-dev-token (secrets:// getter)"
   echo "--- CLI: helm secrets template"
   got="$(helm secrets template shipping "$CHART" -f values-dev.yaml -f "$WORK/secrets.dev.yaml" --show-only templates/secret.yaml | awk -F'"' '/api-token/ {print $2}')"
-  [ "$got" = "$want" ] && echo "rendered api-token decodes to sops-dev-token (helm secrets template)"
+  [ "$got" = "$want" ] || { echo "api-token mismatch (helm secrets template): got '$got', want '$want'" >&2; exit 1; }
+  echo "rendered api-token decodes to sops-dev-token (helm secrets template)"
 
   echo "--- negative control: a key that is not a recipient"
   rm -f "$WORK/wrong.agekey"; age-keygen -o "$WORK/wrong.agekey" >/dev/null 2>&1

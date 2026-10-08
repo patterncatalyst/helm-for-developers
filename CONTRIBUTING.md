@@ -52,6 +52,7 @@ It fails if `helm version --short` is not `v4.*`. The global Helm 3.18.3 at `~/.
 - The registry addon is enabled.
 - Each example installs into its own namespace `hfd-NN` with release name `shipping` (or `platform` for the umbrella). `./demo.sh clean` uninstalls it.
 - The `datamesh` minikube profile is never touched.
+- Demos 01 to 26 source `scripts/kube-context.sh` after `scripts/env.sh`. It exports `HELM_KUBECONTEXT=helm4dev` (read by `helm` and its plugins) and `HELMFILE_KUBE_CONTEXT`, defines a `kubectl` function that adds `--context helm4dev`, and defines a `curl` function that prints each URL to stderr so transcripts show the `127.0.0.1:<port>` that answered. The current kubectl context therefore never decides where a minikube demo acts. `helmfile` (chapter 24) also gets `--kube-context`; `ct` (chapter 14) has no context flag, so the demo gives it a kubeconfig that holds only `helm4dev` (`hfd_pinned_kubeconfig`). Chapter 27 targets OpenShift Local with `oc` and does not source the file.
 
 ### Host access
 

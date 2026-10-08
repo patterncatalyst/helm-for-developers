@@ -24,6 +24,8 @@ preflight() {
     PROBLEMS=0
     # shellcheck source=../../scripts/env.sh
     source "$REPO_ROOT/scripts/env.sh" || { echo "run scripts/install-tools.sh first"; return 1; }
+    # shellcheck source=../../scripts/kube-context.sh
+    source "$REPO_ROOT/scripts/kube-context.sh"
 
     step "Project-local Helm 4"
     got="$(helm version --short)"

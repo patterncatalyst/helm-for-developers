@@ -131,6 +131,8 @@ source:
 
 There is no `path` and no repository Secret: a public HTTPS Helm repository is reachable by default, and `chart` plus `targetRevision` select the archive from `index.yaml`. The failure from Git came from `file://` dependencies that a checkout cannot satisfy. The published archive was built by `helm dependency build` and `helm package`, so it already contains `charts/shipping`, `charts/notification` and, nested inside each, `charts/pc-lib`. Argo CD downloads that archive and runs `helm template` on it; it has nothing left to resolve. The NodePorts move to 30190 and 30191 so the Application coexists with the OCI one (30080, 30081), the Git one (30090) and the chapter 26 release.
 
+The Application stays pinned to `1.0.0`, and the pin is a choice. Version `1.0.1` is published as well (chapter 19), and because published versions are immutable, `1.0.0` keeps serving the same bytes; a GitOps source should move to a new chart version through a reviewed change to `targetRevision`, not by tracking the newest release.
+
 Observed on the cluster: the Application reached `Synced` and `Healthy` at revision `1.0.0` and `helm list -n hfd-25-repo` was empty. The sync result listed `Job/platform-shipping-migrate PostSync Succeeded`, so the `post-install,post-upgrade` migration ran as a sync hook after the workloads were healthy. A shipment created at `30190` and dispatched produced a record on `shipment.dispatched` that `notification` returned at `30191`, which exercises Kafka and PostgreSQL across the two services. Patching `valuesObject` to `defaultCarrier: REPO-Post-2` changed `/api/info` within about a minute, and scaling the Deployment to 3 was reverted to 1 by `selfHeal`.
 
 ```

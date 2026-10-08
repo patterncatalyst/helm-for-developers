@@ -129,6 +129,8 @@ helm test shipping -n hfd-14 --timeout 3m
 ct install --charts charts/shipping-service --helm-extra-args '--timeout 3m'
 ```
 
+`ct install` has no context flag and runs `kubectl` itself, so the demo hands it a kubeconfig that contains only the `helm4dev` context (`KUBECONFIG` pointing at the output of `kubectl config view --minify --flatten --context helm4dev`) and adds `--kube-context helm4dev` to the Helm arguments. A different current context then cannot redirect the install.
+
 ## Cross-check
 
 Three tools that share no code check the same render: `helm lint --strict` and `ct lint` (which runs `helm lint` for each `ci/*-values.yaml`) validate the chart, and kubeconform validates the five resources rendered from the CI values, test pod included. A manifest that passes the unit tests but fails kubeconform means an assertion is missing, so add one.

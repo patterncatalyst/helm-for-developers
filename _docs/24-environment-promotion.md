@@ -83,7 +83,7 @@ Platform teams often wrap this in an internal developer platform that owns the e
 [host]$ cd examples/24-environments && ./demo.sh offline
 ```
 
-Expect three kubeconform summaries with zero invalid resources and `offline: OK`. The full run builds the images, runs `helmfile -l env=dev sync --skip-deps` and then `helm test platform -n hfd-24-dev`. Once the release is Ready:
+Expect three kubeconform summaries with zero invalid resources and `offline: OK`. The full run builds the images, runs `helmfile --kube-context helm4dev -l env=dev sync --skip-deps` (the demo passes the context explicitly, so the current kubectl context never decides where the release lands) and then `helm test platform -n hfd-24-dev`. Once the release is Ready:
 
 ```
 [host]$ curl -s http://127.0.0.1:30080/api/info
