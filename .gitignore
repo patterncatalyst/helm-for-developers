@@ -1,0 +1,33 @@
+# Local reference material - do NOT publish
+_source/
+
+# Jekyll build output
+_site/
+.jekyll-cache/
+.jekyll-metadata
+
+# Dependency / vendor directories
+vendor/
+node_modules/
+presentation/*/node_modules
+.bundle/
+
+# Project-local tools (Helm 4, plugins, throwaway GPG keys), venvs, QA output, release tarballs
+.tools/
+dist/
+.venv/
+qa/
+
+# Local service run logs
+*.log
+
+# Python bytecode cache
+__pycache__/
+*.pyc
+
+# Secrets / local env
+.env
+*.local.md
+
+# OS cruft
+.DS_Store
