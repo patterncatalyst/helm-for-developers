@@ -163,7 +163,10 @@ fi
 # CONTRIBUTING.md by the orchestrator.
 step "Helm plugins (HELM_PLUGINS=$HELM_PLUGINS)"
 PLUGIN_FLAGS=()
-if helm plugin install --help 2>&1 | grep -q -- '--verify'; then
+# Capture the help text first: piping into `grep -q` under pipefail can
+# SIGPIPE helm and make the test fail at random.
+plugin_help="$(helm plugin install --help 2>&1 || true)"
+if grep -q -- '--verify' <<<"$plugin_help"; then
     PLUGIN_FLAGS+=(--verify=false)
 fi
 
