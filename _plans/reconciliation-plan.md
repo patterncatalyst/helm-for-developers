@@ -173,6 +173,7 @@ One row per claim in `_plans/claims/s6-*.md`, merged with the S7 results in `_pl
 | Migration hook (`post-install,post-upgrade`) runs as a PostSync hook and completes | 25 | verified | `_plans/evidence/25-gitops-argocd.txt` | `Job/platform-shipping-migrate PostSync Succeeded`; `schema_migrations` versions 1, 2 |
 | `lookup` returns empty under Argo CD rendering (stated from design: no live API during render; not demonstrated, golden charts do not use lookup) | 25 | verified | `_plans/evidence/25-gitops-argocd.txt` | Probe chart: `yes` from `helm install`, `no` from Argo CD. Chapter updated |
 | Git-sourced Application (tag `r1.0`, public repo) reaches Synced/Healthy, takes a `valuesObject` change and reverts drift | 25 | verified | `_plans/evidence/25-gitops-argocd-git.txt` | r1.1 item 1: works for `charts/shipping-service` (one `file://../pc-lib` dependency); the umbrella `charts/shipping-platform` fails from a clean checkout with `no template "pc-lib.fullname"` because nested dependency tarballs are gitignored. Manifest renamed `apps/shipping-service-git.yaml` |
+| Umbrella `shipping-platform` 1.0.0 sourced from the published Helm repository (`https://patterncatalyst.github.io/helm-for-developers/charts`, no Secret, no `path`) reaches Synced/Healthy; `helm list` empty; migration is a PostSync hook; Kafka notification works; `valuesObject` change and drift revert observed | 25 | verified | `_plans/evidence/25-gitops-argocd-helmrepo.txt` | r1.1 item 9: packaged subcharts avoid the nested `file://` failure from Git. One transient repo-server DNS `ComparisonError` cleared by hard refresh |
 | Grafana chart 8.5.0 sidecar watches only its own namespace by default; ConfigMap in hfd-26 is not loaded until `searchNamespace=ALL` | 26 | verified | `_plans/evidence/26-observability.txt` | No `NAMESPACE` env, search `[]`; after upgrade `NAMESPACE=ALL` |
 | `helm upgrade grafana grafana/grafana --version 8.5.0 --reuse-values --set sidecar.dashboards.searchNamespace=ALL` succeeds (grafana repo in project-… | 26 | verified | `_plans/evidence/26-observability.txt` |  |
 | Dashboard "Shipping platform (platform)" appears in folder Shipping | 26 | verified | `_plans/evidence/26-observability.txt` |  |
@@ -234,7 +235,7 @@ Claim counts come from the merged table above; the footer column is the current 
 | 22-plugins | 8 | 7 verified, 1 partial | verified | 22-plugins.txt | yes |
 | 23-post-renderers | 6 | 6 verified | verified | 23-post-renderers.txt | yes |
 | 24-environment-promotion | 4 | 3 verified, 1 refuted-and-fixed | verified | 24-environments.txt | yes |
-| 25-gitops-argocd | 9 | 7 verified, 1 refuted-and-fixed, 1 not verified | verified | 25-gitops-argocd.txt | yes |
+| 25-gitops-argocd | 11 | 10 verified, 1 refuted-and-fixed | verified | 25-gitops-argocd.txt | yes |
 | 26-observability-lgtm | 6 | 5 verified, 1 refuted-and-fixed | verified | 26-observability.txt | yes |
 | 27-appendix-openshift-local | 9 | 8 verified, 1 partial | verified | 27-openshift-crc.txt, 27-openshift-crc-streams.txt, 27-openshift-crc-console.txt | yes |
 | 28-appendix-helm3-to-helm4 | 3 | 3 not verified | unverified | none | n/a |

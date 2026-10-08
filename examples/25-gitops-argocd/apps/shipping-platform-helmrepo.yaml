@@ -1,0 +1,43 @@
+# Helm repository source: the umbrella chart from the published classic repository on GitHub Pages.
+# The packaged archive carries shipping-service, notification-service, shipping-postgres,
+# shipping-kafka and, inside the service charts, pc-lib, so Argo CD needs no `file://`
+# dependency to resolve. That is why this source works where the umbrella from Git does not.
+# A public HTTPS repository needs no repository Secret.
+# NodePorts 30190 and 30191 keep this release apart from the OCI Application (30080, 30081),
+# the Git Application (30090) and the chapter 26 release.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform-repo
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://patterncatalyst.github.io/helm-for-developers/charts
+    chart: shipping-platform
+    targetRevision: 1.0.0            # an exact chart version, never a range
+    helm:
+      releaseName: platform
+      valueFiles:
+        - values-dev.yaml            # a file inside the packaged chart
+      valuesObject:
+        shipping:
+          config:
+            defaultCarrier: REPO-Post
+          service:
+            nodePort: 30190
+        notification:
+          service:
+            nodePort: 30191
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: hfd-25-repo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
