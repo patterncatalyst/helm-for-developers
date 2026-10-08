@@ -26,9 +26,9 @@ A lookup page for the commands and template functions the tutorial uses. Every f
 | `--timeout 5m` | Limit for each Kubernetes operation, including hooks. |
 | `--server-side` | `install`: boolean, default `true`. `upgrade`: `true`, `false` or `auto`. |
 | `--force-conflicts` | With server-side apply, take over fields owned by another manager. |
-| `--force-replace` | Update resources by replacement. |
-| `--take-ownership` | Adopt resources that lack Helm's ownership annotations. |
-| `--dry-run=none\|client\|server` | Simulate. `server` needs a cluster. |
+| `--force-replace` | Update resources by replacement. Client-side only: add `--server-side=false`. |
+| `--take-ownership` | Adopt resources that lack Helm's ownership annotations. Add `--force-conflicts` when another manager owns differing fields. |
+| `--dry-run=none\|client\|server` | Simulate. `server` needs a cluster and resolves kinds and `lookup`, but on 4.3.0 does not schema-validate fields. |
 | `--no-hooks` | Skip hooks. |
 | `--skip-crds` | Do not install `crds/`. |
 | `--skip-schema-validation` | Ignore `values.schema.json`. |

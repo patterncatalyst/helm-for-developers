@@ -4,7 +4,7 @@
   "source": "dgen.py",
   "elements": [
     {
-      "id": "c320de5b-395a-4db3-9e00-861eb00e6be8",
+      "id": "b404da0a-2c3b-4081-a5a5-3fb121c15186",
       "type": "rectangle",
       "x": 30,
       "y": 190,
@@ -32,7 +32,7 @@
       "locked": false
     },
     {
-      "id": "ef381071-d1dc-4d39-add1-5e6520267a56",
+      "id": "f8db4d39-2ab5-4ccb-8d89-e83f9365b590",
       "type": "text",
       "x": 73.0,
       "y": 214,
@@ -66,7 +66,7 @@
       "baseline": 16
     },
     {
-      "id": "b30f3241-6e03-4784-9fd2-c6834ba3acb5",
+      "id": "76ac3445-03ca-42dc-9f83-9efd06301d58",
       "type": "text",
       "x": 67.0,
       "y": 234,
@@ -100,7 +100,7 @@
       "baseline": 12
     },
     {
-      "id": "007a004c-8326-4d08-82f8-59b940b9b47e",
+      "id": "061a456c-e366-48bd-9aff-c4623cdd0c9a",
       "type": "text",
       "x": 63.0,
       "y": 250,
@@ -134,7 +134,7 @@
       "baseline": 12
     },
     {
-      "id": "774e8cc0-9469-4aa5-911c-b8bf882fb130",
+      "id": "2b03fde6-8127-472b-b113-1d8290e1a0d5",
       "type": "rectangle",
       "x": 320,
       "y": 190,
@@ -162,7 +162,7 @@
       "locked": false
     },
     {
-      "id": "158413e8-0337-4456-bc18-b8642910b7a3",
+      "id": "86281f44-bc21-4a6a-b652-ddb67cdecfd3",
       "type": "text",
       "x": 363.0,
       "y": 214,
@@ -196,7 +196,7 @@
       "baseline": 16
     },
     {
-      "id": "6007d0aa-9559-4591-9cdc-62b38c5ac3e0",
+      "id": "a3932726-3f1a-42a7-b6ac-4f3f2dcf8f23",
       "type": "text",
       "x": 335.5,
       "y": 234,
@@ -230,7 +230,7 @@
       "baseline": 12
     },
     {
-      "id": "0eb6eeed-1ab3-49d2-8205-2bbd556dc7d8",
+      "id": "131d89f2-d8d1-49ed-9c3a-735f6e72d2ee",
       "type": "rectangle",
       "x": 610,
       "y": 160,
@@ -258,7 +258,7 @@
       "locked": false
     },
     {
-      "id": "c76693d8-6f22-4136-a4d2-ed7add73cf61",
+      "id": "612cc789-95a0-4e30-b719-c021f92c56ae",
       "type": "text",
       "x": 650.0,
       "y": 184,
@@ -292,7 +292,7 @@
       "baseline": 16
     },
     {
-      "id": "6159e215-a0f1-4ee2-9650-b41c50df901d",
+      "id": "8cee1b99-e793-445c-89e4-c196993b1219",
       "type": "text",
       "x": 720.5,
       "y": 204,
@@ -326,7 +326,7 @@
       "baseline": 12
     },
     {
-      "id": "40373748-9c4f-4d16-ab9d-3c5358adb23f",
+      "id": "fa8e5407-8ec9-4d0c-a794-46bf18152325",
       "type": "text",
       "x": 648.5,
       "y": 220,
@@ -360,7 +360,7 @@
       "baseline": 12
     },
     {
-      "id": "67362623-942d-4721-a908-0cb0e3732a6e",
+      "id": "f87bdc0f-08e2-47a8-aeaf-4b4ae5f15a38",
       "type": "text",
       "x": 713.5,
       "y": 236,
@@ -394,7 +394,7 @@
       "baseline": 12
     },
     {
-      "id": "edad2775-7989-45f7-a88b-851c4b56f399",
+      "id": "c6f70a5f-dd5e-4882-9beb-6225563e37b9",
       "type": "rectangle",
       "x": 990,
       "y": 190,
@@ -422,7 +422,7 @@
       "locked": false
     },
     {
-      "id": "06002be7-6bbe-410e-af2f-7fc9db47e25d",
+      "id": "bd22d753-bba7-44fc-ad0c-97213cbb0b59",
       "type": "text",
       "x": 1033.0,
       "y": 214,
@@ -456,7 +456,7 @@
       "baseline": 16
     },
     {
-      "id": "67814e0e-5b5c-4597-b419-a846fcd428e4",
+      "id": "abc2cecd-5521-458b-8f7c-aaed9bd85eca",
       "type": "text",
       "x": 1005.5,
       "y": 234,
@@ -490,7 +490,7 @@
       "baseline": 12
     },
     {
-      "id": "4b4dd92b-9ac6-4aae-a31b-8244e3700348",
+      "id": "b202d2ba-fcb9-4fa6-ac1d-6e4291d6dd46",
       "type": "arrow",
       "x": 240,
       "y": 240,
@@ -530,7 +530,7 @@
       "endArrowhead": "arrow"
     },
     {
-      "id": "39e029b6-dae6-438c-b357-8abb0bcd83fd",
+      "id": "f2e2b9bb-fd73-4f07-8c78-7c4a9f19963e",
       "type": "arrow",
       "x": 530,
       "y": 240,
@@ -570,7 +570,7 @@
       "endArrowhead": "arrow"
     },
     {
-      "id": "e8dd5b7c-3baa-4c27-97b8-af1660b0791c",
+      "id": "2fe1e92f-2179-4f41-b505-db95ad8a9336",
       "type": "text",
       "x": 553.5,
       "y": 218.0,
@@ -604,7 +604,7 @@
       "baseline": 11
     },
     {
-      "id": "df6c755c-9aa0-4ab4-acb4-de453e115484",
+      "id": "facc8872-9d01-4c9d-afe7-e665e92576fe",
       "type": "arrow",
       "x": 910,
       "y": 240,
@@ -644,7 +644,7 @@
       "endArrowhead": "arrow"
     },
     {
-      "id": "0880e414-df75-4ce8-ba0e-834054a3e405",
+      "id": "96cee59c-c756-4d11-bf2c-a637fbb9b11a",
       "type": "text",
       "x": 930.5,
       "y": 218.0,
@@ -678,7 +678,7 @@
       "baseline": 11
     },
     {
-      "id": "89b20980-d082-4214-b5d0-2a142db7f665",
+      "id": "f08da444-ee72-4df1-a3a3-350e24dd674e",
       "type": "rectangle",
       "x": 990,
       "y": 380,
@@ -706,7 +706,7 @@
       "locked": false
     },
     {
-      "id": "8fb9cc38-4b07-4977-8c0d-130cae09d734",
+      "id": "5b4950fc-b316-456b-9505-137ed1cc1c66",
       "type": "text",
       "x": 1028.0,
       "y": 404,
@@ -740,7 +740,7 @@
       "baseline": 16
     },
     {
-      "id": "42c1b1a0-48d5-4eab-9cd2-c500b17707dd",
+      "id": "55cd942a-868f-405c-a960-c10ffc2f858d",
       "type": "text",
       "x": 1034.0,
       "y": 424,
@@ -774,7 +774,7 @@
       "baseline": 12
     },
     {
-      "id": "5ef3c6e0-a2ef-4ac0-8f68-cef930c2081d",
+      "id": "69d57ca0-f5a0-4358-9281-d55c65bfa027",
       "type": "arrow",
       "x": 1095,
       "y": 290,
@@ -814,7 +814,7 @@
       "endArrowhead": "arrow"
     },
     {
-      "id": "4d0d8c6f-f869-448b-bc75-f7fe7da72942",
+      "id": "6ea79690-ccfb-4937-9c5e-8b741f9ef5c1",
       "type": "rectangle",
       "x": 30,
       "y": 380,
@@ -842,12 +842,12 @@
       "locked": false
     },
     {
-      "id": "ed0c2ac9-aed1-4f27-b301-b2725837f0dc",
+      "id": "b188fde9-0ce9-4a98-914d-388c9960f784",
       "type": "text",
       "x": 50,
-      "y": 399,
-      "width": 592,
-      "height": 17,
+      "y": 398,
+      "width": 638,
+      "height": 18,
       "angle": 0,
       "strokeColor": "#4A4A4A",
       "backgroundColor": "transparent",
@@ -865,7 +865,7 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "fontSize": 13,
+      "fontSize": 14,
       "fontFamily": 1,
       "text": "Helm 4: post-renderers are plugins only; a bare executable path is rejected.",
       "textAlign": "left",
@@ -873,15 +873,15 @@
       "containerId": null,
       "originalText": "Helm 4: post-renderers are plugins only; a bare executable path is rejected.",
       "lineHeight": 1.25,
-      "baseline": 13
+      "baseline": 14
     },
     {
-      "id": "e451cce9-98f0-4ed3-94b0-68d250734d14",
+      "id": "f8fb4f1f-7ee6-4010-b94b-3fcbd362823c",
       "type": "text",
       "x": 50,
-      "y": 425,
-      "width": 374,
-      "height": 17,
+      "y": 424,
+      "width": 403,
+      "height": 18,
       "angle": 0,
       "strokeColor": "#4A4A4A",
       "backgroundColor": "transparent",
@@ -899,7 +899,7 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "fontSize": 13,
+      "fontSize": 14,
       "fontFamily": 1,
       "text": "Extra arguments go through --post-renderer-args.",
       "textAlign": "left",
@@ -907,15 +907,15 @@
       "containerId": null,
       "originalText": "Extra arguments go through --post-renderer-args.",
       "lineHeight": 1.25,
-      "baseline": 13
+      "baseline": 14
     },
     {
-      "id": "fe7fad22-55d3-4fc9-8fdd-9aad38fdfe7e",
+      "id": "6763f6da-3f9c-464d-a352-2525029d4417",
       "type": "text",
       "x": 50,
-      "y": 451,
-      "width": 624,
-      "height": 17,
+      "y": 450,
+      "width": 672,
+      "height": 18,
       "angle": 0,
       "strokeColor": "#4A4A4A",
       "backgroundColor": "transparent",
@@ -933,7 +933,7 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "fontSize": 13,
+      "fontSize": 14,
       "fontFamily": 1,
       "text": "The chart stays untouched: use it for a change you do not own the templates for.",
       "textAlign": "left",
@@ -941,7 +941,7 @@
       "containerId": null,
       "originalText": "The chart stays untouched: use it for a change you do not own the templates for.",
       "lineHeight": 1.25,
-      "baseline": 13
+      "baseline": 14
     }
   ],
   "appState": {

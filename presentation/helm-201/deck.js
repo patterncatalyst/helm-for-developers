@@ -112,15 +112,15 @@ codeSlide("TESTING · DEBUGGING", "Diff and server dry-run", "bash · helm 4.3",
   code(`
 # Rung 4: compare two chart directories locally (helm-diff plugin)
 helm diff local charts/shipping-service /tmp/changed
-# Rung 5: let the API server validate and default, persist nothing
+# Rung 5: resolve kinds and run lookup against the API server
 helm upgrade shipping charts/shipping-service -n hfd-13 --dry-run=server
 # Rung 6: what an upgrade would change in the live release
 helm diff upgrade shipping charts/shipping-service -n hfd-13 --set replicaCount=2
 # Rung 7: the manifest the cluster was sent, fed back to the schema check
 helm get manifest shipping -n hfd-13 | kubeconform -strict -summary
 `),
-  "--dry-run=server asks the API server; the older --dry-run=client behavior renders only.",
-  N("The cluster-facing rungs. `--dry-run=server` sends the rendered objects to the API server for admission and defaulting without persisting them, which catches unknown kinds and webhook rejections. `helm diff` is a plugin that compares rendered output against another chart directory or the live release. `helm get manifest` closes the loop by feeding the stored manifest back into kubeconform.",
+  "--dry-run=server resolves kinds and runs lookup; it does not schema-validate fields on 4.3.0.",
+  N("The cluster-facing rungs. `--dry-run=server` connects to the API server, resolves every kind against it and runs `lookup`, which catches unknown kinds. On Helm 4.3.0 it does not schema-validate fields: a string containerPort, an unknown field, negative replicas and a Pod Security violation all pass. For field validation pipe `helm template` into `kubectl apply --server-side --dry-run=server -f -`, which rejects them. `helm diff` is a plugin that compares rendered output against another chart directory or the live release. `helm get manifest` closes the loop by feeding the stored manifest back into kubeconform.",
     "`cd examples/13-debugging && ./demo.sh` runs the cluster rungs in namespace hfd-13.",
     "the chapter 13 transcript for rungs five to seven."));
 
@@ -363,8 +363,12 @@ helm pull oci://127.0.0.1:5001/signed/shipping-service --version 1.0.0 --plain-h
 codeSlide("DISTRIBUTION", "Cosign for OCI charts", "bash · cosign",
   code(`
 # A second mechanism: sign the OCI manifest digest, not the tarball
-cosign sign --key .work/cosign/cosign.key --yes --allow-http-registry --use-signing-config=false --tlog-upload=false 127.0.0.1:5001/signed/shipping-service@sha256:<digest>
-cosign verify --key .work/cosign/cosign.pub --allow-http-registry --insecure-ignore-tlog 127.0.0.1:5001/signed/shipping-service@sha256:<digest>
+cosign sign --key .work/cosign/cosign.key --yes --allow-http-registry \\
+  --use-signing-config=false --tlog-upload=false \\
+  127.0.0.1:5001/signed/shipping-service@sha256:<digest>
+cosign verify --key .work/cosign/cosign.pub --allow-http-registry \\
+  --insecure-ignore-tlog \\
+  127.0.0.1:5001/signed/shipping-service@sha256:<digest>
 # Keyless signing and the transparency log are the default in production:
 # omit --key, --use-signing-config=false and --tlog-upload=false
 `),
@@ -518,7 +522,9 @@ leadSlide("OPENSHIFT", "SCCs and arbitrary UIDs",
 codeSlide("OPENSHIFT", "Routes and the console", "yaml · helm",
   code(`
 # Install with the OpenShift overrides, same chart as minikube
-helm upgrade --install platform charts/shipping-platform -n hfd-ocp -f values-openshift.yaml -f values-openshift-minimal.yaml --wait --rollback-on-failure
+helm upgrade --install platform charts/shipping-platform -n hfd-ocp \\
+  -f values-openshift.yaml -f values-openshift-minimal.yaml \\
+  --wait --rollback-on-failure
 # values-openshift.yaml
 global:
   environment: openshift

@@ -4,7 +4,7 @@
   "source": "dgen.py",
   "elements": [
     {
-      "id": "17fb9abf-e98a-44d7-a5bf-f0b21c9f30b1",
+      "id": "078e1e88-7753-4c37-b81b-7510d7dc24bf",
       "type": "rectangle",
       "x": 40,
       "y": 100,
@@ -32,7 +32,7 @@
       "locked": false
     },
     {
-      "id": "d1f7175d-239c-4a8b-bbff-3fffcac36191",
+      "id": "3e29fc3d-eb6c-4218-9c2b-ecfb4bf3c536",
       "type": "text",
       "x": 83.5,
       "y": 124,
@@ -66,7 +66,7 @@
       "baseline": 16
     },
     {
-      "id": "b8ed3849-6425-43ea-be9d-e76c61f702d0",
+      "id": "03a3e23f-ebe4-407d-9416-7807985e62ea",
       "type": "text",
       "x": 93.0,
       "y": 144,
@@ -100,7 +100,7 @@
       "baseline": 12
     },
     {
-      "id": "91d38eb8-3814-4b65-9b1c-16813bdf2130",
+      "id": "46e31a88-1bf5-4e99-8548-2bbce2f10228",
       "type": "text",
       "x": 93.0,
       "y": 160,
@@ -134,7 +134,7 @@
       "baseline": 12
     },
     {
-      "id": "10d460b1-f0f4-4733-b09b-21c291f0d85b",
+      "id": "e4a588ef-bb72-4b51-a4d2-147d219d6a35",
       "type": "rectangle",
       "x": 400,
       "y": 80,
@@ -162,7 +162,7 @@
       "locked": false
     },
     {
-      "id": "a6521b5c-36c0-4b0b-9725-0fd5235c03b9",
+      "id": "97721eeb-a931-48d3-8798-f890e9d34640",
       "type": "text",
       "x": 536.5,
       "y": 104,
@@ -196,7 +196,7 @@
       "baseline": 16
     },
     {
-      "id": "a75fa6e6-6c75-4c1b-9923-89525d6e792f",
+      "id": "e4ce7189-c184-4b98-97f8-844ab1d17c89",
       "type": "text",
       "x": 476.5,
       "y": 124,
@@ -230,7 +230,7 @@
       "baseline": 12
     },
     {
-      "id": "809c3734-aae4-482c-be5d-799c4f517324",
+      "id": "0c86cc0d-178a-4521-9ccd-03032794dc2a",
       "type": "text",
       "x": 469.5,
       "y": 140,
@@ -264,7 +264,7 @@
       "baseline": 12
     },
     {
-      "id": "d6003529-5246-47f4-ac14-868bf84c8d5e",
+      "id": "f84d53cb-5b03-419d-8e12-3cee4da90aad",
       "type": "text",
       "x": 484.0,
       "y": 156,
@@ -298,7 +298,7 @@
       "baseline": 12
     },
     {
-      "id": "4ce1bd2d-9330-4252-9c0f-dd796f6fdfd1",
+      "id": "1143e53a-028b-4350-b2ae-c22e6a9bb2ea",
       "type": "rectangle",
       "x": 850,
       "y": 100,
@@ -326,7 +326,7 @@
       "locked": false
     },
     {
-      "id": "a9c90551-7c5d-41d0-be60-a7a3a63056e4",
+      "id": "e8a20879-a495-4711-9858-383c52f8b470",
       "type": "text",
       "x": 966.5,
       "y": 124,
@@ -360,7 +360,7 @@
       "baseline": 16
     },
     {
-      "id": "d1f06a01-83ed-4a15-a748-ee13d664f802",
+      "id": "48e235a7-78d7-4633-970c-a6627f37dc58",
       "type": "text",
       "x": 950.0,
       "y": 144,
@@ -394,7 +394,7 @@
       "baseline": 12
     },
     {
-      "id": "69600764-9c5e-4f39-9128-1daecf2a630b",
+      "id": "7012a9ae-535d-478a-ad2b-9e5c4ec81a4b",
       "type": "arrow",
       "x": 290,
       "y": 150,
@@ -434,7 +434,7 @@
       "endArrowhead": "arrow"
     },
     {
-      "id": "d2350f66-eb48-41db-8892-cecff2b6d95d",
+      "id": "84c305b3-cb84-448d-9b62-e75be2e5de51",
       "type": "text",
       "x": 328.5,
       "y": 128.0,
@@ -468,7 +468,7 @@
       "baseline": 11
     },
     {
-      "id": "d6ca54d5-4900-4086-93d5-2a13a68eb06d",
+      "id": "fe1b503c-2b9e-485b-89a4-ecea05e8e69c",
       "type": "arrow",
       "x": 740,
       "y": 150,
@@ -508,7 +508,7 @@
       "endArrowhead": "arrow"
     },
     {
-      "id": "64836cbb-c7dd-4dd6-965f-e8f586dc809b",
+      "id": "321e1a4e-e3b7-4acd-a3d9-01a23c3069d2",
       "type": "text",
       "x": 778.5,
       "y": 128.0,
@@ -542,7 +542,7 @@
       "baseline": 11
     },
     {
-      "id": "f4f213f2-fbd2-4397-8160-1eadabea4f9f",
+      "id": "5e1dea6b-5a0b-4204-979d-25df24175d54",
       "type": "arrow",
       "x": 850,
       "y": 190,
@@ -582,12 +582,12 @@
       "endArrowhead": "arrow"
     },
     {
-      "id": "601e0060-b506-4139-bf93-db0d28b5abcb",
+      "id": "d7b66fd9-e229-497e-a854-8e91e90e5b52",
       "type": "text",
-      "x": 781.0,
-      "y": 203,
-      "width": 28,
-      "height": 16,
+      "x": 779.5,
+      "y": 202,
+      "width": 31,
+      "height": 17,
       "angle": 0,
       "strokeColor": "#4A4A4A",
       "backgroundColor": "transparent",
@@ -605,7 +605,7 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "fontSize": 12,
+      "fontSize": 13,
       "fontFamily": 1,
       "text": "diff",
       "textAlign": "center",
@@ -613,10 +613,10 @@
       "containerId": null,
       "originalText": "diff",
       "lineHeight": 1.25,
-      "baseline": 12
+      "baseline": 13
     },
     {
-      "id": "76db166e-2b53-499b-a444-c4f5577eefeb",
+      "id": "38449e0e-1ec0-4558-b4f5-49575d03b682",
       "type": "rectangle",
       "x": 40,
       "y": 300,
@@ -644,11 +644,45 @@
       "locked": false
     },
     {
-      "id": "41eadc47-17dd-4ec7-b74a-5401c92188f1",
+      "id": "b8cb5d04-10d2-42b1-bf0f-f111ded4c432",
       "type": "text",
       "x": 60,
-      "y": 321,
-      "width": 327,
+      "y": 320,
+      "width": 351,
+      "height": 19,
+      "angle": 0,
+      "strokeColor": "#4A4A4A",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "fontSize": 15,
+      "fontFamily": 1,
+      "text": "What changes compared with helm install",
+      "textAlign": "left",
+      "verticalAlign": "top",
+      "containerId": null,
+      "originalText": "What changes compared with helm install",
+      "lineHeight": 1.25,
+      "baseline": 15
+    },
+    {
+      "id": "b84311c6-2346-4984-8258-d64599633a34",
+      "type": "text",
+      "x": 60,
+      "y": 356,
+      "width": 604,
       "height": 18,
       "angle": 0,
       "strokeColor": "#4A4A4A",
@@ -669,55 +703,21 @@
       "locked": false,
       "fontSize": 14,
       "fontFamily": 1,
-      "text": "What changes compared with helm install",
-      "textAlign": "left",
-      "verticalAlign": "top",
-      "containerId": null,
-      "originalText": "What changes compared with helm install",
-      "lineHeight": 1.25,
-      "baseline": 14
-    },
-    {
-      "id": "1220a22e-6b26-4af5-b76a-493517ce01d5",
-      "type": "text",
-      "x": 60,
-      "y": 357,
-      "width": 561,
-      "height": 17,
-      "angle": 0,
-      "strokeColor": "#4A4A4A",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 1,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "seed": 1,
-      "version": 1,
-      "versionNonce": 1,
-      "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "fontSize": 13,
-      "fontFamily": 1,
       "text": "No Helm release Secret: helm list shows nothing for an Argo-managed app.",
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "No Helm release Secret: helm list shows nothing for an Argo-managed app.",
       "lineHeight": 1.25,
-      "baseline": 13
+      "baseline": 14
     },
     {
-      "id": "fece517e-6fe7-4e1b-a09d-827dfc43c74e",
+      "id": "f73a5e24-6289-4c14-ae25-1049ddd46079",
       "type": "text",
       "x": 60,
-      "y": 387,
-      "width": 483,
-      "height": 17,
+      "y": 386,
+      "width": 520,
+      "height": 18,
       "angle": 0,
       "strokeColor": "#4A4A4A",
       "backgroundColor": "transparent",
@@ -735,7 +735,7 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "fontSize": 13,
+      "fontSize": 14,
       "fontFamily": 1,
       "text": "Argo renders with helm template and applies the output itself.",
       "textAlign": "left",
@@ -743,15 +743,15 @@
       "containerId": null,
       "originalText": "Argo renders with helm template and applies the output itself.",
       "lineHeight": 1.25,
-      "baseline": 13
+      "baseline": 14
     },
     {
-      "id": "e3a2ec0c-7d35-4540-9f2a-57a07988c963",
+      "id": "c694000f-2362-4429-8f76-94ce3b9df3ca",
       "type": "text",
       "x": 60,
-      "y": 417,
-      "width": 655,
-      "height": 17,
+      "y": 416,
+      "width": 705,
+      "height": 18,
       "angle": 0,
       "strokeColor": "#4A4A4A",
       "backgroundColor": "transparent",
@@ -769,7 +769,7 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "fontSize": 13,
+      "fontSize": 14,
       "fontFamily": 1,
       "text": "helm.sh/hook-weight maps to argocd.argoproj.io/sync-wave; --wait has no counterpart.",
       "textAlign": "left",
@@ -777,15 +777,15 @@
       "containerId": null,
       "originalText": "helm.sh/hook-weight maps to argocd.argoproj.io/sync-wave; --wait has no counterpart.",
       "lineHeight": 1.25,
-      "baseline": 13
+      "baseline": 14
     },
     {
-      "id": "71fa8052-8699-4f89-940b-eba6125296bb",
+      "id": "4b5089fa-26b1-4f35-8899-40f8ee3624ba",
       "type": "text",
       "x": 60,
-      "y": 447,
-      "width": 499,
-      "height": 17,
+      "y": 446,
+      "width": 537,
+      "height": 18,
       "angle": 0,
       "strokeColor": "#4A4A4A",
       "backgroundColor": "transparent",
@@ -803,7 +803,7 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "fontSize": 13,
+      "fontSize": 14,
       "fontFamily": 1,
       "text": "Drift is reconciled continuously instead of at the next upgrade.",
       "textAlign": "left",
@@ -811,7 +811,7 @@
       "containerId": null,
       "originalText": "Drift is reconciled continuously instead of at the next upgrade.",
       "lineHeight": 1.25,
-      "baseline": 13
+      "baseline": 14
     }
   ],
   "appState": {

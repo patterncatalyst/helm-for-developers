@@ -4,7 +4,7 @@
   "source": "dgen.py",
   "elements": [
     {
-      "id": "88e6cdbb-7ffb-4e61-835a-3341b18e90f5",
+      "id": "f18bfb90-a9f6-4ff9-b99b-bfd29032bf4e",
       "type": "rectangle",
       "x": 30,
       "y": 90,
@@ -32,7 +32,7 @@
       "locked": false
     },
     {
-      "id": "8c0a3c69-84f6-4358-883b-89f1200a800c",
+      "id": "3b2f8e86-7f2c-4fef-a404-54d8e683335e",
       "type": "text",
       "x": 63.5,
       "y": 114,
@@ -66,7 +66,7 @@
       "baseline": 16
     },
     {
-      "id": "9abd2322-833c-46d9-9f09-7722758645ac",
+      "id": "d990c60d-84d7-4a0e-95b4-dfb7e0ba1b02",
       "type": "text",
       "x": 75.5,
       "y": 134,
@@ -100,7 +100,7 @@
       "baseline": 12
     },
     {
-      "id": "cd21ade7-2c9e-4386-8302-03a5edb23b02",
+      "id": "cb94522c-cd32-496b-9d1f-65f67aa0d645",
       "type": "rectangle",
       "x": 30,
       "y": 240,
@@ -128,7 +128,7 @@
       "locked": false
     },
     {
-      "id": "aceb57e4-0574-42f5-832d-e9ca94b855f0",
+      "id": "caa561c2-20c5-41b3-b3f5-9f1a80e5d75b",
       "type": "text",
       "x": 44.0,
       "y": 264,
@@ -162,7 +162,7 @@
       "baseline": 16
     },
     {
-      "id": "38dd09a7-1c13-443f-aed6-7f6de24156ce",
+      "id": "8c6bb01c-39a4-4951-99dc-19935d883d1a",
       "type": "text",
       "x": 75.5,
       "y": 284,
@@ -196,7 +196,7 @@
       "baseline": 12
     },
     {
-      "id": "0143e27e-f9af-4f00-8ed6-979ffafe8f9e",
+      "id": "7589f410-4ecc-43aa-8d43-74b1d3a0cbcc",
       "type": "rectangle",
       "x": 340,
       "y": 150,
@@ -224,7 +224,7 @@
       "locked": false
     },
     {
-      "id": "1467fa89-9626-4769-914a-f9078dda9d80",
+      "id": "de4069a9-6405-4c40-8d82-7c02cd1e80fd",
       "type": "text",
       "x": 383.0,
       "y": 174,
@@ -258,7 +258,7 @@
       "baseline": 16
     },
     {
-      "id": "89fb34bd-0f2f-4397-8fda-eb80f06b9829",
+      "id": "e55990d7-4da4-4622-83d9-1b6d61d21c8e",
       "type": "text",
       "x": 392.5,
       "y": 194,
@@ -292,7 +292,7 @@
       "baseline": 12
     },
     {
-      "id": "84e93810-d474-4aec-b5b3-1cb794b5b533",
+      "id": "6c090713-92ee-4b41-974d-4c76c5f6fda2",
       "type": "text",
       "x": 414.0,
       "y": 210,
@@ -326,7 +326,7 @@
       "baseline": 12
     },
     {
-      "id": "abcfcbc6-a820-4264-aa26-594fa37e2228",
+      "id": "6f2d84f7-484d-4335-aaff-2d144b8f271a",
       "type": "rectangle",
       "x": 660,
       "y": 50,
@@ -354,7 +354,7 @@
       "locked": false
     },
     {
-      "id": "0a9c8b69-8e63-4eba-945d-2c903101b59a",
+      "id": "369b394e-60a9-4e55-a986-1ea2cf5eedaa",
       "type": "text",
       "x": 736.0,
       "y": 74,
@@ -388,7 +388,7 @@
       "baseline": 16
     },
     {
-      "id": "5ea41484-12e7-49ee-b0fe-7427ec95af98",
+      "id": "e43080cb-98db-40f9-a784-ab582a729232",
       "type": "text",
       "x": 738.5,
       "y": 94,
@@ -422,7 +422,7 @@
       "baseline": 12
     },
     {
-      "id": "ba3aa5be-19bf-4675-9c99-da36dc644865",
+      "id": "56bc1060-9912-4506-aa6a-d5729630f3cb",
       "type": "rectangle",
       "x": 660,
       "y": 150,
@@ -450,7 +450,7 @@
       "locked": false
     },
     {
-      "id": "cf15b2c8-0dc2-471d-8c3e-4c29b7265b0e",
+      "id": "7edae46c-a83c-4a12-892a-7bccfce559f8",
       "type": "text",
       "x": 741.0,
       "y": 174,
@@ -484,7 +484,7 @@
       "baseline": 16
     },
     {
-      "id": "fd5359e9-e46d-4d10-980d-91952b2a32ed",
+      "id": "f8cbb129-604c-482b-896c-7f7f375cd534",
       "type": "text",
       "x": 746.0,
       "y": 194,
@@ -518,7 +518,7 @@
       "baseline": 12
     },
     {
-      "id": "5708552e-fee8-486a-a1e5-3c76aed8c011",
+      "id": "9faa4f67-da2a-4d3d-9793-5b2cabf47c85",
       "type": "rectangle",
       "x": 660,
       "y": 250,
@@ -546,7 +546,7 @@
       "locked": false
     },
     {
-      "id": "8eaab8d1-9da6-4cdd-bafc-4a6cc022a5fc",
+      "id": "cd1e8644-3132-47ad-b47c-956d9f016908",
       "type": "text",
       "x": 736.0,
       "y": 274,
@@ -580,7 +580,7 @@
       "baseline": 16
     },
     {
-      "id": "fe69b251-983f-49eb-80dc-1d43c3e4158a",
+      "id": "e79a76ac-24b1-49df-859b-a0b2259d9bfa",
       "type": "text",
       "x": 735.0,
       "y": 294,
@@ -614,7 +614,7 @@
       "baseline": 12
     },
     {
-      "id": "5bba0ff8-a4b2-487f-8e4c-5432787b42f8",
+      "id": "89b589f1-af6b-404e-8c78-ced1e0d0fd8b",
       "type": "rectangle",
       "x": 960,
       "y": 140,
@@ -642,7 +642,7 @@
       "locked": false
     },
     {
-      "id": "bf528aaf-b392-4a01-8e26-bcbef541bcb1",
+      "id": "93bcfc94-ca4d-412b-9ac8-53793f922f71",
       "type": "text",
       "x": 1041.5,
       "y": 164,
@@ -676,7 +676,7 @@
       "baseline": 16
     },
     {
-      "id": "c936fa0c-5665-4447-a05d-4f16b6c4524f",
+      "id": "cba62b98-380f-4986-970f-4912f292d8dc",
       "type": "text",
       "x": 1007.0,
       "y": 184,
@@ -710,7 +710,7 @@
       "baseline": 12
     },
     {
-      "id": "5ee6e12a-660f-4d7d-b636-db1417f18887",
+      "id": "1b8b02e6-0900-41fc-a9d2-192caf07c571",
       "type": "text",
       "x": 1014.0,
       "y": 200,
@@ -744,7 +744,7 @@
       "baseline": 12
     },
     {
-      "id": "935610ae-cd86-4ade-b0c3-d264eebe1eb2",
+      "id": "e7a227bb-3316-42da-b524-1d54cc2864a1",
       "type": "arrow",
       "x": 250,
       "y": 130,
@@ -784,7 +784,7 @@
       "endArrowhead": "arrow"
     },
     {
-      "id": "db1f1768-0161-426b-bc74-ad0130a80d07",
+      "id": "f0a10dbd-c45e-461b-b160-fb4b542f5fa4",
       "type": "text",
       "x": 282.0,
       "y": 137.5,
@@ -818,7 +818,7 @@
       "baseline": 11
     },
     {
-      "id": "1ef858be-2ec9-4651-a7cc-45f5d969459c",
+      "id": "67187c17-08aa-48d6-9420-a1493918cc1b",
       "type": "arrow",
       "x": 250,
       "y": 280,
@@ -858,7 +858,7 @@
       "endArrowhead": "arrow"
     },
     {
-      "id": "25164cae-4e6b-4a54-b341-82a27705052d",
+      "id": "8af1db5e-2f92-4d84-bf2f-f52c9d14bebb",
       "type": "arrow",
       "x": 560,
       "y": 175,
@@ -898,7 +898,7 @@
       "endArrowhead": "arrow"
     },
     {
-      "id": "518f5163-6078-4f1f-9a44-934764391875",
+      "id": "7320a130-d944-4a54-be44-09f084925c3b",
       "type": "arrow",
       "x": 560,
       "y": 195,
@@ -938,7 +938,7 @@
       "endArrowhead": "arrow"
     },
     {
-      "id": "b8e06417-5425-4bd7-bfc9-409f67608b39",
+      "id": "16cc6e06-e26b-45f2-b1d8-ee833630d326",
       "type": "arrow",
       "x": 560,
       "y": 215,
@@ -978,7 +978,7 @@
       "endArrowhead": "arrow"
     },
     {
-      "id": "045eeb83-35ac-48b9-a391-40e32a76df7d",
+      "id": "ab0480f8-e594-4596-850c-238b2c8b3692",
       "type": "arrow",
       "x": 860,
       "y": 85,
@@ -1018,7 +1018,7 @@
       "endArrowhead": "arrow"
     },
     {
-      "id": "c4bb26e0-7791-47b5-b049-30b8e3e4c8b6",
+      "id": "a1861774-4188-45bc-83c2-fb77c90ff366",
       "type": "arrow",
       "x": 860,
       "y": 185,
@@ -1058,7 +1058,7 @@
       "endArrowhead": "arrow"
     },
     {
-      "id": "4d407a86-9732-4a48-b3cb-4e46dc1bbb3e",
+      "id": "7b026edb-3729-4116-93bd-9e5a2571107a",
       "type": "arrow",
       "x": 860,
       "y": 285,
@@ -1098,7 +1098,7 @@
       "endArrowhead": "arrow"
     },
     {
-      "id": "6e4ec61b-3f70-456e-a941-8dede79a886c",
+      "id": "05b3f4f1-4b6f-4a8c-99a6-c5ba6c366774",
       "type": "rectangle",
       "x": 30,
       "y": 380,
@@ -1126,12 +1126,12 @@
       "locked": false
     },
     {
-      "id": "ca99bce0-0327-4a4f-8cd6-b902dd7dc5df",
+      "id": "cb678c5b-8a80-4b91-b0e7-0507369e8a53",
       "type": "text",
       "x": 50,
-      "y": 399,
-      "width": 819,
-      "height": 17,
+      "y": 398,
+      "width": 882,
+      "height": 18,
       "angle": 0,
       "strokeColor": "#4A4A4A",
       "backgroundColor": "transparent",
@@ -1149,7 +1149,7 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "fontSize": 13,
+      "fontSize": 14,
       "fontFamily": 1,
       "text": "global.otlpEndpoint is set once on the umbrella; pc-lib.otelEnv turns it into env vars for every service.",
       "textAlign": "left",
@@ -1157,15 +1157,15 @@
       "containerId": null,
       "originalText": "global.otlpEndpoint is set once on the umbrella; pc-lib.otelEnv turns it into env vars for every service.",
       "lineHeight": 1.25,
-      "baseline": 13
+      "baseline": 14
     },
     {
-      "id": "7f0381d9-13aa-421d-96ff-59a6172861de",
+      "id": "364b502d-2612-4cfe-a0ac-127828b35e19",
       "type": "text",
       "x": 50,
-      "y": 427,
-      "width": 702,
-      "height": 17,
+      "y": 426,
+      "width": 756,
+      "height": 18,
       "angle": 0,
       "strokeColor": "#4A4A4A",
       "backgroundColor": "transparent",
@@ -1183,7 +1183,7 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "fontSize": 13,
+      "fontSize": 14,
       "fontFamily": 1,
       "text": "Empty endpoint renders OTEL_SDK_DISABLED=true, so the same chart runs without a collector.",
       "textAlign": "left",
@@ -1191,15 +1191,15 @@
       "containerId": null,
       "originalText": "Empty endpoint renders OTEL_SDK_DISABLED=true, so the same chart runs without a collector.",
       "lineHeight": 1.25,
-      "baseline": 13
+      "baseline": 14
     },
     {
-      "id": "e5aa9f77-5e35-4d08-a0f4-f8a8cf3bc80e",
+      "id": "4629c393-b660-4ef1-b3dc-aa7bcdd953d0",
       "type": "text",
       "x": 50,
-      "y": 455,
-      "width": 741,
-      "height": 17,
+      "y": 454,
+      "width": 798,
+      "height": 18,
       "angle": 0,
       "strokeColor": "#4A4A4A",
       "backgroundColor": "transparent",
@@ -1217,7 +1217,7 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "fontSize": 13,
+      "fontSize": 14,
       "fontFamily": 1,
       "text": "A trace crosses Kafka: the dispatch span in shipping links to the consume span in notification.",
       "textAlign": "left",
@@ -1225,7 +1225,7 @@
       "containerId": null,
       "originalText": "A trace crosses Kafka: the dispatch span in shipping links to the consume span in notification.",
       "lineHeight": 1.25,
-      "baseline": 13
+      "baseline": 14
     }
   ],
   "appState": {

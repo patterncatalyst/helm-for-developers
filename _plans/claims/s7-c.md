@@ -52,5 +52,5 @@ End state: release `platform` installed in `hfd-26` (golden restored); no other 
 
 ## Notes
 
-- `scripts/build-images.sh push` with Docker Desktop on Linux fails; use `BUILD_ENGINE=podman`. The script itself was not changed.
-- `scripts/platform/setup-lgtm.sh` still does not set `sidecar.dashboards.searchNamespace`; the demo upgrades Grafana in place (now `ALL` on the live cluster).
+- `scripts/build-images.sh push` with Docker Desktop on Linux fails. Resolved in repair round 2: push mode now prefers podman when installed.
+- `scripts/platform/setup-lgtm.sh` (kept as is on purpose; ch26 teaches the trap) still does not set `sidecar.dashboards.searchNamespace`; the demo upgrades Grafana in place (now `ALL` on the live cluster).

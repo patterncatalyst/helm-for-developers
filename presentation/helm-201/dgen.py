@@ -1,8 +1,8 @@
 """
-dgen.py — Diagram generation engine .
+dgen.py — Diagram generation engine.
 
 Emits matched SVG + Excalidraw + PNG triples in a Red Hat-aligned visual style.
-Used for diagrams unique to the REST deck (HATEOAS state machines, JSON Patch shapes,
+Used for diagrams unique to the deck (state machines, patch shapes,
 custom-method URIs, idempotency-key flow, etc.). Existing diagrams from
 diagram-sources-python.zip are reused as-is (rendered to PNG via soffice).
 

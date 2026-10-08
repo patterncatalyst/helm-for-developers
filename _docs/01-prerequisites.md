@@ -63,13 +63,13 @@ The bootstrap runs four tiers and gates each on the health of the one before:
 1. `setup-profile.sh` creates or starts the `helm4dev` minikube profile and enables the registry addon. It refuses to act on any other profile name, checks `fs.inotify.max_user_instances`, and warns when other minikube profiles are running and competing for RAM.
 2. `setup-postgres-operator.sh` runs `helm upgrade --install cnpg cnpg/cloudnative-pg` into `cnpg-system`.
 3. `setup-kafka-operator.sh` installs Strimzi into `strimzi` with `watchAnyNamespace=true`, so one operator serves every `hfd-NN` namespace.
-4. `setup-lgtm.sh` installs Loki, Grafana, Tempo and Mimir into `observability`.
+4. `setup-lgtm.sh` installs Loki, Grafana, Tempo and Mimir into `observability`. Its Grafana only loads dashboard ConfigMaps from its own namespace; chapter 26 upgrades the shared Grafana with `sidecar.dashboards.searchNamespace=ALL` so the umbrella's dashboard in `hfd-26` appears.
 
 Operators only is a deliberate decision. The bootstrap installs the machinery that understands a `Cluster` or a `Kafka` custom resource. It never creates a database or a broker, because from chapter 09 onward the charts you write own those resources, and that is what a chart is for. Every helper in `lib.sh` pins `--context helm4dev` explicitly, so the kubectl context you happen to have active never decides where a command lands.
 
 ### `scripts/build-images.sh`
 
-The script builds `shipping-service:0.1.0` and `notification-service:0.1.0` from one `services/Containerfile`, selecting the service with `--build-arg SERVICE=<name>`. With Docker or Podman it builds on the host and runs `minikube -p helm4dev image load`; with `BUILD_ENGINE=minikube` it builds inside the node. The charts default to `image.repository: shipping-service` and a tag taken from `.Chart.AppVersion`, so the same image serves every chapter and only charts and values change. `build-images.sh push` additionally pushes to the registry addon at `localhost:5000` through an SSH tunnel.
+The script builds `shipping-service:0.1.0` and `notification-service:0.1.0` from one `services/Containerfile`, selecting the service with `--build-arg SERVICE=<name>`. With Docker or Podman it builds on the host and runs `minikube -p helm4dev image load`; with `BUILD_ENGINE=minikube` it builds inside the node. The charts default to `image.repository: shipping-service` and a tag taken from `.Chart.AppVersion`, so the same image serves every chapter and only charts and values change. `build-images.sh push` additionally pushes to the registry addon at `localhost:5000` through an SSH tunnel. Push mode prefers Podman when it is installed, because a Docker daemon that runs in a VM (Docker Desktop) cannot reach a tunnel bound on the host's `127.0.0.1`; set `BUILD_ENGINE=docker` to force Docker, for example with Docker Engine on Linux.
 
 ### `scripts/tunnel.sh`
 

@@ -16,6 +16,9 @@
 # BUILD_ENGINE selects the builder: docker (default when available), podman, or
 # minikube (`minikube image build`, builds inside the node). docker and podman
 # builds are copied into the profile with `minikube image load`.
+# Push mode prefers podman when it is installed: a Docker daemon that runs in a VM
+# (Docker Desktop) cannot reach the host-side registry tunnel on 127.0.0.1:5000.
+# Set BUILD_ENGINE=docker to override.
 
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -42,7 +45,8 @@ minikube status -p "$PROFILE" >/dev/null 2>&1 \
 
 ENGINE="${BUILD_ENGINE:-}"
 if [[ -z "$ENGINE" ]]; then
-    if command -v docker >/dev/null 2>&1; then ENGINE=docker
+    if [[ "$MODE" == "push" ]] && command -v podman >/dev/null 2>&1; then ENGINE=podman
+    elif command -v docker >/dev/null 2>&1; then ENGINE=docker
     elif command -v podman >/dev/null 2>&1; then ENGINE=podman
     else ENGINE=minikube; fi
 fi
@@ -65,12 +69,18 @@ done
 
 if [[ "$MODE" == "push" ]]; then
     [[ "$ENGINE" == "minikube" ]] && { echo "ERROR: push mode needs BUILD_ENGINE=docker or podman" >&2; exit 2; }
+    if [[ "$ENGINE" == "docker" ]] && ! command -v podman >/dev/null 2>&1; then
+        echo "note: a Docker daemon in a VM cannot reach localhost:5000; install podman or use Docker Engine on Linux" >&2
+    fi
     printf '\n==> push to the registry addon (localhost:5000 via SSH tunnel)\n'
     "$HERE/tunnel.sh" registry
     for svc in "${SERVICES[@]}"; do
         "$ENGINE" tag "$svc:$TAG" "localhost:5000/$svc:$TAG"
-        "$ENGINE" push --tls-verify=false "localhost:5000/$svc:$TAG" 2>/dev/null \
-            || "$ENGINE" push "localhost:5000/$svc:$TAG"
+        if [[ "$ENGINE" == "podman" ]]; then
+            podman push --tls-verify=false "localhost:5000/$svc:$TAG"
+        else
+            docker push "localhost:5000/$svc:$TAG"
+        fi
     done
     printf '    pushed: %s\n' "${SERVICES[@]/#/localhost:5000/}"
 fi

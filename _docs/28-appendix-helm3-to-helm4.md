@@ -30,7 +30,7 @@ New flags worth knowing: `--server-side` and `--force-conflicts` for server-side
 
 ## Server-side apply
 
-New installs use server-side apply (SSA) by default. `helm install --server-side` is a boolean defaulting to `true`. `helm upgrade --server-side` takes `true`, `false` or `auto`, and `auto` (the default) follows the method the previous revision used, so a release installed with client-side apply by Helm 3 keeps its method until you change it. With SSA the API server tracks field ownership per manager, so another controller editing a field Helm also sets produces a conflict, and `--force-conflicts` lets Helm take the field. `--force-replace` is the older replace-style update, and it is a separate mechanism. Chapter 12 shows both.
+New installs use server-side apply (SSA) by default. `helm install --server-side` is a boolean defaulting to `true`. `helm upgrade --server-side` takes `true`, `false` or `auto`, and `auto` (the default) follows the method the previous revision used, so a release installed with client-side apply by Helm 3 keeps its method until you change it. With SSA the API server tracks field ownership per manager, so another controller editing a field Helm also sets produces a conflict, and `--force-conflicts` lets Helm take the field. `--take-ownership` adopts objects that lack Helm's ownership annotations, and it needs `--force-conflicts` as well when another manager owns differing fields. `--force-replace` is the older replace-style update, a client-side mechanism: Helm 4.3.0 rejects it together with server-side apply, so it needs `--server-side=false`. Chapter 12 shows each.
 
 ## The wait
 
@@ -66,7 +66,7 @@ You can keep Helm 3 and Helm 4 installed. They are separate binaries with the sa
 [host]$ source scripts/env.sh && helm version --short
 ```
 
-For a production migration, start in a non-production namespace. Run `helm list -A` with Helm 4 against the cluster to confirm it reads your existing releases, `helm upgrade` one release with `--dry-run=server`, then run the upgrade without the flag. Treat release compatibility as something to test on a copy, since the official pages do not promise a guarantee beyond chart API v2.
+For a production migration, start in a non-production namespace. Run `helm list -A` with Helm 4 against the cluster to confirm it reads your existing releases, `helm upgrade` one release with `--dry-run=server` (it resolves kinds and runs `lookup` against the API server, but on Helm 4.3.0 it does not schema-validate fields; chapter 13), then run the upgrade without the flag. Treat release compatibility as something to test on a copy, since the official pages do not promise a guarantee beyond chart API v2.
 
 ## Plugins that touch release state
 
