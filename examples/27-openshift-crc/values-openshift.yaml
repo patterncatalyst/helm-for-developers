@@ -1,0 +1,42 @@
+# OpenShift Local (CRC): full profile. Routes instead of NodePorts, images from the
+# internal registry, no runAsUser anywhere (restricted-v2 assigns the UID range).
+#
+# The full profile needs the CloudNativePG and Strimzi (or AMQ Streams) operators
+# installed from OperatorHub first. For a run without operators, layer
+# values-openshift-minimal.yaml after this file.
+#
+# Layout: the registry path ends in the project name. Keep it in step with NAMESPACE
+# in verify-crc.sh and build-and-push.sh (default hfd-ocp).
+global:
+  environment: openshift
+  imageRegistry: image-registry.openshift-image-registry.svc:5000/hfd-ocp
+  otlpEndpoint: ""
+
+route:
+  enabled: true               # rendered only when route.openshift.io/v1 is served
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  hosts:
+    shipping: ""              # empty: the router generates <name>-<project>.apps-crc.testing
+    notification: ""
+
+shipping:
+  service:
+    type: ClusterIP
+  auth:
+    token: openshift-token    # dev only
+
+notification:
+  service:
+    type: ClusterIP
+
+# The helm test pod reuses the shipping image, so it needs the registry-qualified ref too.
+tests:
+  image: image-registry.openshift-image-registry.svc:5000/hfd-ocp/shipping-service:0.1.0
+
+# Strimzi 0.49+ serves kafka.strimzi.io/v1. Red Hat Streams for Apache Kafka (AMQ Streams)
+# may lag; uncomment the next two lines if the Kafka CR is rejected for its apiVersion.
+# kafka:
+#   strimzi:
+#     apiVersion: kafka.strimzi.io/v1beta2

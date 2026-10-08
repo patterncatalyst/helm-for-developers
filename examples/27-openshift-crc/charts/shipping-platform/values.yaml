@@ -1,0 +1,56 @@
+# shipping-platform: umbrella values. Subchart keys are the dependency aliases:
+# shipping, notification, db, kafka.
+
+global:
+  environment: dev
+  otlpEndpoint: ""            # e.g. http://otel-collector.observability.svc.cluster.local:4318
+  imageRegistry: ""           # e.g. localhost:5000 (prefix for every app image)
+  partOf: shipping-platform
+
+# Tags switch groups of subcharts. tags.messaging covers kafka and notification.
+# When you set it to false also set shipping.kafka.enabled=false.
+tags:
+  messaging: true
+
+shipping:
+  enabled: true
+  config:
+    storage: postgres
+  kafka:
+    enabled: true             # bootstrap and topic are imported from the kafka chart
+  # The database is created by this same release, so its Secret does not exist before
+  # install: run the migration after the resources are created.
+  migration:
+    hooks: post-install,post-upgrade
+  # Helm runs post-install hooks only after --wait sees every resource ready. The default
+  # readiness path (/healthz) fails until the migration has run, so the release would wait
+  # on the hook and the hook on the release. Gate readiness on process health (/health)
+  # here; the migration Job then runs and /healthz turns green on its own.
+  probes:
+    readiness:
+      path: /health
+  service:
+    type: ClusterIP
+
+notification:
+  service:
+    type: ClusterIP
+
+db:
+  enabled: true
+
+kafka: {}
+
+route:
+  enabled: true               # still requires the route.openshift.io/v1 API
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  hosts:
+    shipping: ""              # empty: OpenShift generates the host
+    notification: ""
+
+tests:
+  # Needs python and a numeric non-root USER (runAsNonRoot is verified by the kubelet),
+  # so it reuses the shipping image. Set global.imageRegistry-qualified refs here if needed.
+  image: shipping-service:0.1.0
