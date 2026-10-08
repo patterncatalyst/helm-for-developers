@@ -25,11 +25,11 @@ Each rung answers a different question, and a fault that slips past one is usual
 | 2 | `helm template --debug --show-only` | Template execution errors; the rendered text of one file |
 | 3 | `kubeconform` | Wrong field names and types, and custom resources when given their CRD schemas |
 | 4 | `helm diff local` | What a values or template change does to the output |
-| 5 | `--dry-run=server` | Whatever only the API server knows: admission, defaulting, unknown kinds |
+| 5 | `--dry-run=server`, then `kubectl apply --server-side --dry-run=server` | Unknown kinds and `lookup` results (Helm); field types and admission (kubectl) |
 | 6 | `helm diff upgrade` | The change against the live release |
 | 7 | `helm get manifest` | What the cluster was sent, to feed back into kubeconform |
 
-Helm 4 spells the dry-run flag `--dry-run=none|client|server` on `install` and `upgrade` and `client|server` on `template`. `client` renders locally and never contacts the cluster. `server` sends the objects to the API server for validation without persisting them. A bare `--dry-run` means `client` on `template`. The flag set is in the [helm install](https://helm.sh/docs/helm/helm_install/) and [helm template](https://helm.sh/docs/helm/helm_template/) references, and the release changes are summarized in the [Helm 4 announcement](https://helm.sh/blog/helm-4-released/).
+Helm 4 spells the dry-run flag `--dry-run=none|client|server` on `install` and `upgrade` and `client|server` on `template`. `client` renders locally and never contacts the cluster. `server` connects to the cluster: it resolves every kind against the API server's discovery data and runs `lookup`. On Helm 4.3.0 it does not submit the objects for schema validation (observed below), so it catches an unknown kind but not a string `containerPort`. A bare `--dry-run` means `client` on `template`. The flag set is in the [helm install](https://helm.sh/docs/helm/helm_install/) and [helm template](https://helm.sh/docs/helm/helm_template/) references, and the release changes are summarized in the [Helm 4 announcement](https://helm.sh/blog/helm-4-released/).
 
 ## How the code works
 
@@ -105,10 +105,23 @@ Error: YAML parse error on shipping-service/templates/service.yaml: error conver
 ... at '/spec/template/spec/containers/0/ports/0/containerPort': got string, want integer
 ```
 
-The cluster half of `./demo.sh` builds the image, installs the release, and then runs rungs 5 to 7. It first shows that `--dry-run=client` accepts the string `containerPort` while `--dry-run=server` rejects it:
+The cluster half of `./demo.sh` builds the image, installs the release, and then runs rungs 5 to 7. It first shows what `--dry-run=server` catches. A template that renders a `Widget` of an unknown API group renders fine under `helm template` and fails at the cluster:
+
+```text
+Error: UPGRADE FAILED: resource mapping not found for name: "x" namespace: "" from "": no matches for kind "Widget" in version "example.com/v1"
+ensure CRDs are installed first
+```
+
+A string `containerPort` passes both Helm dry-runs on Helm 4.3.0. The API server's own server-side dry-run, fed the rendered manifest, rejects it:
+
+```text
+Error from server: failed to create typed patch object (hfd-13/shipping-shipping-service; apps/v1, Kind=Deployment): .spec.template.spec.containers[name="shipping-service"].ports[containerPort="8080",protocol="TCP"].containerPort: expected numeric (int or float), got string
+```
+
+Then the remaining rungs:
 
 ```bash
-helm upgrade shipping charts/shipping-service -n hfd-13 --dry-run=server
+helm template shipping charts/shipping-service -n hfd-13 | kubectl -n hfd-13 apply --server-side --dry-run=server -f -
 helm diff upgrade shipping charts/shipping-service -n hfd-13 --set replicaCount=2
 helm get manifest shipping -n hfd-13 | kubeconform -strict -summary
 ```
@@ -124,7 +137,7 @@ Helm 4 verifies plugin installs by default, so `scripts/install-tools.sh` instal
 | `YAML parse error on ...: mapping values are not allowed` | `indent` instead of `nindent`, or a missing `-` chomp. Re-run with `--debug`. |
 | `could not find template templates/x.yaml in chart` | `--show-only` path is wrong, or `.helmignore` removed the file (see chapter 14). |
 | `execution error at (...): <your message>` | A `required` or `fail` call fired. The text after the colon is yours. |
-| `context deadline exceeded` | `--wait` timed out; the chart rendered fine. Look at pod events, not the template. |
+| `context deadline exceeded` | `--wait` timed out; the chart rendered fine. Look at pod events, not the template. Seen together with `Pending termination: 1` on a bad-tag upgrade. |
 | `Pending termination: 1` after a bad upgrade | The new pod never became ready. `kubectl describe pod` shows the real cause, such as `ImagePullBackOff`. |
 
 ## Cross-check
@@ -136,7 +149,7 @@ Two independent checks agree on the fixed chart. After the five fixes, `diff -rq
 - Order checks by cost: lint, render, schema, local diff, then the API server.
 - `helm lint --strict` turns deprecated-API warnings into failures; `--debug` shows rendered text that failed to parse.
 - kubeconform needs `-schema-location default` plus the CRDs-catalog URL template to validate custom resources, and a pinned `-kubernetes-version`.
-- `--dry-run=client` never contacts the cluster; `--dry-run=server` finds what only the API server knows.
+- `--dry-run=client` never contacts the cluster; `--dry-run=server` resolves kinds and `lookup` against the cluster but, on Helm 4.3.0, does not validate field types; pipe `helm template` into `kubectl apply --server-side --dry-run=server` for that.
 - `helm diff local` previews changes offline, and `helm diff upgrade` compares against the live release.
 
 Chapter 14 turns these one-off checks into repeatable ones: unit tests, `helm test` and a CI workflow.
@@ -150,4 +163,4 @@ Chapter 14 turns these one-off checks into repeatable ones: unit tests, `helm te
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. The offline ladder ran on the authoring machine; the cluster rungs (server dry run rejecting a string `containerPort`, `helm diff upgrade`, `helm get manifest` through kubeconform) are not yet confirmed on a live run.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/13-debugging.txt`. Observed on Helm 4.3.0 against minikube: `helm diff upgrade` showed the `replicaCount` and `LOG_LEVEL` changes, `helm get manifest` passed kubeconform and listed the same resources as `helm template`, a bad-tag `--wait` upgrade printed `Pending termination: 1` and `context deadline exceeded`, and the string `containerPort` passed both Helm dry-runs (the original claim that `--dry-run=server` rejects it was refuted) but failed `kubectl apply --server-side --dry-run=server`.*

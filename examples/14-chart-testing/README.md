@@ -35,9 +35,4 @@ ct lint --config ct.yaml --all
 
 ## Verification status
 
-`unverified`. The offline checks exit 0 on the authoring machine. A live run must confirm:
-
-- `helm test shipping -n hfd-14` reports `Phase: Succeeded` for the test pod.
-- With `tests/` (unanchored) in `.helmignore`, `helm test` prints `TEST SUITE: None`.
-- `ct install --charts charts/shipping-service` installs, tests and cleans up.
-- The workflow `.github/workflows/charts-ci.yml` passes on GitHub Actions.
+Partially verified on 2026-10-08 (Helm 4.3.0, ct 3.15.0, minikube `helm4dev`), evidence `_plans/evidence/14-chart-testing.txt`. The full demo exits 0: `helm test shipping -n hfd-14` reports `Phase: Succeeded`, an install with the unanchored `tests/` prints `TEST SUITE: None`, and `ct install --charts charts/shipping-service` installs, tests and removes its generated namespace. Not verified: the workflow `.github/workflows/charts-ci.yml` on GitHub Actions.

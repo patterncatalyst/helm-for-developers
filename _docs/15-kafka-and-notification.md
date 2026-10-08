@@ -89,7 +89,7 @@ The readiness probe targets `/healthz`, which the service reports as healthy onl
 
 **The producer side.** shipping-service gains nothing new in templates. Setting `kafka.enabled: true` and `kafka.bootstrap` in `values/shipping-dev.yaml` adds `KAFKA_ENABLED` to its ConfigMap and `KAFKA_BOOTSTRAP` to its container env.
 
-**What is fragile.** The bootstrap address is typed into two values files and exported a third time. The shipping-service producer is created during application startup, so while the broker pod is still starting the shipping pod restarts a few times before it connects. In the full platform run that took about 50 seconds to settle; the startup probe allows up to 60 seconds and `--wait` holds the release open until it does. Chapter 16 covers what `--wait` can and cannot order.
+**What is fragile.** The bootstrap address is typed into two values files and exported a third time. The shipping-service producer is created during application startup, so if the shipping pod starts while the broker pod is still starting, it restarts a few times before it connects. Installed concurrently with a fresh Kafka cluster it restarted 3 times (a stable pod after about 40 seconds to a stable pod); in this chapter's demo it shows 0 restarts, because `kubectl wait` holds back the install until Kafka is Ready. In the full platform run (chapter 16) that took about 50 seconds to settle; the startup probe allows up to 60 seconds and `--wait` holds the release open until it does. Chapter 16 covers what `--wait` can and cannot order.
 
 ## Build, run, observe
 
@@ -114,7 +114,7 @@ kubectl -n hfd-15 get kafka,kafkanodepool,kafkatopic
 helm get manifest kafka -n hfd-15 | grep -E '^kind:'
 ```
 
-The kinds match, and `kafkatopic` shows `READY True` once the entity operator reconciles it. For the consumer, `kubectl -n hfd-15 logs deploy/notification-notification-service` should show the `shipment ... dispatched` log line for the shipment you created, which confirms the same fact from the pod's side.
+The kinds match, and `kafkatopic` shows `READY True` once the entity operator reconciles it. With the `topicOperator` line removed from the `Kafka` resource, the same `KafkaTopic` exists but has an empty `READY` column and no `status`: nothing reconciles it. For the consumer, `kubectl -n hfd-15 logs deploy/notification-notification-service` should show the `shipment ... dispatched` log line for the shipment you created, which confirms the same fact from the pod's side.
 
 ## What you learned
 
@@ -131,4 +131,4 @@ Chapter 16 combines the four charts into one release.
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. A live run must confirm that the three releases install in order, that the dispatched `shipmentId` appears in `/api/notifications`, how many times shipping restarts while Kafka starts, and that `helm test` passes for both services.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/15-kafka-notification.txt`. Observed on Helm 4.3.0, Strimzi 1.2.0 and minikube: the Kafka, KafkaNodePool and KafkaTopic reached Ready on `kafka.strimzi.io/v1`; the dispatched `shipmentId` 1 appeared in `/api/notifications` and in the consumer log; `helm test` passed for both services; a wrong bootstrap address left the new notification pod Running but 0/1 Ready; shipping restarted 3 times when installed concurrently with Kafka and 0 times when installed after it.*

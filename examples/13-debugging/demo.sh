@@ -113,15 +113,23 @@ cluster() {
     "$REPO_ROOT/scripts/build-images.sh" shipping-service
     helm upgrade --install "$REL" "$GOOD" -n "$NS" --create-namespace --wait --rollback-on-failure --timeout 3m
 
-    step "--dry-run=client renders locally; --dry-run=server sends the objects to the API server"
+    step "--dry-run=client renders locally; --dry-run=server also resolves kinds and lookup against the cluster"
     helm upgrade "$REL" "$GOOD" -n "$NS" --dry-run=client --set replicaCount=2 | sed -n '1,6p'
     helm upgrade "$REL" "$GOOD" -n "$NS" --dry-run=server --set replicaCount=2 | sed -n '1,6p'
 
-    step "A string containerPort passes the client dry-run and fails the server dry-run"
+    step "An unknown kind: helm template renders it, helm upgrade --dry-run=server stops at the cluster"
+    cp -r "$GOOD" "$WORK/unknown-kind"
+    printf 'apiVersion: example.com/v1\nkind: Widget\nmetadata:\n  name: x\n' > "$WORK/unknown-kind/templates/widget.yaml"
+    helm template "$REL" "$WORK/unknown-kind" -n "$NS" >/dev/null && echo "helm template: ok"
+    expect_fail "no matches for kind" helm upgrade "$REL" "$WORK/unknown-kind" -n "$NS" --dry-run=server
+
+    step "A string containerPort: both Helm dry-runs pass on Helm 4.3.0, the API server's own dry-run rejects it"
     cp -r "$GOOD" "$WORK/server-fault"
     sed -i 's/containerPort: {{ .Values.containerPort }}/containerPort: {{ .Values.containerPort | quote }}/' "$WORK/server-fault/templates/deployment.yaml"
-    helm upgrade "$REL" "$WORK/server-fault" -n "$NS" --dry-run=client >/dev/null && echo "client dry-run: ok"
-    expect_fail "containerPort" helm upgrade "$REL" "$WORK/server-fault" -n "$NS" --dry-run=server
+    helm upgrade "$REL" "$WORK/server-fault" -n "$NS" --dry-run=client >/dev/null && echo "helm --dry-run=client: ok"
+    helm upgrade "$REL" "$WORK/server-fault" -n "$NS" --dry-run=server >/dev/null && echo "helm --dry-run=server: ok (no schema validation)"
+    helm template "$REL" "$WORK/server-fault" -n "$NS" > "$WORK/fault.yaml"
+    expect_fail "expected numeric" kubectl -n "$NS" apply --server-side --dry-run=server -f "$WORK/fault.yaml"
 
     step "helm diff upgrade against the live release"
     helm diff upgrade "$REL" "$GOOD" -n "$NS" --set replicaCount=2 --set config.logLevel=DEBUG | sed -n '1,40p'

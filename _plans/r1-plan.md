@@ -689,3 +689,6 @@ Sources consulted for version facts:
 | S10 | pending |
 | S11 | pending |
 | S12 | gated |
+
+## Plan change (2026-10-08): CRC available on the authoring machine
+OpenShift Local 2.64.0 (OpenShift 4.22.14) and `oc` 4.22.17 installed in `~/.local/bin`; `crc config`: preset openshift, memory 20480, cpus 6, disk 80, pull secret from ~/Downloads. User runs `crc setup` (sudo). Ch27 is now verified live in the **last phase**: after S7b/S7c finish, stop minikube `helm4dev` (no delete) to free memory, `crc start`, run `examples/27-openshift-crc/verify-crc.sh`, promote ch27 with evidence, drop the "untested on the authoring machine" banners in ch27, its README, and the 201 deck.

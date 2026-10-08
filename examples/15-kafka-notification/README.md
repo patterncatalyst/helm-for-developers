@@ -20,4 +20,4 @@ The full run needs the helm4dev cluster with the Strimzi operator (`scripts/plat
 
 ## Verification status
 
-unverified. A live run must confirm: the three releases install in order, the dispatched `shipmentId` appears in `/api/notifications`, shipping restarts a few times while Kafka starts and then settles, and `helm test` passes for both services.
+`verified` on 2026-10-08 (Helm 4.3.0, Strimzi 1.2.0, minikube `helm4dev`), evidence `_plans/evidence/15-kafka-notification.txt`. The full demo exits 0: the three releases install in order, the dispatched `shipmentId` appears in `/api/notifications`, and `helm test` passes for both services. Shipping shows 0 restarts in the demo (it installs after Kafka is Ready); installed concurrently with Kafka it restarted 3 times.

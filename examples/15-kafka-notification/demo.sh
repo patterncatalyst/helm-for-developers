@@ -70,7 +70,7 @@ full() {
     step "Dispatch a shipment and read the notification"
     "$REPO_ROOT/scripts/tunnel.sh" start shipping notification
     local id
-    id="$(curl -fsS -X POST 127.0.0.1:8080/api/shipments -H 'Authorization: Bearer dev-token' -H 'content-type: application/json' \
+    id="$(curl -fsS --retry 10 --retry-all-errors --retry-delay 1 -X POST 127.0.0.1:8080/api/shipments -H 'Authorization: Bearer dev-token' -H 'content-type: application/json' \
         -d '{"orderId":1501,"address":"1 Main St, Springfield"}' | python3 -c 'import json,sys;print(json.load(sys.stdin)["id"])')"
     curl -fsS -X POST "127.0.0.1:8080/api/shipments/$id/dispatch" -H 'Authorization: Bearer dev-token'; echo
     sleep 3

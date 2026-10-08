@@ -33,14 +33,10 @@ The demo copies `broken/shipping-service` to a temporary directory, asserts each
 | 2 | `templates/configmap.yaml` | `.Values.logging.level` does not exist | `helm template` |
 | 3 | `templates/service.yaml` | `indent 4` instead of `nindent 4` | `helm template`, `helm lint` |
 | 4 | `templates/pdb.yaml` | `policy/v1beta1` | `helm lint --strict` only |
-| 5 | `templates/deployment.yaml` | `containerPort` rendered as a string | kubeconform only (the cluster rungs show the API server rejecting it too) |
+| 5 | `templates/deployment.yaml` | `containerPort` rendered as a string | kubeconform only (the cluster rung shows `kubectl apply --server-side --dry-run=server` rejecting it; Helm 4.3.0's own `--dry-run=server` does not) |
 
 To debug by hand, copy `broken/shipping-service` somewhere and fix one fault at a time with the ladder in the chapter.
 
 ## Verification status
 
-`unverified`. The offline ladder exits 0 on the authoring machine. A live run must confirm:
-
-- `helm upgrade --dry-run=client` accepts a string `containerPort` and `--dry-run=server` rejects it.
-- `helm diff upgrade` shows the `replicaCount` and `LOG_LEVEL` changes against the live release.
-- `helm get manifest shipping -n hfd-13` passes kubeconform.
+`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/13-debugging.txt`. The full demo exits 0. Observed: `helm diff upgrade` shows the `replicaCount` and `LOG_LEVEL` changes, `helm get manifest` passes kubeconform, an unknown kind fails `--dry-run=server`, and a string `containerPort` passes `--dry-run=client` and `--dry-run=server` but fails `kubectl apply --server-side --dry-run=server`.

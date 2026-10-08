@@ -150,4 +150,4 @@ Chapter 15 adds Kafka and a second service, and with them a second chart to test
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. The offline checks ran on the authoring machine. Not yet confirmed on a live run: `helm test` passing against the installed release, `TEST SUITE: None` appearing with the unanchored `.helmignore`, `ct install` succeeding, and the workflow running on GitHub Actions.*
+*Verification status: <span class="status status--unverified">partially verified</span> on 2026-10-08, evidence `_plans/evidence/14-chart-testing.txt`. Observed on Helm 4.3.0 and ct 3.15.0 against minikube: `helm test` reported `Phase: Succeeded` for `shipping-shipping-service-test-connection`, a release upgraded with the unanchored `tests/` printed `TEST SUITE: None`, and `ct install` installed with `ci/ci-values.yaml`, ran the test pod and deleted its generated namespace. The GitHub Actions workflow has not run.*
