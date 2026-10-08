@@ -29,7 +29,7 @@ Pinned and dated 2026-10-08. Re-verify against upstream before each release.
 - CNPG chart: 0.23.0 in the lgtm-minikube-stack skill; re-verify
 - Strimzi 1.2.0
 - LGTM chart versions as in `setup-lgtm.sh`
-- Python 3.15.0; FastAPI latest; Pydantic, uvicorn, asyncpg, aiokafka and OpenTelemetry versions pinned in `pyproject.toml`
+- Python 3.14 (3.15-ready); FastAPI latest; Pydantic, uvicorn, asyncpg, aiokafka and OpenTelemetry versions pinned in `pyproject.toml`
 
 ### Tool isolation
 

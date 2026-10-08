@@ -119,7 +119,7 @@ GOOS=wasip1 GOARCH=wasm go build -buildmode=c-shared -o plugin.wasm .
 cd examples/22-plugins && ./demo.sh
 ```
 
-The script exports `HELM_DATA_HOME` and `HELM_PLUGINS` under `./.tmp`. Helm 4.3 links a local-directory install under `$HELM_DATA_HOME/plugins`, so pointing both variables at one directory keeps the install and the lookup together. It lints the chart, builds the module, installs both plugins, and runs them. The commands below set `HELM_PLUGINS` inline so Helm looks in that isolated directory; the demo leaves the plugins installed there until `./demo.sh clean`, so you can rerun them from the example directory.
+The script exports `HELM_DATA_HOME` and `HELM_PLUGINS` under `./.tmp`. Helm 4.3 links a local-directory install under `$HELM_DATA_HOME/plugins`, so pointing both variables at one directory keeps the install and the lookup together. It builds the chart's `pc-lib` dependency (the `.tgz` is not committed, so a fresh clone has none), lints the chart, builds the module, installs both plugins, and runs them. The commands below set `HELM_PLUGINS` inline so Helm looks in that isolated directory; the demo leaves the plugins installed there until `./demo.sh clean`, so you can rerun them from the example directory.
 
 The demo prints this after the two installs. `local dev` marks the directory install of the Wasm plugin:
 
@@ -156,7 +156,7 @@ Against a deployed release the first form is `helm shipping-env platform -n hfd-
 
 ## Cross-check
 
-Compare the plugin to Helm directly: `helm template shipping chart -f values-demo.yaml` and search the Deployment for `env:`. The plugin's list is the `name`/`value` pairs from that block, in the same order, with the Secret reference rewritten. If the two disagree, the awk parser has drifted from the template.
+Compare the plugin to Helm directly, after `helm dependency build chart` has packed `pc-lib` (the demo does this first): `helm template shipping chart -f values-demo.yaml` and search the Deployment for `env:`. The plugin's list is the `name`/`value` pairs from that block, in the same order, with the Secret reference rewritten. If the two disagree, the awk parser has drifted from the template.
 
 ## What you learned
 

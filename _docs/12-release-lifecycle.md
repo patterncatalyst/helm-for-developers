@@ -41,7 +41,7 @@ The chart is chapter 11's, plus `templates/extra-configmap.yaml`: a second Confi
 
 ## Observed failure path
 
-The umbrella-chart run in Chapter 16 recorded the negative control for step 3. It upgraded release `platform` with a nonexistent image tag:
+The chapter 26 umbrella run (release `platform` in `hfd-26`) recorded the negative control for step 3. It upgraded release `platform` with a nonexistent image tag:
 
 ```text
 $ helm upgrade platform charts/shipping-platform -n hfd-26 -f values-dev.yaml --set shipping.image.tag=doesnotexist --wait --timeout 90s --rollback-on-failure

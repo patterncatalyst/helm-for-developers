@@ -64,7 +64,7 @@ kind: Route
 
 An Ingress also works on OpenShift, because the router honors it by creating a Route behind the scenes. The Route is the native object and exposes options such as edge termination directly. The chart uses it for that reason.
 
-Offline, `helm template` has no cluster to ask, so pass the API yourself:
+Offline, `helm template` has no cluster to ask, so pass the API yourself. On a fresh clone, run `helm dependency build` on `charts/shipping-service` and `charts/notification-service` and then on `charts/shipping-platform` first; the demo does this in its `deps` step.
 
 ```
 [host]$ helm template platform charts/shipping-platform -n hfd-ocp --api-versions route.openshift.io/v1 -f values-openshift.yaml

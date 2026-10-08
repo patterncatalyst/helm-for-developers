@@ -61,7 +61,7 @@ One limit matters. For a chart given as a local path, Helmfile does not compare 
 
 The offline mode checks four things beyond a clean render. It lints each environment with `helm lint --strict`. It pipes `helmfile template --skip-deps` output through kubeconform for all three environments. It extracts the shipping Deployment's `replicas` from the rendered output and expects 3 for prod and 1 for dev, which proves the layering. It renders prod with a synthetic digest and expects `image: "shipping-service:0.1.0@sha256:..."` in the pod spec. The digest there is derived from a fixed string; it checks syntax only.
 
-`--skip-deps` stops Helmfile from running `helm repo update` and rebuilding dependencies on every call. The demo runs `helm dependency build` on the umbrella first.
+`--skip-deps` stops Helmfile from running `helm repo update` and rebuilding dependencies on every call. The demo builds dependencies bottom-up first: `helm dependency build` on `shipping-service` and `notification-service` (each packs `pc-lib`), then on `shipping-platform`. The `.tgz` files are git-ignored, so do the same on a fresh clone before any command below.
 
 ## Why layers, not copies
 

@@ -84,7 +84,7 @@ Offline mode lints, runs the 20 unit tests, renders `values-dev.yaml` through ku
 { resource.service.name = "platform-shipping" && span.http.target =~ ".*dispatch.*" }
 ```
 
-The attribute is `span.http.target`, and the `dispatch` filter drops the `/healthz` spans the probes generate. `demo.sh` dispatches with the bearer token (an unauthenticated dispatch returns 401 and leaves a shipping-only trace) and asserts that the trace holds both services. The reference run (`_plans/evidence/golden-06-tempo-trace.txt`) returned trace `3ff8ba3e5495645659fcce9edffcd6f5`, root `POST /api/shipments/{shipment_id}/dispatch`, and the trace listed these spans (abridged; repeated `SELECT` spans removed):
+The attribute is `span.http.target`, and the `dispatch` filter drops the `/healthz` spans the probes generate. `demo.sh` dispatches with the bearer token (an unauthenticated dispatch returns 401 and leaves a shipping-only trace) and asserts that the trace holds both services. The reference run returned trace `3ff8ba3e5495645659fcce9edffcd6f5`, root `POST /api/shipments/{shipment_id}/dispatch`, and the trace listed these spans (abridged; repeated `SELECT` spans removed):
 
 ```
 platform-notification | process shipment.dispatched

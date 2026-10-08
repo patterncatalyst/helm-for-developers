@@ -21,7 +21,12 @@ replicas() {
     awk '/^# Source: shipping-platform\/charts\/shipping\/templates\/deployment.yaml/ {on=1} on && /^  replicas:/ {print $2; exit}' "/tmp/hfd-24-$1.yaml"
 }
 
-deps() { helm dependency build "$UMBRELLA" >/dev/null; }
+# Bottom-up: pc-lib into each service chart, then the service charts into the umbrella.
+deps() {
+    for c in shipping-service notification-service shipping-platform; do
+        helm dependency build "charts/$c" >/dev/null
+    done
+}
 
 offline() {
     command -v helmfile >/dev/null || { echo "helmfile not found in .tools/bin" >&2; exit 1; }
@@ -68,6 +73,7 @@ EOF
 }
 
 live() {
+    deps
     "$REPO_ROOT/scripts/build-images.sh"
     echo "==> helmfile sync (dev)"
     helmfile -l env=dev sync --skip-deps

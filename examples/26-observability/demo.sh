@@ -17,9 +17,16 @@ UMBRELLA=charts/shipping-platform
 NS=hfd-26
 WORK="$(mktemp -d)"; trap 'rm -rf "$WORK"' EXIT
 
+# Bottom-up: pc-lib into each service chart, then the service charts into the umbrella.
+deps() {
+    for c in shipping-service notification-service shipping-platform; do
+        helm dependency build "charts/$c" >/dev/null
+    done
+}
+
 offline() {
     command -v kubeconform >/dev/null || { echo "kubeconform not found in .tools/bin" >&2; exit 1; }
-    helm dependency build "$UMBRELLA" >/dev/null
+    deps
     echo "==> lint --strict and unit tests"
     helm lint --strict "$UMBRELLA" -f "$UMBRELLA/values-dev.yaml" >/dev/null
     helm unittest "$UMBRELLA" | tail -4
@@ -42,6 +49,7 @@ print('   ', d['metadata']['name'], '->', j['title'], '(%d panels)' % len(j['pan
 }
 
 live() {
+    deps
     "$REPO_ROOT/scripts/build-images.sh"
     "$REPO_ROOT/scripts/tunnel.sh" shipping notification grafana
     echo "==> let the Grafana sidecar watch every namespace (default: its own)"

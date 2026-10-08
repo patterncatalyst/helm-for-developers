@@ -18,6 +18,13 @@ ARGO_CHART_VERSION=10.10.1       # Argo CD v3.5.4
 UMBRELLA=charts/shipping-platform
 WORK="$(mktemp -d)"; trap 'rm -rf "$WORK"' EXIT
 
+# Bottom-up: pc-lib into each service chart, then the service charts into the umbrella.
+deps() {
+    for c in shipping-service notification-service shipping-platform; do
+        helm dependency build "charts/$c" >/dev/null
+    done
+}
+
 offline() {
     command -v kubeconform >/dev/null || { echo "kubeconform not found in .tools/bin" >&2; exit 1; }
     helm repo add argo https://argoproj.github.io/argo-helm >/dev/null 2>&1 || true
@@ -29,7 +36,7 @@ offline() {
         echo "    skipped: chart not reachable ($(head -1 "$WORK/err"))"
     fi
     echo "==> the chart as Argo CD renders it: helm template, valueFiles then valuesObject"
-    helm dependency build "$UMBRELLA" >/dev/null
+    deps
     python3 -I - <<'PY' > "$WORK/object.yaml"
 import yaml
 app = yaml.safe_load(open("apps/shipping-platform-oci.yaml"))
@@ -51,6 +58,7 @@ PY
 }
 
 live() {
+    deps
     "$REPO_ROOT/scripts/build-images.sh"
     echo "==> install Argo CD"
     helm upgrade --install argocd argo/argo-cd --version "$ARGO_CHART_VERSION" -n argocd --create-namespace \

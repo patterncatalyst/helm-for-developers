@@ -29,7 +29,8 @@ export HELM_PLUGINS="$HELM_DATA_HOME/plugins"
 rm -rf .tmp
 mkdir -p "$HELM_PLUGINS"
 
-echo "== chart: lint and render"
+echo "== chart: build the pc-lib dependency, then lint"
+helm dependency build chart >/dev/null
 helm lint chart -f values-demo.yaml
 helm template shipping chart -f values-demo.yaml >/dev/null
 

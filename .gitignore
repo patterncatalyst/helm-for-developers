@@ -13,7 +13,7 @@ presentation/*/node_modules
 .bundle/
 
 # Project-local tools (Helm 4, plugins, throwaway GPG keys), venvs, QA output, release tarballs
-.tools/
+/.tools
 dist/
 .venv/
 qa/

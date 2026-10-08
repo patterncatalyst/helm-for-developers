@@ -100,7 +100,7 @@ The last line, `kubectl kustomize "$work"`, writes the result to stdout. Nothing
 cd examples/23-post-renderers && ./demo.sh
 ```
 
-The demo installs the plugin, then renders the chart three ways. Commands are shown with `HELM_PLUGINS` set to the demo's plugin directory:
+The demo first builds the chart's `pc-lib` dependency (the `.tgz` is not committed), installs the plugin, then renders the chart three ways. Commands are shown with `HELM_PLUGINS` set to the demo's plugin directory:
 
 ```text
 [host]$ HELM_PLUGINS="$PWD/.tmp/data/plugins" helm template shipping chart -f values-demo.yaml --post-renderer kustomize-postrender
@@ -142,7 +142,7 @@ Because the stored release holds the post-rendered manifest, `helm get manifest`
 
 ## Cross-check
 
-Run the script by hand, outside Helm: `helm template shipping chart -f values-demo.yaml | ./plugins/kustomize-postrender/postrender.sh` (no plugin lookup happens, so `HELM_PLUGINS` is not needed). It prints the same stream Helm prints through the flag, and `grep -c post-rendered` on it returns 6, the five labels plus the annotation. Agreement shows the plugin adds nothing beyond what the script does: Helm only supplies stdin and reads stdout.
+Run the script by hand, outside Helm, after `helm dependency build chart` (the demo does this first): `helm template shipping chart -f values-demo.yaml | ./plugins/kustomize-postrender/postrender.sh` (no plugin lookup happens, so `HELM_PLUGINS` is not needed). It prints the same stream Helm prints through the flag, and `grep -c post-rendered` on it returns 6, the five labels plus the annotation. Agreement shows the plugin adds nothing beyond what the script does: Helm only supplies stdin and reads stdout.
 
 ## What you learned
 
