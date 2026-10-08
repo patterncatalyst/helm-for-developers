@@ -1,0 +1,28 @@
+apiVersion: {{ .Values.strimzi.apiVersion }}
+kind: Kafka
+metadata:
+  name: {{ .Values.clusterName }}
+  labels:
+    {{- include "shipping-kafka.labels" . | nindent 4 }}
+  {{- if eq .Values.strimzi.apiVersion "kafka.strimzi.io/v1beta2" }}
+  annotations:
+    strimzi.io/node-pools: enabled
+    strimzi.io/kraft: enabled
+  {{- end }}
+spec:
+  kafka:
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+    config:
+      offsets.topic.replication.factor: {{ .Values.replicationFactor }}
+      transaction.state.log.replication.factor: {{ .Values.replicationFactor }}
+      transaction.state.log.min.isr: {{ .Values.minInsyncReplicas }}
+      default.replication.factor: {{ .Values.replicationFactor }}
+      min.insync.replicas: {{ .Values.minInsyncReplicas }}
+  # The entity operator reconciles KafkaTopic resources into real topics.
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}

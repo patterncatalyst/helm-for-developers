@@ -680,7 +680,7 @@ Sources consulted for version facts:
 | S1 | done |
 | S2 | pending |
 | S3 | done (F1: Python 3.14) |
-| S4 | pending |
+| S4 | done |
 | S5 | pending |
 | S6.0–S6.8 | pending |
 | S7 | pending |

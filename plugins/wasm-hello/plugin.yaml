@@ -1,0 +1,15 @@
+apiVersion: v1
+type: cli/v1
+name: wasm-hello
+version: 0.1.0
+runtime: extism/v1
+config:
+  usage: "wasm-hello [NAME]"
+  shortHelp: "say hello from a Wasm plugin"
+  longHelp: |-
+    Runs plugin.wasm in Helm's Extism runtime. Build it first with `make`.
+  ignoreFlags: false
+runtimeConfig:
+  memory:
+    maxPages: 256
+  timeout: 5000

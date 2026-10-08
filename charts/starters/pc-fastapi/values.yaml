@@ -1,0 +1,49 @@
+replicaCount: 1
+
+image:
+  repository: <CHARTNAME>
+  tag: ""
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+containerPort: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  nodePort: null
+
+config:
+  environment: dev
+  logLevel: INFO
+
+otel:
+  endpoint: ""
+  serviceName: ""
+
+dataProduct:
+  domain: example
+  owner: team-example
+  name: example
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 192Mi
+  limits:
+    memory: 512Mi
+
+probes:
+  startup: {path: /health, failureThreshold: 30, periodSeconds: 2}
+  liveness: {path: /health, periodSeconds: 10}
+  readiness: {path: /healthz, periodSeconds: 5}
+
+podAnnotations: {}
+
+tests:
+  image: registry.access.redhat.com/ubi10/ubi-minimal:latest
+
+global: {}

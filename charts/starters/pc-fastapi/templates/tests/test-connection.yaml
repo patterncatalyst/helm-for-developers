@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "pc-lib.fullname" . }}-test-connection
+  labels:
+    {{- include "pc-lib.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  securityContext:
+    {{- include "pc-lib.podSecurityContext" . | nindent 4 }}
+  containers:
+    - name: curl
+      image: {{ .Values.tests.image | quote }}
+      command: ["curl", "-fsS", "--max-time", "10", "http://{{ include "pc-lib.fullname" . }}:{{ .Values.service.port }}/healthz"]
+      securityContext:
+        {{- include "pc-lib.containerSecurityContext" . | nindent 8 }}

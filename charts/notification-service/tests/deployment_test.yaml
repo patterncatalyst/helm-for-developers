@@ -1,0 +1,77 @@
+suite: notification-service
+templates:
+  - templates/deployment.yaml
+  - templates/configmap.yaml
+  - templates/service.yaml
+set:
+  kafka.bootstrap: kafka:9092
+tests:
+  - it: renders a Deployment with the notification image
+    template: templates/deployment.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: notification-service:0.1.0
+      - equal:
+          path: metadata.annotations["patterncatalyst.io/domain"]
+          value: notification
+
+  - it: passes KAFKA_BOOTSTRAP and the consumer group
+    template: templates/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: KAFKA_BOOTSTRAP
+            value: kafka:9092
+
+  - it: has the group id and topic in the ConfigMap
+    template: templates/configmap.yaml
+    asserts:
+      - equal:
+          path: data.KAFKA_GROUP_ID
+          value: notification-service
+      - equal:
+          path: data.KAFKA_TOPIC_DISPATCHED
+          value: shipment.dispatched
+
+  - it: uses the OpenShift-safe security context
+    template: templates/deployment.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.runAsNonRoot
+          value: true
+      - notExists:
+          path: spec.template.spec.containers[0].securityContext.runAsUser
+
+  - it: includes a checksum/config pod annotation
+    template: templates/deployment.yaml
+    asserts:
+      - isNotNull:
+          path: spec.template.metadata.annotations["checksum/config"]
+
+  - it: fails without a Kafka bootstrap address
+    template: templates/deployment.yaml
+    set:
+      kafka.bootstrap: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: kafka.bootstrap is required
+
+  - it: rejects an invalid log level via the schema
+    template: templates/deployment.yaml
+    set:
+      config.logLevel: LOUD
+    asserts:
+      - failedTemplate:
+          errorPattern: logLevel
+
+  - it: renders a ClusterIP Service on 8080
+    template: templates/service.yaml
+    asserts:
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.ports[0].port
+          value: 8080
