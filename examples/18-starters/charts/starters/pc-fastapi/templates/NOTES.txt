@@ -1,0 +1,3 @@
+{{ include "pc-lib.fullname" . }} {{ .Chart.AppVersion }} installed in namespace {{ .Release.Namespace }}.
+  [host]$ kubectl -n {{ .Release.Namespace }} get svc {{ include "pc-lib.fullname" . }}
+  [host]$ helm test {{ .Release.Name }} -n {{ .Release.Namespace }}

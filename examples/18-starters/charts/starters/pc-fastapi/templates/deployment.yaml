@@ -1,0 +1,1 @@
+{{- include "pc-lib.deployment" (dict "root" . "env" (include "<CHARTNAME>.env" .)) }}

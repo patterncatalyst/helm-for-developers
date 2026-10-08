@@ -1,0 +1,15 @@
+dependencies:
+- name: shipping-service
+  repository: file://../shipping-service
+  version: 0.17.0
+- name: notification-service
+  repository: file://../notification-service
+  version: 0.17.0
+- name: shipping-postgres
+  repository: file://../shipping-postgres
+  version: 0.17.0
+- name: shipping-kafka
+  repository: file://../shipping-kafka
+  version: 0.17.0
+digest: sha256:a450cbed7b9c310b31fc0b4b78f38b1a611c724e9b93f116c9b653f36e575d05
+generated: "2026-10-08T10:22:59.185068495-04:00"
