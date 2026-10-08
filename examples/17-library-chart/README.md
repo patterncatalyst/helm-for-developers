@@ -12,4 +12,4 @@ Snapshot for chapter 17 (`_docs/17-library-charts.md`). `charts/pc-lib` is a `ty
 
 ## Verification status
 
-`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/17-library-chart.txt`. The full demo exits 0: before and after renders are identical apart from the chart label and checksum, release `platform` installs, the `patterncatalyst.io/*` annotations are on the live Deployments and Services, and `helm test platform` passes.
+`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/17-library-chart.txt`. The full demo exits 0: before and after renders are identical apart from the chart label and checksum, release `platform` installs, the `patterncatalyst.io/*` annotations are on the live Deployments and Services, and `helm test platform` passes. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; the library-based umbrella installed and its three release tests passed.

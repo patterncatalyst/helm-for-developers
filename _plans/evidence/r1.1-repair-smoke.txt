@@ -1,0 +1,109 @@
+# r1.1 repair smoke (validation defects M2, m1-m7), 2026-10-08
+# Helm 4.3.0, minikube profile helm4dev with NodePorts published on 127.0.0.1. No tunnels, no port-forward.
+# No secrets printed: the only token shown is the public demo value sops-dev-token that the chapter text already contains.
+
+## Profile
+$ scripts/platform/setup-profile.sh
+Profile helm4dev is ready (kubectl context: helm4dev).    # accepted the existing loopback port bindings; no --replace needed
+
+## Current context set to a decoy on purpose
+Created context "decoy" (server https://127.0.0.1:1) and ran: kubectl config use-context decoy
+Unpinned helm from the interactive shell: Error: kubernetes cluster unreachable: Get "https://127.0.0.1:1/version"   (the decoy is live)
+Demos sourced scripts/kube-context.sh (HELM_KUBECONTEXT=helm4dev, kubectl function with --context helm4dev) and acted on helm4dev:
+
+$ examples/04-first-chart/demo.sh        # exit 0; install, upgrade, rollback in hfd-04 on helm4dev
+    curl -> http://127.0.0.1:30080/api/info
+{"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"ACME-Post","storage":"memory","kafkaEnabled":false}
+(Revision 1 shows a failed install: NodePort 30080 was still held by the earlier hfd-26 platform release. It was uninstalled with examples/26-observability/demo.sh clean and the demo re-run. Both runs reached helm4dev, not the decoy.)
+$ examples/04-first-chart/demo.sh clean  # release uninstalled, namespace hfd-04 deleted
+
+$ examples/08-config-secrets/demo.sh sops   # exit 0
+    getter and CLI renders asserted equal to the expected api-token (now real assertions: mismatch exits 1)
+    wrong key: Failed to get the data key required to decrypt the SOPS file.
+    raw ciphertext as values: schema rejects additional property 'sops'
+NOTES:
+shipping-shipping-service 0.1.0 installed as release "shipping" in namespace hfd-08.
+Storage: memory
+
+Reach the service:
+  [host]$ curl http://127.0.0.1:30080/api/info
+    curl -> http://127.0.0.1:30080/api/info
+POST with the SOPS-delivered token:
+    curl -> http://127.0.0.1:30080/api/shipments
+201
+POST with the old dev token:
+    curl -> http://127.0.0.1:30080/api/shipments
+401
+$ examples/08-config-secrets/demo.sh clean  # release uninstalled, namespace hfd-08 deleted
+
+$ examples/07-helpers-notes/demo.sh      # extra check of `helm get notes` after a live install
+$ helm get notes shipping -n hfd-07
+Reach the service:
+  [host]$ curl http://127.0.0.1:30080/api/info
+$ examples/07-helpers-notes/demo.sh clean
+
+$ examples/26-observability/demo.sh      # exit 0 under the decoy context (2m39s); left installed
+(tail of transcript, curl lines are the echoed URLs)
+rough Grafana: dispatch spans of platform-shipping
+    curl -> 127.0.0.1:30300/api/datasources/proxy/uid/tempo/api/search
+   trace 2c26e281e09be5c286ba33b685d72e10 POST /api/shipments/{shipment_id}/dispatch
+   trace f9626a49d3d9235fb4e701635a02e5e POST /api/shipments/{shipment_id}/dispatch
+   trace 2d4728ab0b7776ed32d0dc04f16168cb POST /api/shipments/{shipment_id}/dispatch
+==> request-rate panel query returns series in Mimir (polls up to 180 s)
+    curl -> 127.0.0.1:30300/api/datasources/proxy/uid/mimir/api/v1/query
+    curl -> 127.0.0.1:30080/api/shipments
+    curl -> 127.0.0.1:30080/api/shipments/2/dispatch
+    curl -> 127.0.0.1:30300/api/datasources/proxy/uid/mimir/api/v1/query
+    curl -> 127.0.0.1:30080/api/shipments
+    curl -> 127.0.0.1:30080/api/shipments/3/dispatch
+    curl -> 127.0.0.1:30300/api/datasources/proxy/uid/mimir/api/v1/query
+    curl -> 127.0.0.1:30080/api/shipments
+    curl -> 127.0.0.1:30080/api/shipments/4/dispatch
+    curl -> 127.0.0.1:30300/api/datasources/proxy/uid/mimir/api/v1/query
+    curl -> 127.0.0.1:30080/api/shipments
+    curl -> 127.0.0.1:30080/api/shipments/5/dispatch
+    curl -> 127.0.0.1:30300/api/datasources/proxy/uid/mimir/api/v1/query
+    curl -> 127.0.0.1:30080/api/shipments
+    curl -> 127.0.0.1:30080/api/shipments/6/dispatch
+    curl -> 127.0.0.1:30300/api/datasources/proxy/uid/mimir/api/v1/query
+    curl -> 127.0.0.1:30080/api/shipments
+    curl -> 127.0.0.1:30080/api/shipments/7/dispatch
+    curl -> 127.0.0.1:30300/api/datasources/proxy/uid/mimir/api/v1/query
+    {'job': 'notification/platform-notification'}
+   series found after 90 s (6 retries)
+==> dashboard loaded by the sidecar
+    curl -> 127.0.0.1:30300/api/search
+    Shipping platform (platform) folder: Shipping
+./demo.sh  10.78s user 1.89s system 7% cpu 2:39.32 total
+
+## State left behind
+$ helm list -n hfd-26
+platform  hfd-26  revision 1  deployed  shipping-platform-1.0.1  0.1.0
+ch26 installs the directory examples/26-observability/charts/shipping-platform, which is identical to golden charts/ (diff -r, tgz and starters excluded).
+curl http://127.0.0.1:30080/api/info -> {"service":"platform-shipping",...,"storage":"postgres","kafkaEnabled":true}
+curl http://127.0.0.1:30081/api/notifications -> notification list with a shipment.dispatched event
+The umbrella NOTES.txt prints `kubectl -n hfd-26 get svc` (the umbrella template was not changed).
+
+## Restore
+Deleted context, cluster and user "decoy"; unset current-context (it was unset before the run: kubectl config get-contexts was empty).
+$ minikube -p helm4dev stop    # 1 node stopped; datamesh untouched (Stopped); CRC not started
+
+## Published repository merge (local, HFD_CHARTS_URL=http://127.0.0.1:8765/charts, a python3 -m http.server over a curl copy of the live site)
+$ scripts/publish-charts.sh <tmp>
+    fetched the live index.yaml plus six archives
+    pc-lib-1.0.0.tgz / shipping-kafka-1.0.0.tgz / shipping-postgres-1.0.0.tgz unchanged: keeping the published archive
+Merged index versions:
+  notification-service 1.0.1
+  notification-service 1.0.0
+  pc-lib 1.0.0
+  shipping-kafka 1.0.0
+  shipping-platform 1.0.1
+  shipping-platform 1.0.0
+  shipping-postgres 1.0.0
+  shipping-service 1.0.1
+  shipping-service 1.0.0
+Published digests are preserved for unchanged versions (pc-lib 1.0.0 digest 4b246ca4... equals the live index).
+Negative: an edit to pc-lib/templates/_image.tpl without a version bump -> rc 1,
+  "ERROR: pc-lib-1.0.0.tgz is already published with different content ... bump 'version' in the chart's Chart.yaml."
+Unreachable site (HFD_CHARTS_URL=http://127.0.0.1:1/charts) -> "WARNING: ... unreachable; building a fresh index without earlier versions." rc 0, six charts.
+Note: helm package stores file mtimes, so a rebuild of an unchanged chart differs in bytes from the published archive; the guard compares extracted content.

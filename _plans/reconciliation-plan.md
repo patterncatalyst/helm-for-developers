@@ -21,7 +21,7 @@ One row per claim in `_plans/claims/s6-*.md`, merged with the S7 results in `_pl
 
 | Claim | Chapter | Status | Evidence | Note |
 |---|---|---|---|---|
-| `examples/01-lab-setup/demo.sh` full run exits 0 from a deleted `helm4dev` profile and ends with `cluster-status.sh` reporting healthy | 01 | not verified | `_plans/evidence/01-lab-setup.txt` | Not re-bootstrapped by instruction. Preflight (`offline`) passes and `cluster-status.sh` reports "platform healthy" on the live profile |
+| `examples/01-lab-setup/demo.sh` full run exits 0 from a deleted `helm4dev` profile and ends with `cluster-status.sh` reporting healthy | 01 | verified | `_plans/evidence/01-lab-setup-fresh.txt` | r1.1 item 2: teardown 5 s, setup-profile 43 s, bootstrap 235 s, build-images 11 s (warm Docker layer cache), cluster-status `ok: platform healthy`; no script fix needed |
 | Global `~/.local/bin/helm` still reports v3.18.3 after the full run (isolation holds in both directions) | 01 | verified | `_plans/evidence/01-lab-setup.txt` | Run with a clean env |
 | `helm env` shows all four `HELM_*` locations under the repository | 01 | verified | `_plans/evidence/01-lab-setup.txt` |  |
 | `helm plugin list` shows diff 3.15.15 and unittest 1.2.1, type cli/v1, provenance unknown | 01 | verified | `_plans/evidence/01-lab-setup.txt` | Also shows an APIVERSION column value `legacy` |
@@ -61,7 +61,7 @@ One row per claim in `_plans/claims/s6-*.md`, merged with the S7 results in `_pl
 | With only `auth.generate=true`, the stored token is identical after a second upgrade (lookup preserves it) | 08 | verified | `_plans/evidence/08-config-secrets.txt` | Fresh install with generate only (the demo's own check reuses the dev token) |
 | `auth.existingSecret` renders no Secret and the Deployment references the named Secret and key | 08 | verified | `_plans/evidence/08-config-secrets.txt` | 201 with external value, 401 with dev-token |
 | `helm get values` prints `auth.token` (values are stored in the release record) | 08 | verified | `_plans/evidence/08-config-secrets.txt` |  |
-| helm-secrets: README states Helm 3.9+ and does not mention Helm 4; compatibility not verified | 08 | partial | `_plans/evidence/08-config-secrets.txt` | Installs with `--verify=false` (4.8.0-dev, getter/v1); decryption not tested (no sops/age). Chapter updated |
+| helm-secrets 4.7.9 decrypts a SOPS (age) values file under Helm 4.3.0 via `-f secrets://` and `helm secrets template`; wrong key fails; decrypted value reaches the Secret in `hfd-08` | 08 | verified | `_plans/evidence/08-config-secrets-sops.txt` | r1.1 item 3: Helm 4 needs three plugins (`secrets`, `secrets-getter`, `secrets-post-renderer`); install with `--verify=false` (key not in keyring); tgz-URL installs ignore `HELM_PLUGINS`, OCI installs honor it; `helm get values` prints the decrypted value |
 | `helm install` of shipping-service with the shipping-postgres subchart under `--wait --timeout 5m` succeeds (CNPG Cluster counts as ready, app pod st… | 09 | verified | `_plans/evidence/09-postgres-subchart.txt` |  |
 | The app pod reads PG_PASSWORD from the generated `shipping-postgres-app` Secret and connects | 09 | verified | `_plans/evidence/09-postgres-subchart.txt` |  |
 | `import-values` supplies `postgres.host` and `postgres.existingSecret` (verified offline by template; live check that names match the CNPG-created Se… | 09 | verified | `_plans/evidence/09-postgres-subchart.txt` |  |
@@ -172,21 +172,22 @@ One row per claim in `_plans/claims/s6-*.md`, merged with the S7 results in `_pl
 | `valuesObject.shipping.config.defaultCarrier: ARGO-Post` is visible at `/api/info` | 25 | verified | `_plans/evidence/25-gitops-argocd.txt` |  |
 | Migration hook (`post-install,post-upgrade`) runs as a PostSync hook and completes | 25 | verified | `_plans/evidence/25-gitops-argocd.txt` | `Job/platform-shipping-migrate PostSync Succeeded`; `schema_migrations` versions 1, 2 |
 | `lookup` returns empty under Argo CD rendering (stated from design: no live API during render; not demonstrated, golden charts do not use lookup) | 25 | verified | `_plans/evidence/25-gitops-argocd.txt` | Probe chart: `yes` from `helm install`, `no` from Argo CD. Chapter updated |
-| `apps/shipping-platform-git.yaml` syncs from GitHub incl. `file://` dependencies | 25 | not verified |  | Repository not pushed |
+| Git-sourced Application (tag `r1.0`, public repo) reaches Synced/Healthy, takes a `valuesObject` change and reverts drift | 25 | verified | `_plans/evidence/25-gitops-argocd-git.txt` | r1.1 item 1: works for `charts/shipping-service` (one `file://../pc-lib` dependency); the umbrella `charts/shipping-platform` fails from a clean checkout with `no template "pc-lib.fullname"` because nested dependency tarballs are gitignored. Manifest renamed `apps/shipping-service-git.yaml` |
+| Umbrella `shipping-platform` 1.0.0 sourced from the published Helm repository (`https://patterncatalyst.github.io/helm-for-developers/charts`, no Secret, no `path`) reaches Synced/Healthy; `helm list` empty; migration is a PostSync hook; Kafka notification works; `valuesObject` change and drift revert observed | 25 | verified | `_plans/evidence/25-gitops-argocd-helmrepo.txt` | r1.1 item 9: packaged subcharts avoid the nested `file://` failure from Git. One transient repo-server DNS `ComparisonError` cleared by hard refresh |
 | Grafana chart 8.5.0 sidecar watches only its own namespace by default; ConfigMap in hfd-26 is not loaded until `searchNamespace=ALL` | 26 | verified | `_plans/evidence/26-observability.txt` | No `NAMESPACE` env, search `[]`; after upgrade `NAMESPACE=ALL` |
 | `helm upgrade grafana grafana/grafana --version 8.5.0 --reuse-values --set sidecar.dashboards.searchNamespace=ALL` succeeds (grafana repo in project-… | 26 | verified | `_plans/evidence/26-observability.txt` |  |
 | Dashboard "Shipping platform (platform)" appears in folder Shipping | 26 | verified | `_plans/evidence/26-observability.txt` |  |
 | Metric `http_server_duration_milliseconds_count` exists in Mimir with label `service_name` | 26 | refuted-and-fixed | `_plans/evidence/26-observability.txt` | Metric exists; label is `job` (`shipping/platform-shipping`), no `service_name`. Dashboard panel changed in golden and example copies (identical); `helm unittest` 23 pass |
 | Loki label `service_name` exists for platform-* logs | 26 | verified | `_plans/evidence/26-observability.txt` | Values `platform-notification`, `platform-shipping` |
 | Dispatch trace holds spans from platform-shipping and platform-notification (re-run) | 26 | verified | `_plans/evidence/26-observability.txt` | Demo dispatch lacked the bearer token (401), so its trace was shipping-only, and it reused order 2601 on rerun. Demo now sends the token, uses a random order id, and asserts both services plus the Mimir query (S7 row: s7-c; result "verified, demo fixed") |
-| Whole of ch27 and its example is untested on a live OpenShift cluster | 27 | verified | `_plans/evidence/27-openshift-crc.txt` | Both profiles on CRC 2.64.0 / OCP 4.22.14. Console Helm view and Streams operator not run |
+| Whole of ch27 and its example is untested on a live OpenShift cluster | 27 | verified | `_plans/evidence/27-openshift-crc.txt` | Both profiles on CRC 2.64.0 / OCP 4.22.14. Streams verified (27-openshift-crc-streams.txt); console catalog listing not opened |
 | `restricted-v2` annotates every app pod (`openshift.io/scc`) and assigns a UID that is not 1001 | 27 | verified | `_plans/evidence/27-openshift-crc.txt` | All 5 pods incl. operator-managed carry restricted-v2; UID 1000650000, GID 0; chapter cross-check corrected (SCC injects runAsUser/fsGroup into the live pod) |
 | `helm upgrade --install` with `-f values-openshift.yaml -f values-openshift-minimal.yaml` reaches Ready under `--wait --rollback-on-failure` on CRC | 27 | verified | `_plans/evidence/27-openshift-crc.txt` | Minimal passed; first run's Route check got 503 (router lag), `verify-crc.sh` now retries. Full profile installed in 57 s |
 | Registry `defaultRoute` patch publishes `default-route-openshift-image-registry.apps-crc.testing`; `podman login -p $(oc whoami -t)` and push create… | 27 | verified | `_plans/evidence/27-openshift-crc.txt` | podman 5.8.7; both ImageStreams created with tag 0.1.0 |
 | Route host `platform-shipping-hfd-ocp.apps-crc.testing` generated, `/api/info` returns 200 with `"environment":"openshift"`, HTTP redirects to HTTPS | 27 | verified | `_plans/evidence/27-openshift-crc.txt` | 200 with environment openshift, HTTP 302 to HTTPS |
 | `helm test` passes with `tests.image` set to the registry path (umbrella test reads that key directly) | 27 | verified | `_plans/evidence/27-openshift-crc.txt` | Full (3 suites) and minimal (1 suite) both Succeeded |
-| Full profile: CNPG and Strimzi/Streams for Apache Kafka from OperatorHub; Streams may require `kafka.strimzi.io/v1beta2` | 27 | partial | `_plans/evidence/27-openshift-crc.txt` | CNPG 1.30.1 (certified, stable-v1) and Strimzi 1.2.0 (community, strimzi-1.2.x) installed; CRD serves v1 only, v1beta2 rejected. Streams for Apache Kafka not installed. Uninstall needs KafkaTopic deleted first (demo.sh clean fixed) |
-| `ProjectHelmChartRepository` (`helm.openshift.io/v1beta1`) lists a classic repo in the Developer console; OCI support in console depends on release | 27 | partial | `_plans/evidence/27-openshift-crc.txt` | CR accepted and listed by `oc get`; console view not opened; GitHub Pages index.yaml returns 404 (unpublished) |
+| Full profile: CNPG and Strimzi/Streams for Apache Kafka from OperatorHub; Streams may require `kafka.strimzi.io/v1beta2` | 27 | verified | `_plans/evidence/27-openshift-crc.txt`, `_plans/evidence/27-openshift-crc-streams.txt` | CNPG 1.30.1 and Strimzi 1.2.0 (v1 only) installed; then Strimzi swapped for Streams 3.2.1-14 (`amq-streams`, redhat-operators, `stable`): CRDs serve v1 and v1beta2, so Streams does not need v1beta2. Default v1 passes `PROFILE=full ./verify-crc.sh` incl. Kafka POST/dispatch/notification; v1beta2 upgrade also reaches Ready. Operators are mutually exclusive (CRDs outlive the CSV, delete them when switching). Uninstall needs KafkaTopic deleted first |
+| `ProjectHelmChartRepository` (`helm.openshift.io/v1beta1`) lists a classic repo in the Developer console; OCI support in console depends on release | 27 | partial | `_plans/evidence/27-openshift-crc-console.txt` | CR accepted with the live URL; console pod reads the index (200); `helm search repo` lists all six charts; scratch install of `shipping-service` from the repo deployed; cluster-scoped `HelmChartRepository` accepted. Console `/api/helm/charts/index.yaml` returns 401 for bearer or token cookie (needs a browser login session), so the console listing itself was not opened |
 | `oc set image-lookup shipping-service` enables short image references | 27 | verified | `_plans/evidence/27-openshift-crc.txt` | lookupPolicy local=true; short ref `shipping-service:0.1.0` resolved to the registry digest |
 | Helm 3 era `--force` and `--atomic` still work with deprecation warnings in 4.3.0 | 28 | not verified |  | Not exercised by S7: no live check; read from `--help` and official pages only |
 | Release compatibility: Helm 4 reads and upgrades Helm 3 releases; `auto` SSA keeps previous method | 28 | not verified |  | Not exercised by S7: no live check; read from `--help` and official pages only |
@@ -205,38 +206,42 @@ One row per claim in `_plans/claims/s6-*.md`, merged with the S7 results in `_pl
 
 ## Status by chapter
 
-Claim counts come from the merged table above; the footer column is the current verification footer in `_docs/`.
+Claim counts are recounted from the rows of every claim table in this file (`scratchpad/count.py` groups by the Chapter column; a row for two chapters counts for each). Total: 186 chapter-claims; 166 verified, 6 refuted-and-fixed, 3 partial, 1 inference, 10 not verified. The footer column is the current verification footer in `_docs/`.
+r1.1 sweep (2026-10-08, published NodePorts, helm4dev recreated): examples 01-13 re-run live, all exit 0; evidence files for 02-13 overwritten with the r1.1 runs, 01 adds `01-lab-setup-nodeports.txt`. Fixed `12-release-lifecycle/demo.sh` (`| head` under pipefail aborted with 141; now `sed -n`) and `05-values/demo.sh` (same pattern).
+
+r1.1 sweep, loopback and examples 14-26 (2026-10-08): `setup-profile.sh` now publishes `127.0.0.1:<p>:<p>` (minikube accepts that form; a bare `<p>:<p>` bound 0.0.0.0). The guard refused the 0.0.0.0 profile, the profile was recreated, `docker inspect` and `ss -ltn` show all nine `HFD_NODE_PORTS` on 127.0.0.1 only (`_plans/evidence/01-lab-setup-nodeports.txt`). Examples 14-26 re-run live, all exit 0, evidence files overwritten, all claims in rows 14-26 still hold, footers and READMEs updated. ch20 also run with `REGISTRY_ADDON=1` (push to 127.0.0.1:5000). ch24 `pin stage` and the new `clean` (topics deleted before `helmfile destroy`) and ch25 `clean` (auto-sync off, topics and Applications deleted, Argo CD CRDs removed) confirmed live, no leftover namespaces or CRDs. Fixed `25-gitops-argocd/demo.sh`: `helmrepo_app` posted to the pod while the PostSync migration Job was still running (empty reply, JSONDecodeError); it now waits for `job/platform-shipping-migrate` to complete first. ch26 left installed (release `platform`, `hfd-26`). Unchanged not-verified rows: ch14 GitHub Actions jobs. ch19 only prints the `curl http://127.0.0.1:30080/api/info` hint.
+
 
 | Chapter | Claims | Claim statuses | Footer status | Footer evidence | Evidence file present |
 |---|---|---|---|---|---|
 | 00-outline | 0 | none | (no footer) | none | n/a |
-| 01-prerequisites | 6 | 1 not verified, 5 verified | partially verified | 01-lab-setup.txt | yes |
+| 01-prerequisites | 6 | 6 verified | partially verified | 01-lab-setup.txt, 01-lab-setup-nodeports.txt | yes |
 | 02-helm-4-tour | 8 | 6 verified, 2 not verified | verified | 02-helm-tour.txt | yes |
 | 03-shipping-service-raw-manifests | 3 | 3 verified | verified | 03-raw-manifests.txt | yes |
 | 04-first-chart | 7 | 7 verified | verified | 04-first-chart.txt | yes |
-| 05-values-and-overrides | 5 | 5 verified | verified | 05-values.txt | yes |
+| 05-values-and-overrides | 6 | 6 verified | verified | 05-values.txt | yes |
 | 06-templates | 3 | 3 verified | verified | 06-templates.txt, 08-config-secrets.txt | yes |
 | 07-helpers-and-notes | 3 | 3 verified | verified | 07-helpers-notes.txt | yes |
-| 08-config-and-secrets | 6 | 5 verified, 1 partial | verified | 08-config-secrets.txt | yes |
+| 08-config-and-secrets | 6 | 6 verified | verified | 08-config-secrets.txt | yes |
 | 09-dependencies-postgres | 5 | 5 verified | verified | 09-postgres-subchart.txt | yes |
 | 10-crds-and-operators | 5 | 5 verified | verified | 10-crds-operators.txt | yes |
-| 11-hooks-and-migrations | 5 | 5 verified | verified | 11-hooks-migrations-deadlock.txt, 11-hooks-migrations.txt | yes |
-| 12-release-lifecycle | 9 | 7 verified, 2 refuted-and-fixed | verified | 12-release-lifecycle.txt | yes |
-| 13-debugging-charts | 4 | 1 refuted-and-fixed, 3 verified | verified | 13-debugging.txt | yes |
+| 11-hooks-and-migrations | 8 | 7 verified, 1 inference | verified | 11-hooks-migrations-deadlock.txt, 11-hooks-migrations.txt | yes |
+| 12-release-lifecycle | 10 | 8 verified, 2 refuted-and-fixed | verified | 12-release-lifecycle.txt | yes |
+| 13-debugging-charts | 5 | 4 verified, 1 refuted-and-fixed | verified | 13-debugging.txt | yes |
 | 14-chart-testing | 6 | 4 verified, 2 not verified | partially verified | 14-chart-testing.txt | yes |
 | 15-kafka-and-notification | 8 | 8 verified | verified | 15-kafka-notification.txt | yes |
-| 16-umbrella-charts | 7 | 6 verified, 1 partial | verified | 16-umbrella.txt | yes |
+| 16-umbrella-charts | 8 | 7 verified, 1 partial | verified | 16-umbrella.txt | yes |
 | 17-library-charts | 3 | 3 verified | verified | 17-library-chart.txt | yes |
-| 18-starters-golden-paths | 3 | 3 verified | verified | 18-starters.txt | yes |
+| 18-starters-golden-paths | 4 | 4 verified | verified | 18-starters.txt | yes |
 | 19-packaging-and-repos | 8 | 8 verified | verified | 19-packaging-repos.txt | yes |
-| 20-oci-registries | 8 | 8 verified | verified | 20-oci.txt | yes |
+| 20-oci-registries | 9 | 9 verified | verified | 20-oci.txt | yes |
 | 21-provenance-and-signing | 11 | 10 verified, 1 not verified | verified | 21-signing.txt | yes |
 | 22-plugins | 8 | 7 verified, 1 partial | verified | 22-plugins.txt | yes |
-| 23-post-renderers | 6 | 6 verified | verified | 23-post-renderers.txt | yes |
-| 24-environment-promotion | 4 | 3 verified, 1 refuted-and-fixed | verified | 24-environments.txt | yes |
-| 25-gitops-argocd | 9 | 7 verified, 1 refuted-and-fixed, 1 not verified | verified | 25-gitops-argocd.txt | yes |
+| 23-post-renderers | 7 | 7 verified | verified | 23-post-renderers.txt | yes |
+| 24-environment-promotion | 5 | 4 verified, 1 refuted-and-fixed | verified | 24-environments.txt | yes |
+| 25-gitops-argocd | 12 | 11 verified, 1 refuted-and-fixed | verified | 25-gitops-argocd.txt | yes |
 | 26-observability-lgtm | 6 | 5 verified, 1 refuted-and-fixed | verified | 26-observability.txt | yes |
-| 27-appendix-openshift-local | 9 | 7 verified, 2 partial | verified | 27-openshift-crc.txt | yes |
+| 27-appendix-openshift-local | 11 | 10 verified, 1 partial | verified | 27-openshift-crc.txt, 27-openshift-crc-streams.txt, 27-openshift-crc-console.txt | yes |
 | 28-appendix-helm3-to-helm4 | 3 | 3 not verified | unverified | none | n/a |
 | 29-appendix-cheat-sheet | 1 | 1 not verified | unverified | none | n/a |
 | 30-appendix-further-reading | 1 | 1 not verified | unverified | none | n/a |

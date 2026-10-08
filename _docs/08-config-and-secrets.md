@@ -101,7 +101,7 @@ offline render of generate=true differs per run (lookup needs a live cluster)
 The live half drives the API. A write without the token returns 401; with `Authorization: Bearer dev-token` it returns the created shipment. Then it upgrades with a different carrier and lists the pods before and after, so you see them replaced, and upgrades twice with `auth.generate=true` to compare the stored token.
 
 ```bash
-[host]$ curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:8080/api/shipments -H 'Content-Type: application/json' -d '{"orderId":1,"address":"1 Main St"}'
+[host]$ curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:30080/api/shipments -H 'Content-Type: application/json' -d '{"orderId":1,"address":"1 Main St"}'
 [host]$ helm upgrade shipping examples/08-config-secrets/shipping-service -n hfd-08 -f examples/08-config-secrets/values-dev.yaml --set config.defaultCarrier=Globex --wait
 [host]$ kubectl -n hfd-08 get pods -l app.kubernetes.io/instance=shipping
 ```
@@ -117,7 +117,37 @@ Chart-created Secrets put the token in values and in the release record. That is
 | [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) | An encrypted `SealedSecret` | In the cluster, by the controller | Same: the controller produces a Secret the chart references |
 | [SOPS with helm-secrets](https://github.com/jkroepke/helm-secrets) | Encrypted values files | On the client, before `helm` runs | A client-side plugin |
 
-The first three leave Helm unchanged and rely on `existingSecret`, which is why the pattern is worth building into every chart. The SOPS route is a Helm plugin. The helm-secrets README states support for Helm 3.9 and later and does not mention Helm 4, so its behavior under Helm 4's plugin system is only partly verified in this book. On 2026-10-08 `helm plugin install https://github.com/jkroepke/helm-secrets` was refused with "plugin source does not support verification", and with `--verify=false` it installed on Helm 4.3.0 as plugin `secrets` 4.8.0-dev of type `getter/v1`. Decrypting a SOPS file was not tested. Check the plugin's release notes before depending on it, and see chapter 22 for how Helm 4 loads plugins.
+The first three leave Helm unchanged and rely on `existingSecret`, which is why the pattern is worth building into every chart. The SOPS route is a set of Helm plugins that decrypts on the client.
+
+### SOPS and age with helm-secrets under Helm 4
+
+`scripts/install-tools.sh` installs `sops` 3.13.3 and `age` 1.3.2 into `.tools/bin`, each checked against a pinned SHA-256. helm-secrets 4.x is distributed for Helm 4 as three plugins: `secrets` (the `helm secrets` command), `secrets-getter` (the `secrets://` protocol) and `secrets-post-renderer`. `./demo.sh sops` installs the first two from the project's OCI artifacts into `.tools/helm/plugins-secrets`, separate from the plugins the other chapters use:
+
+```bash
+[host]$ HELM_PLUGINS=$PWD/.tools/helm/plugins-secrets helm plugin install oci://ghcr.io/jkroepke/helm-secrets/secrets:4.7.9 --verify=false
+[host]$ HELM_PLUGINS=$PWD/.tools/helm/plugins-secrets helm plugin install oci://ghcr.io/jkroepke/helm-secrets/secrets-getter:4.7.9 --verify=false
+```
+
+`--verify=false` is needed because Helm 4 verifies installs by default and the maintainer's key is not in the project keyring. Installing the repository URL as a Helm 3 plugin gives only the getter, with no `helm secrets` command. On Helm 4.3.0 the `.tgz` URL form wrote into the shared plugin directory and ignored `HELM_PLUGINS`, and the OCI form left download leftovers there, which the demo removes.
+
+The demo generates a throwaway age key under `.work/`, which is gitignored, and a SOPS rule for files named `secrets.<env>.yaml`. It encrypts a values file whose only content is `auth.token: sops-dev-token`:
+
+```text
+auth:
+    token: ENC[AES256_GCM,data:OoOWa/8hVaPaVBFnuqs=,iv:R7v/bKVNRqcunPUIs4IaH75dn5bbemZHZs4KfU7JxOA=,tag:m52YXaFUoQqw6QWV7ONIag==,type:str]
+```
+
+SOPS encrypts values and leaves keys readable, so the file diffs and reviews like any other values file. Helm reads it through the getter, which calls `sops` with the key from `SOPS_AGE_KEY_FILE`:
+
+```bash
+[host]$ helm upgrade --install shipping ./shipping-service -n hfd-08 --create-namespace --wait -f values-dev.yaml -f secrets://.work/secrets.dev.yaml
+```
+
+The `helm secrets` command from the CLI plugin takes the same arguments as the Helm command it wraps and accepts the encrypted file as a plain path, so `helm secrets template shipping ./shipping-service -f values-dev.yaml -f .work/secrets.dev.yaml` is the equivalent render. Both forms rendered `api-token` as the base64 of `sops-dev-token`. In the cluster, `kubectl -n hfd-08 get secret shipping-shipping-service -o jsonpath='{.data.api-token}' | base64 -d` printed `sops-dev-token`, a write with `Bearer sops-dev-token` returned 201, and the old `dev-token` returned 401, because `values-dev.yaml` is overridden by the later file.
+
+Two negative controls failed as intended. With an age key that is not a recipient, `sops` printed `Failed to get the data key required to decrypt the SOPS file` and `helm` exited non-zero. Passing the encrypted file as a plain `-f` argument was rejected by the chart schema with `additional properties 'sops' not allowed`, so ciphertext never reaches a Secret.
+
+The scope of the protection is the repository. Helm receives the decrypted value, so `helm get values shipping -n hfd-08` prints `token: sops-dev-token` and the release record holds it, exactly as with a plain values file. Use `existingSecret` with an operator-managed Secret when the value must stay out of the release record.
 
 ## Cross-check
 
@@ -146,4 +176,4 @@ Chapter 09 adds the first dependency: a Postgres subchart, and the Secret wiring
 
 ---
 
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/08-config-secrets.txt`. Observed on Helm 4.3.0: writes returned 401 without the token and 201 with it, a ConfigMap change replaced the pods, `auth.generate=true` kept the same token across an upgrade, `existingSecret` rendered no Secret and authenticated with its value, and `helm get values` printed the token. helm-secrets installed under Helm 4.3.0 with `--verify=false` but decrypting with SOPS was not tested.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/08-config-secrets.txt` and `_plans/evidence/08-config-secrets-sops.txt`. Observed on Helm 4.3.0: writes returned 401 without the token and 201 with it, a ConfigMap change replaced the pods, `auth.generate=true` kept the same token across an upgrade, `existingSecret` rendered no Secret and authenticated with its value, and `helm get values` printed the token. helm-secrets 4.7.9 with SOPS 3.13.3 and age 1.3.2 decrypted an encrypted values file through both `-f secrets://` and `helm secrets template`, the decrypted token reached the Secret in `hfd-08` and authenticated, a wrong age key failed, and `helm get values` printed the decrypted value (`_plans/evidence/08-config-secrets-sops.txt`). Re-run on r1.1 with published NodePorts on 2026-10-08 (helm4dev recreated with `HFD_NODE_PORTS`, host requests at `http://127.0.0.1:30080`, no tunnel); the behaviour above held.*

@@ -21,4 +21,4 @@ Installs the public `podinfo` chart from `oci://ghcr.io/stefanprodan/charts/podi
 
 ## Verification status
 
-`verified` on 2026-10-08 (`_plans/evidence/02-helm-tour.txt`): install reached `deployed` with two ready pods, `podcli check http` succeeded in-pod, uninstall removed the release Secret.
+`verified` on 2026-10-08 (`_plans/evidence/02-helm-tour.txt`): install reached `deployed` with two ready pods, `podcli check http` succeeded in-pod, uninstall removed the release Secret. Re-run on r1.1 on 2026-10-08 on the recreated helm4dev profile; this chapter makes no host requests, so only the cluster changed, and the behaviour above held.

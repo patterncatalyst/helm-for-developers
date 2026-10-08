@@ -10,14 +10,14 @@
 # and the build context services/. Tag: 0.1.0 (the chart appVersion).
 #   build: shipping-service:0.1.0, notification-service:0.1.0 (visible to the node as
 #          docker.io/library/<name>:0.1.0, so chart value `image.repository: <name>` works)
-#   push:  additionally localhost:5000/<name>:0.1.0 in the registry addon, reached
-#          through an SSH tunnel to the node (scripts/tunnel.sh registry)
+#   push:  additionally 127.0.0.1:5000/<name>:0.1.0 in the registry addon, reached
+#          at the node port published to the host (127.0.0.1:5000, HFD_NODE_PORTS)
 #
 # BUILD_ENGINE selects the builder: docker (default when available), podman, or
 # minikube (`minikube image build`, builds inside the node). docker and podman
 # builds are copied into the profile with `minikube image load`.
 # Push mode prefers podman when it is installed: a Docker daemon that runs in a VM
-# (Docker Desktop) cannot reach the host-side registry tunnel on 127.0.0.1:5000.
+# (Docker Desktop) cannot reach the published registry port on host 127.0.0.1:5000.
 # Set BUILD_ENGINE=docker to override.
 
 set -euo pipefail
@@ -70,19 +70,18 @@ done
 if [[ "$MODE" == "push" ]]; then
     [[ "$ENGINE" == "minikube" ]] && { echo "ERROR: push mode needs BUILD_ENGINE=docker or podman" >&2; exit 2; }
     if [[ "$ENGINE" == "docker" ]] && ! command -v podman >/dev/null 2>&1; then
-        echo "note: a Docker daemon in a VM cannot reach localhost:5000; install podman or use Docker Engine on Linux" >&2
+        echo "note: a Docker daemon in a VM cannot reach 127.0.0.1:5000; install podman or use Docker Engine on Linux" >&2
     fi
-    printf '\n==> push to the registry addon (localhost:5000 via SSH tunnel)\n'
-    "$HERE/tunnel.sh" registry
+    printf '\n==> push to the registry addon (127.0.0.1:5000, published at profile creation)\n'
     for svc in "${SERVICES[@]}"; do
-        "$ENGINE" tag "$svc:$TAG" "localhost:5000/$svc:$TAG"
+        "$ENGINE" tag "$svc:$TAG" "127.0.0.1:5000/$svc:$TAG"
         if [[ "$ENGINE" == "podman" ]]; then
-            podman push --tls-verify=false "localhost:5000/$svc:$TAG"
+            podman push --tls-verify=false "127.0.0.1:5000/$svc:$TAG"
         else
-            docker push "localhost:5000/$svc:$TAG"
+            docker push "127.0.0.1:5000/$svc:$TAG"
         fi
     done
-    printf '    pushed: %s\n' "${SERVICES[@]/#/localhost:5000/}"
+    printf '    pushed: %s\n' "${SERVICES[@]/#/127.0.0.1:5000/}"
 fi
 
 printf '\n==> images in the profile:\n'

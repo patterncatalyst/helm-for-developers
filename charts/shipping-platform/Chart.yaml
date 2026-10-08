@@ -2,7 +2,7 @@ apiVersion: v2
 name: shipping-platform
 description: Umbrella chart. Deploys shipping-service, notification-service, a CloudNativePG database and a Strimzi Kafka cluster as one release.
 type: application
-version: 1.0.0
+version: 1.0.1
 appVersion: "0.1.0"
 keywords: [umbrella, shipping, platform]
 maintainers:
@@ -11,12 +11,12 @@ maintainers:
 dependencies:
   - name: shipping-service
     alias: shipping
-    version: 1.0.0
+    version: 1.0.1
     repository: file://../shipping-service
     condition: shipping.enabled
   - name: notification-service
     alias: notification
-    version: 1.0.0
+    version: 1.0.1
     repository: file://../notification-service
     tags:
       - messaging

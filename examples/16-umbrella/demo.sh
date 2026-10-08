@@ -13,6 +13,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)" && cd "$SCRIPT_DIR"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # shellcheck source=../../scripts/env.sh
 source "$REPO_ROOT/scripts/env.sh"
+# shellcheck source=../../scripts/kube-context.sh
+source "$REPO_ROOT/scripts/kube-context.sh"
 
 NS=hfd-16
 REL=platform
@@ -80,17 +82,19 @@ full() {
     helm get hooks "$REL" -n "$NS" | head -5 || true
 
     step "Dispatch a shipment and read the notification"
-    "$REPO_ROOT/scripts/tunnel.sh" start shipping notification
     local id
-    id="$(curl -fsS --retry 10 --retry-all-errors --retry-delay 1 -X POST 127.0.0.1:8080/api/shipments -H 'Authorization: Bearer dev-token' -H 'content-type: application/json' \
+    id="$(curl -fsS --retry 10 --retry-all-errors --retry-delay 1 -X POST 127.0.0.1:30080/api/shipments -H 'Authorization: Bearer dev-token' -H 'content-type: application/json' \
         -d '{"orderId":1601,"address":"1 Main St, Springfield"}' | python3 -c 'import json,sys;print(json.load(sys.stdin)["id"])')"
-    curl -fsS -X POST "127.0.0.1:8080/api/shipments/$id/dispatch" -H 'Authorization: Bearer dev-token'; echo
+    curl -fsS -X POST "127.0.0.1:30080/api/shipments/$id/dispatch" -H 'Authorization: Bearer dev-token'; echo
     sleep 3
-    curl -fsS 127.0.0.1:8081/api/notifications; echo
+    curl -fsS 127.0.0.1:30081/api/notifications; echo
     helm test "$REL" -n "$NS"
 }
 
 clean() {
+    # Delete the KafkaTopic(s) while the entity operator still runs, so the topic operator can
+    # remove its finalizer; otherwise the namespace sticks in Terminating.
+    kubectl delete kafkatopic --all -n "$NS" --wait --timeout=120s 2>/dev/null || true
     helm uninstall "$REL" -n "$NS" 2>/dev/null || true
     kubectl delete namespace "$NS" --ignore-not-found --wait=false
 }

@@ -34,7 +34,7 @@ Three files carry the whole deployment.
 - The `securityContext` runs the container as a non-root user without choosing a UID: `runAsNonRoot: true`, no `runAsUser`, privilege escalation off, all capabilities dropped, the `RuntimeDefault` seccomp profile. Leaving the UID unset lets platforms that assign their own range, such as OpenShift, admit the pod unchanged (chapter 27).
 - `readOnlyRootFilesystem: true` blocks writes to the image layers, so the `tmp` `emptyDir` mounted at `/tmp` gives the interpreter its only writable path.
 
-**`manifests/service.yaml`** selects the pods by the same label and maps Service port 8080 to the container port named `http`. It is a `NodePort` fixed at 30080, which the lab's `scripts/tunnel.sh` forwards to 127.0.0.1:8080. A fixed `nodePort` is a hardcoded value that the chart will turn into a default (chapter 05).
+**`manifests/service.yaml`** selects the pods by the same label and maps Service port 8080 to the container port named `http`. It is a `NodePort` fixed at 30080, which the profile publishes to the host, so it answers on `127.0.0.1:30080`. A fixed `nodePort` is a hardcoded value that the chart will turn into a default (chapter 05).
 
 The manifests are complete. They carry the same probes, resource requests and security settings as the finished chart, so the later chapters change how the YAML is produced, not what it says.
 
@@ -52,8 +52,7 @@ The script runs these steps; they are also safe to type one at a time.
 [host]$ kubectl create namespace hfd-03
 [host]$ kubectl -n hfd-03 apply -f examples/03-raw-manifests/manifests/
 [host]$ kubectl -n hfd-03 rollout status deployment/shipping-service
-[host]$ scripts/tunnel.sh start shipping
-[host]$ curl -s http://127.0.0.1:8080/api/info
+[host]$ curl -s http://127.0.0.1:30080/api/info
 ```
 
 A working deployment answers with `"storage":"memory"` and the settings from the ConfigMap. Without a cluster, the offline check is kubeconform, which validates each document against the Kubernetes JSON schemas:
@@ -110,4 +109,4 @@ Chapter 04 turns these three files into a chart named `shipping-service` and ins
 
 ---
 
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/03-raw-manifests.txt`. Observed on Helm 4.3.0: the manifests rolled out one ready pod, `/api/info` returned `storage: memory`, the pod ran with the non-root `securityContext` and a read-only root filesystem, and re-applying a changed image tag created a second ReplicaSet while the old one kept serving.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/03-raw-manifests.txt`. Observed on Helm 4.3.0: the manifests rolled out one ready pod, `/api/info` returned `storage: memory`, the pod ran with the non-root `securityContext` and a read-only root filesystem, and re-applying a changed image tag created a second ReplicaSet while the old one kept serving. Re-run on r1.1 with published NodePorts on 2026-10-08 (helm4dev recreated with `HFD_NODE_PORTS`, host requests at `http://127.0.0.1:30080`, no tunnel); the behaviour above held.*

@@ -1,4 +1,4 @@
-# minikube: NodePorts for the tunnel script (30080 -> 8080, 30081 -> 8081).
+# minikube: NodePorts published to 127.0.0.1 at profile creation (shipping 30080, notification 30081).
 global:
   environment: dev
   otlpEndpoint: http://otel-collector.observability.svc.cluster.local:4318

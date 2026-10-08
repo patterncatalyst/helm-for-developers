@@ -147,6 +147,6 @@ hc upgrade --install grafana grafana/grafana \
     --set 'sidecar.dashboards.provider.foldersFromFilesStructure=true'
 
 printf '\nLGTM stack installed in namespace %s.\n' "$OBS_NS"
-printf '  Grafana (after scripts/tunnel.sh): http://127.0.0.1:3000  (admin/admin)\n'
+printf '  Grafana http://127.0.0.1:30300  (admin/admin)\n'
 printf '  OTLP HTTP in-cluster: http://otel-collector.%s.svc.cluster.local:4318\n' "$OBS_NS"
 printf '  OTLP gRPC in-cluster: otel-collector.%s.svc.cluster.local:4317\n' "$OBS_NS"

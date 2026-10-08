@@ -138,11 +138,24 @@ This site serves a classic repository of the reference charts from GitHub Pages:
 
 ```bash
 [host]$ helm repo add hfd https://patterncatalyst.github.io/helm-for-developers/charts
-[host]$ helm search repo hfd
-[host]$ helm pull hfd/shipping-platform --version 1.0.0 -d .
+[host]$ helm search repo hfd --versions
+[host]$ helm pull hfd/shipping-platform --version 1.0.1 -d .
 ```
 
-The same build served from a local HTTP server listed all six charts at 1.0.0, and `helm template` rendered the umbrella from the pulled archive. The commands against the real Pages URL run after the r1.1 deploy; until then treat that URL as unverified.
+After the r1.1 deploy, both `1.0.0` and `1.0.1` of `shipping-service`, `notification-service` and `shipping-platform` are listed. `1.0.1` changes `NOTES.txt` to print a `curl` against `127.0.0.1` and the published NodePort. `pc-lib`, `shipping-postgres` and `shipping-kafka` did not change and stay at `1.0.0`. Against the live URL, `helm repo add hfd` succeeded, the search listed all six charts at `1.0.0`, and `helm template` of the pulled `hfd/shipping-platform` rendered 15 objects.
+
+### Published versions are immutable
+
+A version in a repository is a promise. A client that pinned `shipping-platform` at `1.0.0` expects the same bytes tomorrow, and the `digest` in `index.yaml` lets it check. SemVer states the rule: once a version is released, its contents never change, and any change ships as a new version. The publish script enforces it in two steps:
+
+1. It downloads the `index.yaml` that is live at `HFD_CHARTS_URL` (default: the Pages URL) and every archive that index lists, keeps each of them in the new repository, and builds the new index with `helm repo index --merge`. Versions that are not rebuilt stay available, which is why `1.0.0` still installs after `1.0.1` ships. If the live index cannot be fetched, the script fails rather than publish a fresh index that would drop earlier versions; set `HFD_ALLOW_FRESH_INDEX=1` only for a repository's first publish.
+2. It compares every freshly packaged `name-version` that is already published with the published archive. The comparison is on content, a SHA-256 over the extracted files, because `helm package` records file modification times and the same chart packaged from two checkouts differs in bytes. A match keeps the published archive and its digest. A mismatch fails the build and tells you to bump `version` in `Chart.yaml`.
+
+To test the guard locally, serve a copy of the live repository with `python3 -m http.server` and point the script at it:
+
+```bash
+[host]$ HFD_CHARTS_URL=http://127.0.0.1:8765/charts scripts/publish-charts.sh .work/pub
+```
 
 ## Cross-check
 
@@ -154,6 +167,7 @@ Compare three views of the same release. `sha256sum .work/repo/shipping-service-
 - A package must embed its dependencies: `--dependency-update` or `helm dependency build` first, or the package fails.
 - A classic repository is `index.yaml` (from `helm repo index --url`) plus archives behind any HTTP server; `helm repo add`, `update` and `search` work on a cached copy of the index.
 - Pre-release versions stay hidden unless you ask with `--devel`, and installs should always pin `--version`.
+- A published version is immutable: the publish script keeps earlier archives, merges the index, and fails if a published version would change.
 
 The failure modes look alike in a CI log: a missing dependency fails at package time, a stale index fails at search time (the new version is missing), and a wrong `--url` fails at install time with a download error for an address that only worked on the machine that built the index. Each has the same remedy, which is to rebuild the index from the directory you are about to publish and to run `helm repo update` on the client.
 
@@ -168,4 +182,4 @@ Next, the same archive moves into an OCI registry, where the version is a tag an
 
 ---
 
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/19-packaging-repos.txt`; the Published chart repository section is unverified against the live Pages URL until the r1.1 deploy. Observed on Helm 4.3.0 and minikube: `helm package` without `--dependency-update` failed with `missing in charts/ directory: pc-lib`; `--version` and `--app-version` changed the file name and the rendered image tag (`shipping-service:0.1.1`); the index digest equalled the `sha256sum` of the archive; `helm search repo` hid `1.1.0-rc.1` until `--devel`; `1.0` and `v1.0.2` were accepted as written; `helm pull -d` into a missing directory failed; the archive kept `templates/tests/`; the install from `hfd-local` reached Ready, `helm get metadata` reported chart 1.0.0 and appVersion 0.1.0, and `/api/info` answered through the NodePort tunnel.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/19-packaging-repos.txt` and `_plans/evidence/19-published-repo.txt`. Against the live Pages URL on 2026-10-08, `helm repo add hfd` succeeded, `helm search repo hfd` listed all six charts at 1.0.0, and `helm pull` plus `helm template` of `hfd/shipping-platform` rendered 15 objects from the packaged subcharts. Observed on Helm 4.3.0 and minikube: `helm package` without `--dependency-update` failed with `missing in charts/ directory: pc-lib`; `--version` and `--app-version` changed the file name and the rendered image tag (`shipping-service:0.1.1`); the index digest equalled the `sha256sum` of the archive; `helm search repo` hid `1.1.0-rc.1` until `--devel`; `1.0` and `v1.0.2` were accepted as written; `helm pull -d` into a missing directory failed; the archive kept `templates/tests/`; the install from `hfd-local` reached Ready, `helm get metadata` reported chart 1.0.0 and appVersion 0.1.0, and `/api/info` answered on the published NodePort. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; the local repository served the chart and the install from it reached deployed (the demo only prints the `curl http://127.0.0.1:30080/api/info` hint, so that request was not exercised).*

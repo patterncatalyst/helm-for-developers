@@ -14,4 +14,4 @@ The starter ships its dependency block as `pc-lib-dependency.yaml` because `helm
 
 ## Verification status
 
-`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/18-starters.txt`. The full demo exits 0: the generated chart installs and its `helm test` pod passes against the shipping image.
+`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/18-starters.txt`. The full demo exits 0: the generated chart installs and its `helm test` pod passes against the shipping image. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; the starter-generated chart rendered and installed.

@@ -12,6 +12,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)" && cd "$SCRIPT_DIR"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # shellcheck source=../../scripts/env.sh
 source "$REPO_ROOT/scripts/env.sh"
+# shellcheck source=../../scripts/kube-context.sh
+source "$REPO_ROOT/scripts/kube-context.sh"
 
 NS=hfd-14
 REL=shipping
@@ -80,7 +82,9 @@ cluster() {
     helm test "$REL" -n "$NS" --timeout 3m
 
     step "ct install: install, helm test and clean up in a generated namespace"
-    ct install --charts "$CHART" --helm-extra-args '--timeout 3m'
+    # ct has no context flag and runs kubectl itself, so give it a kubeconfig that holds only helm4dev.
+    hfd_pinned_kubeconfig "$WORK/kubeconfig"
+    KUBECONFIG="$WORK/kubeconfig" ct install --charts "$CHART" --helm-extra-args '--timeout 3m --kube-context helm4dev'
 }
 
 clean() {

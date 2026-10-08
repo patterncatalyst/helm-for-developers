@@ -12,6 +12,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)" && cd "$SCRIPT_DIR"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$REPO_ROOT/scripts/env.sh"
+# shellcheck source=../../scripts/kube-context.sh
+source "$REPO_ROOT/scripts/kube-context.sh"
 
 mode="${1:-all}"
 if [[ "$mode" == clean ]]; then

@@ -8,7 +8,7 @@ This example drives the repository's shared lab scripts. It has no chart; the la
 |---|---|
 | `./demo.sh` | Installs the project-local toolchain, creates the `helm4dev` minikube profile, installs operators only, builds both service images, prints a status report. |
 | `./demo.sh offline` | Preflight only. Checks pinned tool versions, plugin versions, that `helm` resolves to `.tools/bin`, and runs `bash -n` on every script under `scripts/`. Needs no cluster. |
-| `./demo.sh clean` | Stops the host tunnels started by `scripts/tunnel.sh`. |
+| `./demo.sh clean` | No-op. Host access uses published NodePorts, so there is nothing to stop. |
 
 The full run is idempotent. To delete the cluster entirely: `scripts/platform/teardown.sh`, which only ever deletes the `helm4dev` profile.
 
@@ -22,4 +22,4 @@ Python 3.14 note: the service images currently build on CPython 3.14.8 (the fall
 
 ## Verification status
 
-Partially verified on 2026-10-08 (`_plans/evidence/01-lab-setup.txt`): preflight passes, `cluster-status.sh` reports healthy, global Helm 3 unchanged. The from-scratch run from a deleted profile was not repeated.
+Verified on 2026-10-08 (`_plans/evidence/01-lab-setup.txt`, `_plans/evidence/01-lab-setup-fresh.txt`). Preflight passes, the global Helm 3 is unchanged, and a from-scratch bring-up (`teardown.sh --yes`, `setup-profile.sh`, `bootstrap.sh`, `build-images.sh`) took about five minutes with a warm image cache and ended with `ok: platform healthy`. Re-run on r1.1 on 2026-10-08 with published NodePorts (`_plans/evidence/01-lab-setup-nodeports.txt`): `setup-profile.sh` refused the old profile (port mismatch), `--replace --confirm=helm4dev` recreated it with all nine `HFD_NODE_PORTS` published, `bootstrap.sh`, `build-images.sh` and `build-images.sh push` succeeded, `127.0.0.1:5000/v2/_catalog` lists both images, `http://127.0.0.1:30300/api/health` answers, and a second `setup-profile.sh` accepted the matching profile. Bindings were then tightened to loopback (`127.0.0.1:<p>:<p>`): the guard refused the 0.0.0.0-bound profile, the recreated profile shows every port bound to 127.0.0.1 in `docker inspect` and `ss -ltn`, and the registry and Grafana answer on 127.0.0.1.

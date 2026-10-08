@@ -1,0 +1,55 @@
+# SUPERSEDED. Recorded in the pre-NodePort run of r1.1 development, when host access still went through scripts/tunnel.sh
+# (since removed). The lines marked "historical" below describe that tunnel and its 127.0.0.1:8080/8081/3000 URLs, which
+# no longer exist. Current evidence with published NodePorts (127.0.0.1:30080/30081/30300): 15-kafka-notification.txt.
+#
+# ex15 live run + clean, r1.1, 2026-10-08T21:43:02Z
+$ demo.sh (full)
+kafka.kafka.strimzi.io/shipping-kafka   True    True       4.3.1           4.3-IV0
+
+NAME                                  DESIRED REPLICAS   ROLES                     NODEIDS
+kafkanodepool.kafka.strimzi.io/dual   1                  ["controller","broker"]   [0]
+
+NAME                                              CLUSTER          PARTITIONS   REPLICATION FACTOR   READY
+kafkatopic.kafka.strimzi.io/shipment.dispatched   shipping-kafka   1            1                    True
+
+NAME                                                    READY   STATUS    RESTARTS   AGE
+pod/notification-notification-service-db664d49d-vk2zv   1/1     Running   0          12s
+pod/shipping-kafka-dual-0                               1/1     Running   0          57s
+pod/shipping-kafka-entity-operator-674f94f55f-whmvr     2/2     Running   0          34s
+pod/shipping-shipping-service-5d99586d9f-w4x4l          1/1     Running   0          3s
+
+==> Dispatch a shipment and read the notification
+    [historical, tunnel era] ok: shipping already up on 127.0.0.1:8080
+    [historical, tunnel era] ok: notification already up on 127.0.0.1:8081
+    [historical, tunnel era] stop with: scripts/tunnel.sh stop
+{"id":1,"orderId":1501,"address":"1 Main St, Springfield","status":"DISPATCHED","createdAt":"2026-10-08T21:44:11.107396Z"}
+[{"receivedAt":"2026-10-08T21:44:11.172291+00:00","topic":"shipment.dispatched","partition":0,"offset":0,"event":{"orderId":1501,"shipmentId":1,"address":"1 Main St, Springfield","status":"DISPATCHED","occurredAt":"2026-10-08T21:44:11.156576+00:00"}}]
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 17:44:07 2026
+NAMESPACE: hfd-15
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE:     shipping-shipping-service-test-connection
+Last Started:   Thu Oct  8 17:44:14 2026
+Last Completed: Thu Oct  8 17:44:16 2026
+Phase:          Succeeded
+NAME: notification
+LAST DEPLOYED: Thu Oct  8 17:43:58 2026
+NAMESPACE: hfd-15
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE:     notification-notification-service-test-connection
+Last Started:   Thu Oct  8 17:44:16 2026
+Last Completed: Thu Oct  8 17:44:18 2026
+Phase:          Succeeded
+full exit: 0 (tail pipe hid the code; the run ended with helm test Phase: Succeeded)
+$ demo.sh clean
+kafkatopic.kafka.strimzi.io "shipment.dispatched" deleted
+release "shipping" uninstalled
+release "notification" uninstalled
+release "kafka" uninstalled
+namespace "hfd-15" deleted
+clean exit: 0
+namespace hfd-15 gone after 10 s: Error from server (NotFound): namespaces "hfd-15" not found

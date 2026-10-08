@@ -1,4 +1,6 @@
-$ ./demo.sh
+# r1.1 re-run 2026-10-08, published NodePorts, helm4dev recreated with HFD_NODE_PORTS; Helm v4.3.0+gbec5b06
+
+$ ./demo.sh   # (example 07)
 ==> Linting ./shipping-service
 [INFO] Chart.yaml: icon is recommended
 1 chart(s) linted, 0 chart(s) failed
@@ -19,7 +21,7 @@ docker.io/library/shipping-service:0.1.0
 docker.io/library/notification-service:0.1.0
 Release "shipping" does not exist. Installing it now.
 NAME: shipping
-LAST DEPLOYED: Thu Oct  8 10:46:01 2026
+LAST DEPLOYED: Thu Oct  8 17:59:05 2026
 NAMESPACE: hfd-07
 STATUS: deployed
 REVISION: 1
@@ -32,16 +34,14 @@ Reach the service:
   [host]$ minikube -p helm4dev service shipping-shipping-service -n hfd-07 --url
 Questions: team-shipping@example.com (owner: team-shipping, domain: shipping)
 NAME    	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART                 	APP VERSION
-shipping	hfd-07   	1       	2026-10-08 10:46:01.712589194 -0400 EDT	deployed	shipping-service-0.7.0	0.1.0      
+shipping	hfd-07   	1       	2026-10-08 17:59:05.470430042 -0400 EDT	deployed	shipping-service-0.7.0	0.1.0      
 NAME                                        READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/shipping-shipping-service   1/1     1            1           3s
 NAME                                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
-service/shipping-shipping-service   NodePort   10.99.129.145   <none>        8080:30080/TCP   3s
+service/shipping-shipping-service   NodePort   10.100.250.69   <none>        8080:30080/TCP   3s
 NAME                                  DATA   AGE
 configmap/kube-root-ca.crt            1      3s
 configmap/shipping-shipping-service   6      3s
-    ok: shipping      127.0.0.1:8080 -> node:30080
-    stop with: scripts/tunnel.sh stop
 {"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"ACME-Post","storage":"memory","kafkaEnabled":false}
 NOTES:
 shipping-shipping-service 0.1.0 installed as release "shipping" in namespace hfd-07.
@@ -50,30 +50,4 @@ Reach the service:
   [host]$ minikube -p helm4dev service shipping-shipping-service -n hfd-07 --url
 Questions: team-shipping@example.com (owner: team-shipping, domain: shipping)
 NAME                        READY   UP-TO-DATE   AVAILABLE   AGE   LABELS
-shipping-shipping-service   1/1     1            1           4s    app.kubernetes.io/instance=shipping,app.kubernetes.io/managed-by=Helm,app.kubernetes.io/name=shipping-service,app.kubernetes.io/part-of=shipping-platform,app.kubernetes.io/v
-exit=0
---- endpoints
-Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
-NAME                        ENDPOINTS          AGE
-shipping-shipping-service   10.244.0.78:8080   4s
---- labels on every resource
-deployment.apps/shipping-shipping-service
-service/shipping-shipping-service
-configmap/shipping-shipping-service
-pod/shipping-shipping-service-7db66ddd7d-2x54g
---- 54-char release name
-level=ERROR msg="release name check failed" error="release name \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\": invalid release name, must match regex ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ and the length must not be longer than 53"
-Error: release name check failed: release name "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": invalid release name, must match regex ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ and the length must not be longer than 53
-level=ERROR msg="release name check failed" error="release name \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\": invalid release name, must match regex ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ and the length must not be longer than 53"
-Error: INSTALLATION FAILED: release name check failed: release name "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": invalid release name, must match regex ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ and the length must not be longer than 53
---- nameOverride=ship
-  name: shipping
---- chart version bump rolls pods
-1
-pod/shipping-shipping-service-7db66ddd7d-2x54g
-NAME                                   DESIRED   CURRENT   READY   AGE
-shipping-shipping-service-6bb7d6c5d5   1         1         1       3s
-shipping-shipping-service-7db66ddd7d   0         0         0       7s
-pod/shipping-shipping-service-6bb7d6c5d5-xjxpn
-pod/shipping-shipping-service-7db66ddd7d-2x54g
-{"app.kubernetes.io/instance":"shipping","app.kubernetes.io/managed-by":"Helm","app.kubernetes.io/name":"shipping-service","app.kubernetes.io/part-of":"shipping-platform","app.kubernetes.io/version":"0.1.0","helm.sh/chart":"shipping-service-0.7.1"}
+shipping-shipping-service   1/1     1            1           3s    app.kubernetes.io/instance=shipping,app.kubernetes.io/managed-by=Helm,app.kubernetes.io/name=shipping-service,app.kubernetes.io/part-of=shipping-platform,app.kubernetes.io/version=0.1.0,helm.sh/chart=shipping-service-0.7.0

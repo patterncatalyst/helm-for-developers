@@ -1,0 +1,133 @@
+# 25 GitOps with Argo CD: Git-sourced Application, 2026-10-08, Helm 4.3.0, Argo CD chart 10.10.1 (Argo CD v3.5.4), minikube helm4dev (fresh profile)
+# Source: https://github.com/patterncatalyst/helm-for-developers (public), tag r1.0 (annotated tag; resolves to commit c0eef4bf298636416b0e02bec59daeb1149c73a8)
+
+## A. Attempt 1: the umbrella from Git (path examples/25-gitops-argocd/charts/shipping-platform, tag r1.0): FAILED
+Application platform-git stayed Sync=Unknown, Health=Healthy, no namespace objects. Application condition:
+ComparisonError: Failed to load target state: failed to generate manifest for source 1 of 1: rpc error: code = Unknown desc = Manifest generation error (cached): failed to execute helm template command: failed running helm: `helm template . --name-template platform --namespace hfd-25-git --kube-version 1.35.1 --values <path to cached source>/examples/25-gitops-argocd/charts/shipping-platform/values-dev.yaml --values /tmp/... <api versions removed> --include-crds` failed exit status 1: Error: shipping-platform/charts/shipping/templates/tests/test-connection.yaml:4:11
+  executing "shipping-platform/charts/shipping/templates/tests/test-connection.yaml" at <include "pc-lib.fullname" .>:
+    error calling include:
+template: no template "pc-lib.fullname" associated with template "gotpl"
+
+## B. Local reproduction in a clean clone of tag r1.0 (no .tgz files): dependency build on the top chart only, as Argo CD does
+$ helm dependency build shipping-platform
+...Successfully got an update from the "grafana" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 4 charts
+Deleting outdated charts
+$ helm template platform shipping-platform -n x -f shipping-platform/values-dev.yaml
+Error: shipping-platform/charts/shipping/templates/tests/test-connection.yaml:4:11
+  executing "shipping-platform/charts/shipping/templates/tests/test-connection.yaml" at <include "pc-lib.fullname" .>:
+    error calling include:
+template: no template "pc-lib.fullname" associated with template "gotpl"
+
+
+## C. Standalone chart (path .../charts/shipping-service): dependency build resolves file://../pc-lib
+$ helm dependency build shipping-service
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Deleting outdated charts
+$ helm template shipping shipping-service | grep -c ^kind:
+4
+
+## D. Attempt 2: ./demo.sh git (apps/shipping-service-git.yaml, tag r1.0, path examples/25-gitops-argocd/charts/shipping-service); full demo.sh run first brought up Argo CD and the OCI Application Synced/Healthy (see 25-gitops-argocd.txt for the OCI details)
+## Argo CD install and OCI Application part of the full run (tail of its log):
+==> package the umbrella and push it to the registry addon
+    ok: registry      127.0.0.1:5000 -> node:5000
+    ok: argocd        127.0.0.1:8443 -> node:30443
+    stop with: scripts/tunnel.sh stop
+Pushed: 127.0.0.1:5000/charts/shipping-platform:1.0.0
+Digest: sha256:cd48a59f9192f34dda02d4c90c9a7d98c10527480cf26c5e19debde954129a88
+==> register the repository and create the Application
+secret/lab-registry created
+Warning: metadata.finalizers: "resources-finalizer.argocd.argoproj.io": prefer a domain-qualified finalizer name including a path (/) to avoid accidental conflicts with other finalizer writers
+application.argoproj.io/platform created
+application.argoproj.io/platform condition met
+application.argoproj.io/platform condition met
+NAME       SYNC STATUS   HEALTH STATUS
+platform   Synced        Healthy
+Argo CD UI: https://127.0.0.1:8443 (admin / <redacted>)
+
+## git_app output (second run, after deleting and recreating the Application):
+==> the Git-sourced Application: tag r1.0, path examples/25-gitops-argocd/charts/shipping-service
+Warning: metadata.finalizers: "resources-finalizer.argocd.argoproj.io": prefer a domain-qualified finalizer name including a path (/) to avoid accidental conflicts with other finalizer writers
+application.argoproj.io/shipping-git created
+application.argoproj.io/shipping-git condition met
+application.argoproj.io/shipping-git condition met
+c0eef4bf298636416b0e02bec59daeb1149c73a8
+NAME           SYNC STATUS   HEALTH STATUS
+shipping-git   Synced        Healthy
+==> no Helm release behind it:
+NAME	NAMESPACE	REVISION	UPDATED	STATUS	CHART	APP VERSION
+NAME                                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/shipping-shipping-service   1/1     1            1           3s
+
+NAME                                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+service/shipping-shipping-service   NodePort   10.110.40.211   <none>        8080:30090/TCP   3s
+{"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"ACME-Post","storage":"memory","kafkaEnabled":false}
+==> change through the Application spec (a push to the tag would do the same): defaultCarrier -> GIT-Post
+application.argoproj.io/shipping-git patched
+{"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"GIT-Post","storage":"memory","kafkaEnabled":false}
+==> drift: scale the Deployment to 3 by hand; selfHeal restores 1
+deployment.apps/shipping-shipping-service scaled
+spec.replicas right after the edit: 3
+spec.replicas reverted to 1 after about 1 s
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+shipping-shipping-service   1/1     1            1           8s
+application.argoproj.io/shipping-git condition met
+rc=0
+
+## helm list -n hfd-25-git above is empty: Argo CD renders with helm template and applies the manifests, no Helm release exists.
+
+## E. Clean full run: ./demo.sh clean (log below), then ./demo.sh (offline + live + git_app) on the fresh profile, rc=0
+### clean:
+application.argoproj.io "platform" deleted
+application.argoproj.io "shipping-git" deleted
+These resources were kept due to the resource policy:
+[CustomResourceDefinition] applications.argoproj.io
+[CustomResourceDefinition] applicationsets.argoproj.io
+[CustomResourceDefinition] appprojects.argoproj.io
+
+release "argocd" uninstalled
+namespace "argocd" deleted
+namespace "hfd-25" deleted
+namespace "hfd-25-git" deleted
+customresourcedefinition.apiextensions.k8s.io "applications.argoproj.io" deleted
+customresourcedefinition.apiextensions.k8s.io "applicationsets.argoproj.io" deleted
+customresourcedefinition.apiextensions.k8s.io "appprojects.argoproj.io" deleted
+### full run (tail from the OCI Application onward):
+==> register the repository and create the Application
+secret/lab-registry created
+Warning: metadata.finalizers: "resources-finalizer.argocd.argoproj.io": prefer a domain-qualified finalizer name including a path (/) to avoid accidental conflicts with other finalizer writers
+application.argoproj.io/platform created
+application.argoproj.io/platform condition met
+application.argoproj.io/platform condition met
+NAME       SYNC STATUS   HEALTH STATUS
+platform   Synced        Healthy
+Argo CD UI: https://127.0.0.1:8443 (admin / <redacted>)
+==> the Git-sourced Application: tag r1.0, path examples/25-gitops-argocd/charts/shipping-service
+Warning: metadata.finalizers: "resources-finalizer.argocd.argoproj.io": prefer a domain-qualified finalizer name including a path (/) to avoid accidental conflicts with other finalizer writers
+application.argoproj.io/shipping-git created
+application.argoproj.io/shipping-git condition met
+application.argoproj.io/shipping-git condition met
+c0eef4bf298636416b0e02bec59daeb1149c73a8
+NAME           SYNC STATUS   HEALTH STATUS
+shipping-git   Synced        Healthy
+==> no Helm release behind it:
+NAME	NAMESPACE	REVISION	UPDATED	STATUS	CHART	APP VERSION
+NAME                                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/shipping-shipping-service   1/1     1            1           3s
+
+NAME                                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+service/shipping-shipping-service   NodePort   10.111.139.77   <none>        8080:30090/TCP   3s
+{"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"ACME-Post","storage":"memory","kafkaEnabled":false}
+==> change through the Application spec (a push to the tag would do the same): defaultCarrier -> GIT-Post
+application.argoproj.io/shipping-git patched
+{"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"GIT-Post","storage":"memory","kafkaEnabled":false}
+==> drift: scale the Deployment to 3 by hand; selfHeal restores 1
+deployment.apps/shipping-shipping-service scaled
+spec.replicas right after the edit: 3
+spec.replicas reverted to 1 after about 1 s
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+shipping-shipping-service   1/1     1            1           2m25s
+application.argoproj.io/shipping-git condition met
+rc=0

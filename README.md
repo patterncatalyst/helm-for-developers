@@ -14,7 +14,7 @@ A chapter-by-chapter tutorial for Helm 4, written for application developers. On
 - 27 runnable examples (`examples/NN-slug/`), each a self-contained snapshot of the charts at that step, with a `demo.sh` that supports `offline` and `clean`.
 - Two services (`services/`) built once on UBI 10, and a reference chart set (`charts/`) that the examples are derived from.
 - Three Helm 4 plugins (`plugins/`): a subprocess CLI plugin, a post-renderer plugin and a Wasm plugin.
-- Two slide decks (`presentation/`): Helm 101 and Helm 201.
+- Two slide decks (`presentation/`): Helm 101 (`Helm-101-r1.1.pptx`) and Helm 201 (`Helm-201-r1.1.pptx`).
 
 ## Requirements
 

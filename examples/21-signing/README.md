@@ -20,4 +20,4 @@ Signing the `shipping-service` 1.0.0 package two ways: a Helm provenance file (`
 
 ## Verification status
 
-`verified` on 2026-10-08 (Helm 4.3.0, cosign 3.1.3, minikube `helm4dev`), evidence `_plans/evidence/21-signing.txt`. The full demo exits 0, including the cache step. The cache step runs `helm install --verify` as `--dry-run=client`, so it shows that verification is satisfied from the cached `.prov`, not that an install completed. Keyless signing was not run.
+`verified` on 2026-10-08 (Helm 4.3.0, cosign 3.1.3, minikube `helm4dev`), evidence `_plans/evidence/21-signing.txt`. The full demo exits 0, including the cache step. The cache step runs `helm install --verify` as `--dry-run=client`, so it shows that verification is satisfied from the cached `.prov`, not that an install completed. Keyless signing was not run. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; the signing flows passed, including the content-cache caveat (the warm-cache `install --verify` passes, the empty-cache one fails).

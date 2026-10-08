@@ -1,4 +1,6 @@
-$ ./demo.sh
+# r1.1 re-run 2026-10-08, published NodePorts, helm4dev recreated with HFD_NODE_PORTS; Helm v4.3.0+gbec5b06
+
+$ ./demo.sh 11   # (11)
 ==> engine=docker mode=build tag=0.1.0
 ==> shipping-service:0.1.0
 ==> notification-service:0.1.0
@@ -15,7 +17,7 @@ Saving 1 charts
 Deleting outdated charts
 Release "shipping" does not exist. Installing it now.
 NAME: shipping
-LAST DEPLOYED: Thu Oct  8 10:55:05 2026
+LAST DEPLOYED: Thu Oct  8 18:01:04 2026
 NAMESPACE: hfd-11
 STATUS: deployed
 REVISION: 1
@@ -30,13 +32,12 @@ Reach the service:
 Schema migration runs as a Job hook (post-install,post-upgrade): shipping-shipping-service-migrate
 --- the Job is deleted on success (hook-succeeded); events and the migrations table prove it ran
 LAST SEEN   TYPE     REASON             OBJECT                                  MESSAGE
-13s         Normal   SuccessfulCreate   job/shipping-shipping-service-migrate   Created pod: shipping-shipping-service-migrate-9xxcn
-2s          Normal   SuccessfulCreate   job/shipping-shipping-service-migrate   Created pod: shipping-shipping-service-migrate-fxcpq
+3s          Normal   SuccessfulCreate   job/shipping-shipping-service-migrate   Created pod: shipping-shipping-service-migrate-h9pdz
 0s          Normal   Completed          job/shipping-shipping-service-migrate   Job completed
  version |          applied_at           
 ---------+-------------------------------
-       1 | 2026-10-08 14:55:32.628827+00
-       2 | 2026-10-08 14:55:32.631718+00
+       1 | 2026-10-08 22:01:21.402116+00
+       2 | 2026-10-08 22:01:21.404964+00
 (2 rows)
 ---
 # Source: shipping-service/templates/migration-job.yaml
@@ -123,7 +124,7 @@ spec:
 --- upgrade with the post-upgrade warm hook; the migration Job runs first (weight 0 before 10)
 Release "shipping" has been upgraded. Happy Helming!
 NAME: shipping
-LAST DEPLOYED: Thu Oct  8 10:55:35 2026
+LAST DEPLOYED: Thu Oct  8 18:01:24 2026
 NAMESPACE: hfd-11
 STATUS: deployed
 REVISION: 2
@@ -137,25 +138,13 @@ Reach the service:
   [host]$ minikube -p helm4dev service shipping-shipping-service -n hfd-11 --url
 Schema migration runs as a Job hook (post-install,post-upgrade): shipping-shipping-service-migrate
 LAST SEEN   TYPE     REASON             OBJECT                                  MESSAGE
-36s         Normal   SuccessfulCreate   job/shipping-postgres-1-initdb          Created pod: shipping-postgres-1-initdb-n2kh2
-32s         Normal   Completed          job/shipping-postgres-1-initdb          Job completed
-21s         Normal   SuccessfulCreate   job/shipping-shipping-service-migrate   Created pod: shipping-shipping-service-migrate-9xxcn
-10s         Normal   SuccessfulCreate   job/shipping-shipping-service-migrate   Created pod: shipping-shipping-service-migrate-fxcpq
-8s          Normal   Completed          job/shipping-shipping-service-migrate   Job completed
-7s          Normal   SuccessfulCreate   job/shipping-shipping-service-migrate   Created pod: shipping-shipping-service-migrate-g5qsw
-4s          Normal   Completed          job/shipping-shipping-service-migrate   Job completed
-4s          Normal   SuccessfulCreate   job/shipping-shipping-service-warm      Created pod: shipping-shipping-service-warm-nhqb6
-1s          Normal   Completed          job/shipping-shipping-service-warm      Job completed
-    ok: shipping      127.0.0.1:8080 -> node:30080
-    stop with: scripts/tunnel.sh stop
-{"id":1,"orderId":1001,"address":"1 Main St, Springfield","status":"PENDING","createdAt":"2026-10-08T14:55:42.650388Z"}
+25s         Normal   SuccessfulCreate   job/shipping-postgres-1-initdb          Created pod: shipping-postgres-1-initdb-4l8h5
+21s         Normal   Completed          job/shipping-postgres-1-initdb          Job completed
+10s         Normal   SuccessfulCreate   job/shipping-shipping-service-migrate   Created pod: shipping-shipping-service-migrate-h9pdz
+7s          Normal   Completed          job/shipping-shipping-service-migrate   Job completed
+6s          Normal   SuccessfulCreate   job/shipping-shipping-service-migrate   Created pod: shipping-shipping-service-migrate-n6df6
+3s          Normal   Completed          job/shipping-shipping-service-migrate   Job completed
+3s          Normal   SuccessfulCreate   job/shipping-shipping-service-warm      Created pod: shipping-shipping-service-warm-69c84
+0s          Normal   Completed          job/shipping-shipping-service-warm      Job completed
+{"id":1,"orderId":1001,"address":"1 Main St, Springfield","status":"PENDING","createdAt":"2026-10-08T22:01:30.979955Z"}
 clean up with: ./demo.sh clean
-exit=0
-
---- watched install (second clean install): why the migration Job created two pods
-first pod log (tail):
-ConnectionRefusedError: [Errno 111] Connect call failed ('10.106.152.53', 5432)
-error: error from server (NotFound): pods "shipping-shipping-service-migrate-zm8z4" not found in namespace "hfd-11"
-second pod log:
-2026-10-08 15:00:36,629 migrate applied V1__create_shipments.sql
-2026-10-08 15:00:36,632 migrate applied V2__unique_order_id.sql

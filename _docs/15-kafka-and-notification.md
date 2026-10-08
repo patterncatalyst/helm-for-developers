@@ -99,7 +99,7 @@ cd examples/15-kafka-notification && ./demo.sh
 
 The script runs the offline checks, builds both images, then installs three releases into `hfd-15`: `kafka` first, then a `kubectl wait --for=condition=Ready kafka/shipping-kafka` (the chart is custom resources only, so Helm has nothing it can watch), then `notification` and `shipping` with `--wait --rollback-on-failure`. Those flags follow Helm 4 semantics: `--wait` uses the kstatus watcher and `--rollback-on-failure` replaces the Helm 3 rollback flag ([helm upgrade reference](https://helm.sh/docs/helm/helm_upgrade/), [Helm 4 announcement](https://helm.sh/blog/helm-4-released/)).
 
-It then dispatches a shipment through `127.0.0.1:8080` and reads `127.0.0.1:8081/api/notifications`. A notification with the same `shipmentId` shows the event crossed the topic. Without a cluster, `./demo.sh offline` runs lint, 33 unit tests and kubeconform:
+It then dispatches a shipment through `127.0.0.1:30080` and reads `127.0.0.1:30081/api/notifications`. A notification with the same `shipmentId` shows the event crossed the topic. Without a cluster, `./demo.sh offline` runs lint, 33 unit tests and kubeconform:
 
 ```text
 Summary: 3 resources found parsing stdin - Valid: 3, Invalid: 0, Errors: 0, Skipped: 0
@@ -116,6 +116,8 @@ helm get manifest kafka -n hfd-15 | grep -E '^kind:'
 
 The kinds match, and `kafkatopic` shows `READY True` once the entity operator reconciles it. With the `topicOperator` line removed from the `Kafka` resource, the same `KafkaTopic` exists but has an empty `READY` column and no `status`: nothing reconciles it. For the consumer, `kubectl -n hfd-15 logs deploy/notification-notification-service` should show the `shipment ... dispatched` log line for the shipment you created, which confirms the same fact from the pod's side.
 
+**Uninstall order.** The topic operator puts a finalizer on every `KafkaTopic` and removes it only while the entity operator is running. If `helm uninstall` removes the `Kafka` resource first, the topic keeps its finalizer with nothing left to clear it, and the namespace stays in `Terminating`. Delete the topics first with `kubectl delete kafkatopic --all -n hfd-15 --wait`, then uninstall. The `clean` target of every demo that installs a `KafkaTopic` (chapters 15, 16, 17, 24, 25 and 26) does this.
+
 ## What you learned
 
 - A chart can ship custom resources for an operator without shipping the operator.
@@ -131,4 +133,4 @@ Chapter 16 combines the four charts into one release.
 
 ---
 
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/15-kafka-notification.txt`. Observed on Helm 4.3.0, Strimzi 1.2.0 and minikube: the Kafka, KafkaNodePool and KafkaTopic reached Ready on `kafka.strimzi.io/v1`; the dispatched `shipmentId` 1 appeared in `/api/notifications` and in the consumer log; `helm test` passed for both services; a wrong bootstrap address left the new notification pod Running but 0/1 Ready; shipping restarted 3 times when installed concurrently with Kafka and 0 times when installed after it.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/15-kafka-notification.txt`. Observed on Helm 4.3.0, Strimzi 1.2.0 and minikube: the Kafka, KafkaNodePool and KafkaTopic reached Ready on `kafka.strimzi.io/v1`; the dispatched `shipmentId` 1 appeared in `/api/notifications` and in the consumer log; `helm test` passed for both services; a wrong bootstrap address left the new notification pod Running but 0/1 Ready; shipping restarted 3 times when installed concurrently with Kafka and 0 times when installed after it. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; the Strimzi Kafka path and `helm test` passed for both services.*

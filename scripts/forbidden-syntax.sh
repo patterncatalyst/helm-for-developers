@@ -9,6 +9,14 @@
 #   tiller, helm init, requirements.yaml, helm serve
 #   apiVersion: v1 in any Chart.yaml  (charts are apiVersion: v2)
 #
+# Also searches _docs/ examples/ scripts/ presentation/*/deck.js and the root docs for
+# host-access tunnels, which the project forbids (published NodePorts only):
+#   tunnel.sh, kubectl port-forward, minikube [-p X] tunnel, minikube [-p X] service ... --url,
+#   ssh -L, "ssh tunnel" (any case), minikube [-p X] ssh used with curl
+# A line that states the prohibition carries the marker `forbidden-ok`
+# (HTML comment in Markdown, trailing comment in shell). The patterns are
+# assembled from fragments so this file does not match itself.
+#
 # Exemptions: any line containing `<!-- helm3-reference -->`, and every hit in
 # _docs/28-appendix-helm3-to-helm4.md. ROOT_DIR overrides the repo root.
 # An empty tree passes.
@@ -56,6 +64,20 @@ if [[ -n "$cy" ]]; then
         echo 'forbidden-syntax: Chart.yaml with apiVersion: v1 (use v2)'
         printf '%s\n' "$hits" | sed 's/^/    /'; fail=1
     fi
+fi
+
+# Host-access tunnels (forbidden by the "Host access" house decision).
+tun_targets=()
+for t in _docs examples scripts CONTRIBUTING.md CLAUDE.md README.md; do [[ -e "$t" ]] && tun_targets+=("$t"); done
+for d in presentation/*/deck.js; do [[ -f "$d" ]] && tun_targets+=("$d"); done
+mk="minikube( +(-p|--profile)[ =]+[^ ]+)*"
+tun_re="tunnel[.]sh|$mk +tunnel|$mk +service .*--url|port-""forward|ssh .*-L |-L [0-9]+:|ssh tunnel|$mk +ssh .*curl"
+hits="$(grep -rnIiE --exclude-dir=__pycache__ --exclude-dir=.tools --exclude-dir=node_modules --exclude-dir=.venv \
+    --exclude=forbidden-syntax.sh -e "$tun_re" "${tun_targets[@]}" 2>/dev/null \
+    | grep -v 'forbidden-ok' || true)"
+if [[ -n "$hits" ]]; then
+    echo 'forbidden-syntax: host-access tunnel or port-forward (publish the NodePort in HFD_NODE_PORTS instead)'
+    printf '%s\n' "$hits" | sed 's/^/    /'; fail=1
 fi
 
 if (( fail )); then exit 1; fi

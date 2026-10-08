@@ -10,8 +10,8 @@ const {
   addStatusTable, addCaption, addCodeSlide, addDiagramSlide, addSectionDivider, addNotes, patchSlide,
 } = H;
 
-const OUT = "Helm-201-r1.0.pptx";
-const REV = "r1.0";
+const OUT = "Helm-201-r1.1.pptx";
+const REV = "r1.1";
 
 const pres = newDeck();
 pres.title = "Helm for Developers 201";
@@ -509,12 +509,12 @@ global:
 diagramSlide("DELIVERY", "Telemetry path to LGTM", "h201-telemetry-path",
   "Figure: services export OTLP to the collector; Tempo, Loki and Mimir feed Grafana.",
   N("The path a request's telemetry takes. Both services export OTLP to the OpenTelemetry Collector in the observability namespace, which fans out traces to Tempo, logs to Loki and metrics to Mimir. Grafana reads all three and loads the chart's dashboard from a labeled ConfigMap. A trace crosses Kafka: the dispatch span in shipping links to the consume span in notification. A TraceQL query on `resource.service.name = \"platform-shipping\"` finds it.",
-    "Grafana at 127.0.0.1:3000 after `scripts/tunnel.sh`; run the TraceQL query from chapter 26 and open the dispatch trace.",
+    "Grafana at 127.0.0.1:30300 (published NodePort); run the TraceQL query from chapter 26 and open the dispatch trace.",
     "chapter 26 transcript lists the spans of one dispatch trace."));
 
 // ===== SECTION: OPENSHIFT ===================================================
 divider("06", "OpenShift", "Run the same umbrella chart on OpenShift Local.",
-  N("Chapter 27. The same umbrella chart installs on OpenShift Local (CRC) with an override values file. The appendix was verified on OpenShift Local 2.64.0 (OpenShift 4.22.14) on 2026-10-08: the full profile with CloudNativePG and Strimzi from OperatorHub, and the minimal profile, both passing verify-crc.sh. The Developer console Helm view and Streams for Apache Kafka were not run.",
+  N("Chapter 27. The same umbrella chart installs on OpenShift Local (CRC) with an override values file. The appendix was verified on OpenShift Local 2.64.0 (OpenShift 4.22.14) on 2026-10-08: the full profile with CloudNativePG and either Strimzi 1.2.0 or Streams for Apache Kafka 3.2.1 from OperatorHub, and the minimal profile, all passing verify-crc.sh. The two Kafka operators own the same CRDs, so a cluster runs one of them. The Developer console Helm view was set up against the published repository; the console's own catalog listing was not opened.",
     "`cd examples/27-openshift-crc && ./demo.sh offline` anywhere; `PROFILE=full ./verify-crc.sh` on a CRC host.",
     "the offline render plus the chapter text; the verify-crc.sh PASS lines from the 2026-10-08 CRC run in the chapter."));
 
@@ -559,8 +559,8 @@ spec:
     url: https://patterncatalyst.github.io/helm-for-developers/charts
 `),
   "The console installs charts from a repository registered per project; the URL is this site's published chart repository, a classic index.yaml plus packaged archives.",
-  N("A `ProjectHelmChartRepository` makes a chart repository visible in the Developer console's Helm catalog for one project. On OpenShift Local 2.64.0 the resource was accepted and listed by `oc get`, tested earlier against a placeholder URL. The console view was not opened. The URL on the slide is the repository the site publishes from r1.1; check the listing after that deploy.",
-    "`oc get projecthelmchartrepository -n hfd-ocp` on a CRC host; the console listing needs the r1.1 site deploy.",
+  N("A `ProjectHelmChartRepository` makes a chart repository visible in the Developer console's Helm catalog for one project. On OpenShift Local 2.64.0 the resource was accepted with the published URL, the console pod read the index (HTTP 200) and `helm search repo` listed all six charts. The console's catalog listing needs a browser login and was not opened.",
+    "`oc get projecthelmchartrepository -n hfd-ocp` on a CRC host; open Developer, Helm, Create to see the catalog.",
     "the YAML on this slide and the chapter 27 section on the Developer console."));
 
 // ===== TAKEAWAYS =============================================================

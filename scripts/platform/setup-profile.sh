@@ -8,6 +8,10 @@
 #       Delete the helm4dev profile and recreate it. Both flags are required.
 #
 # Driver docker, runtime containerd, 12g RAM, 8 CPUs, registry addon enabled.
+# Every port in HFD_NODE_PORTS (scripts/platform/lib.sh) is published to
+# 127.0.0.1 with --ports, so host access needs no tunnel or port-forward.   # forbidden-ok
+# An existing profile whose published ports differ is refused: ports are fixed
+# at creation, so recreate it with --replace --confirm=helm4dev.
 # This script refuses to operate on any profile other than helm4dev.
 # Override sizing with MINIKUBE_MEMORY, MINIKUBE_CPUS, MINIKUBE_DISK,
 # MINIKUBE_DRIVER, MINIKUBE_RUNTIME.
@@ -27,7 +31,7 @@ for arg in "$@"; do
     case "$arg" in
         --replace)           REPLACE=1 ;;
         --confirm=helm4dev)  CONFIRMED=1 ;;
-        -h|--help)           sed -n '3,14p' "${BASH_SOURCE[0]}"; exit 0 ;;
+        -h|--help)           sed -n '3,18p' "${BASH_SOURCE[0]}"; exit 0 ;;
         *)                   fail "unknown argument: $arg (this script only manages the $PROFILE profile)" ;;
     esac
 done
@@ -82,7 +86,46 @@ sys.exit(0 if any(p["Name"] == "helm4dev" for p in d.get("valid", []) + d.get("i
 ' 2>/dev/null
 }
 
+PORTS_ARG=""
+# Bind to loopback only: 0.0.0.0 would expose Grafana, the registry and the
+# app endpoints to the local network.
+for _p in "${HFD_NODE_PORTS[@]}"; do PORTS_ARG+="${PORTS_ARG:+,}127.0.0.1:${_p}:${_p}"; done
+
+# Host ports the node container publishes on 127.0.0.1, one per line, sorted.
+# A port bound to 0.0.0.0 does not count, so such a profile gets recreated.
+published_ports() {
+    "$DRIVER" inspect -f '{{json .HostConfig.PortBindings}}' "$PROFILE" 2>/dev/null | python3 -c '
+import json, sys
+try:
+    d = json.load(sys.stdin) or {}
+except Exception:
+    d = {}
+ports = set()
+for binds in d.values():
+    for b in binds or []:
+        if b.get("HostPort") and b.get("HostIp") == "127.0.0.1":
+            ports.add(int(b["HostPort"]))
+print("\n".join(str(p) for p in sorted(ports)))
+' 2>/dev/null
+}
+
+# Refuse to reuse a profile whose published ports differ from HFD_NODE_PORTS.
+check_published_ports() {
+    local have want missing
+    have="$(published_ports | tr '\n' ' ')"
+    want="$(printf '%s\n' "${HFD_NODE_PORTS[@]}" | sort -n | tr '\n' ' ')"
+    missing="$(comm -13 <(published_ports | sort) <(printf '%s\n' "${HFD_NODE_PORTS[@]}" | sort) | tr '\n' ' ')"
+    if [[ -n "$missing" ]]; then
+        printf 'ERROR: profile %s does not publish these ports on 127.0.0.1: %s\n' "$PROFILE" "$missing" >&2
+        printf '  published: %s\n  required:  %s\n' "${have:-none}" "$want" >&2
+        printf '  Ports are fixed at profile creation. Recreate the profile:\n' >&2
+        printf '  scripts/platform/setup-profile.sh --replace --confirm=helm4dev\n' >&2
+        exit 1
+    fi
+}
+
 if profile_exists; then
+    if (( ! REPLACE )); then check_published_ports; fi
     if (( REPLACE )); then
         step "Deleting profile $PROFILE (--replace --confirm=helm4dev)"
         minikube delete -p "$PROFILE"
@@ -96,6 +139,7 @@ if profile_exists; then
     fi
 fi
 
+step "Publishing NodePorts to 127.0.0.1: $PORTS_ARG"
 step "Starting $PROFILE ($MEMORY RAM, $CPUS CPUs, $DISK disk, $DRIVER driver, $RUNTIME runtime)"
 minikube start -p "$PROFILE" \
     --driver="$DRIVER" \
@@ -103,10 +147,12 @@ minikube start -p "$PROFILE" \
     --memory="$MEMORY" \
     --cpus="$CPUS" \
     --disk-size="$DISK" \
+    --ports="$PORTS_ARG" \
     --addons=metrics-server
 
 step "Enabling the registry addon"
 minikube addons enable registry -p "$PROFILE"
+ok "registry reachable from the host at 127.0.0.1:5000 (published node port)"
 
 step "Verifying cluster health"
 kc get nodes

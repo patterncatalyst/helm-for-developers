@@ -39,4 +39,4 @@ To debug by hand, copy `broken/shipping-service` somewhere and fix one fault at 
 
 ## Verification status
 
-`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/13-debugging.txt`. The full demo exits 0. Observed: `helm diff upgrade` shows the `replicaCount` and `LOG_LEVEL` changes, `helm get manifest` passes kubeconform, an unknown kind fails `--dry-run=server`, and a string `containerPort` passes `--dry-run=client` and `--dry-run=server` but fails `kubectl apply --server-side --dry-run=server`.
+`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/13-debugging.txt`. The full demo exits 0. Observed: `helm diff upgrade` shows the `replicaCount` and `LOG_LEVEL` changes, `helm get manifest` passes kubeconform, an unknown kind fails `--dry-run=server`, and a string `containerPort` passes `--dry-run=client` and `--dry-run=server` but fails `kubectl apply --server-side --dry-run=server`. Re-run on r1.1 on 2026-10-08 on the recreated helm4dev profile; this chapter makes no host requests, so only the cluster changed, and the behaviour above held.

@@ -21,4 +21,4 @@ The umbrella chart from chapter 16 deployed to three environments with Helmfile 
 
 ## Verification status
 
-`verified` on 2026-10-08 (`_plans/evidence/24-environments.txt`): dev installed and passed `helm test`, and a pinned digest was pulled and ran. Stage and prod are offline only. `./demo.sh pin` pushes with Podman when it is installed (push mode prefers it, since a Docker daemon in a VM such as Docker Desktop cannot reach the registry tunnel); `BUILD_ENGINE` overrides.
+`verified` on 2026-10-08 (`_plans/evidence/24-environments.txt`): dev installed and passed `helm test`, and a pinned digest was pulled and ran. Stage and prod are offline only. `./demo.sh pin` pushes with Podman when it is installed (push mode prefers it, since a Docker daemon in a VM such as Docker Desktop cannot reach the published registry port); `BUILD_ENGINE` overrides. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; `./demo.sh pin stage` pushed to `127.0.0.1:5000` and wrote the digest, and `./demo.sh clean` deleted the KafkaTopics before `helmfile destroy` (first live run of that `clean`).

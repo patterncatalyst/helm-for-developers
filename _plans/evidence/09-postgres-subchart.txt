@@ -1,4 +1,6 @@
-$ ./demo.sh
+# r1.1 re-run 2026-10-08, published NodePorts, helm4dev recreated with HFD_NODE_PORTS; Helm v4.3.0+gbec5b06
+
+$ ./demo.sh   # (example 09)
 ==> engine=docker mode=build tag=0.1.0
 ==> shipping-service:0.1.0
 ==> notification-service:0.1.0
@@ -6,16 +8,16 @@ $ ./demo.sh
 docker.io/library/shipping-service:0.1.0
 docker.io/library/notification-service:0.1.0
 Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "cnpg" chart repository
 ...Successfully got an update from the "open-telemetry" chart repository
 ...Successfully got an update from the "argo" chart repository
-...Successfully got an update from the "cnpg" chart repository
 ...Successfully got an update from the "grafana" chart repository
 Update Complete. ⎈Happy Helming!⎈
 Saving 1 charts
 Deleting outdated charts
 Release "shipping" does not exist. Installing it now.
 NAME: shipping
-LAST DEPLOYED: Thu Oct  8 10:50:41 2026
+LAST DEPLOYED: Thu Oct  8 17:59:56 2026
 NAMESPACE: hfd-09
 STATUS: deployed
 REVISION: 1
@@ -28,43 +30,19 @@ Database: CloudNativePG cluster from the shipping-postgres subchart (shipping-po
 Reach the service:
   [host]$ minikube -p helm4dev service shipping-shipping-service -n hfd-09 --url
 NAME                                           AGE   INSTANCES   READY   STATUS                     PRIMARY
-cluster.postgresql.cnpg.io/shipping-postgres   16s   1           1       Cluster in healthy state   shipping-postgres-1
+cluster.postgresql.cnpg.io/shipping-postgres   25s   1           1       Cluster in healthy state   shipping-postgres-1
 NAME                                             READY   STATUS    RESTARTS   AGE
 pod/shipping-postgres-1                          1/1     Running   0          11s
-pod/shipping-shipping-service-8697866d5b-nhngs   1/1     Running   0          16s
-NAME                                TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
-service/shipping-postgres-r         ClusterIP   10.99.80.122    <none>        5432/TCP         16s
-service/shipping-postgres-ro        ClusterIP   10.104.213.7    <none>        5432/TCP         16s
-service/shipping-postgres-rw        ClusterIP   10.97.147.126   <none>        5432/TCP         16s
-service/shipping-shipping-service   NodePort    10.103.21.45    <none>        8080:30080/TCP   16s
-2026-10-08 14:50:57,473 migrate applied V1__create_shipments.sql
-2026-10-08 14:50:57,475 migrate applied V2__unique_order_id.sql
-    ok: shipping      127.0.0.1:8080 -> node:30080
-    stop with: scripts/tunnel.sh stop
+pod/shipping-shipping-service-8697866d5b-85v7w   1/1     Running   0          25s
+NAME                                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+service/shipping-postgres-r         ClusterIP   10.109.181.163   <none>        5432/TCP         25s
+service/shipping-postgres-ro        ClusterIP   10.98.148.220    <none>        5432/TCP         25s
+service/shipping-postgres-rw        ClusterIP   10.109.188.143   <none>        5432/TCP         25s
+service/shipping-shipping-service   NodePort    10.99.253.228    <none>        8080:30080/TCP   25s
+2026-10-08 22:00:22,781 migrate applied V1__create_shipments.sql
+2026-10-08 22:00:22,784 migrate applied V2__unique_order_id.sql
 {"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"ACME-Post","storage":"postgres","kafkaEnabled":false}
-{"id":1,"orderId":1001,"address":"1 Main St, Springfield","status":"PENDING","createdAt":"2026-10-08T14:50:58.100124Z"}
-[{"id":1,"orderId":1001,"address":"1 Main St, Springfield","status":"PENDING","createdAt":"2026-10-08T14:50:58.100124Z"}]
+{"id":1,"orderId":1001,"address":"1 Main St, Springfield","status":"PENDING","createdAt":"2026-10-08T22:00:22.841145Z"}
+[{"id":1,"orderId":1001,"address":"1 Main St, Springfield","status":"PENDING","createdAt":"2026-10-08T22:00:22.841145Z"}]
 ['dbname', 'fqdn-jdbc-uri', 'fqdn-uri', 'host', 'jdbc-uri', 'password', 'pgpass', 'port', 'uri', 'user', 'username']
 clean up with: ./demo.sh clean
-exit=0
---- secret/svc names
-service/shipping-postgres-rw
-secret/shipping-postgres-app
-PG_HOST shipping-postgres-rw/
-PG_PORT 5432/
-PG_SCHEMA shipping/
-PG_DATABASE shipping-postgres-app/dbname
-PG_USER shipping-postgres-app/username
-PG_PASSWORD shipping-postgres-app/password
---- lint without --set
-[ERROR] values.yaml: - at '': 'allOf' failed
-  - at '/postgres': missing property 'host'
-
-
-Error: 1 chart(s) linted, 1 chart(s) failed
---- packaged copy vs edited dir
-shipping-postgres-0.9.0.tgz
---- edit subchart source, template without rebuild
-before rebuild, marker count: 0
-after dependency build: 1
-restored: 0

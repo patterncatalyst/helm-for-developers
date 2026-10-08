@@ -1,7 +1,8 @@
-$ ./demo.sh
+# r1.1 re-run 2026-10-08, published NodePorts, helm4dev recreated with HFD_NODE_PORTS; Helm v4.3.0+gbec5b06
+
+$ ./demo.sh   # (example 04)
 ==> Linting ./shipping-service
 [INFO] Chart.yaml: icon is recommended
-
 1 chart(s) linted, 0 chart(s) failed
 Summary: 3 resources found parsing stdin - Valid: 3, Invalid: 0, Errors: 0, Skipped: 0
 generated/Chart.yaml
@@ -17,94 +18,45 @@ generated/templates/service.yaml
 generated/templates/tests/test-connection.yaml
 generated/values.yaml
 ==> engine=docker mode=build tag=0.1.0
-
 ==> shipping-service:0.1.0
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/cvxnji08s05zge3dayppjz2vt
-
 ==> images in the profile:
 docker.io/library/shipping-service:0.1.0
 docker.io/library/notification-service:0.1.0
 Release "shipping" does not exist. Installing it now.
 NAME: shipping
-LAST DEPLOYED: Thu Oct  8 10:41:54 2026
+LAST DEPLOYED: Thu Oct  8 17:58:09 2026
 NAMESPACE: hfd-04
 STATUS: deployed
 REVISION: 1
 DESCRIPTION: Install complete
 TEST SUITE: None
 NAME    	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART                 	APP VERSION
-shipping	hfd-04   	1       	2026-10-08 10:41:54.783896832 -0400 EDT	deployed	shipping-service-0.4.0	0.1.0      
+shipping	hfd-04   	1       	2026-10-08 17:58:09.929429752 -0400 EDT	deployed	shipping-service-0.4.0	0.1.0      
 NAME                                        READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/shipping-shipping-service   1/1     1            1           3s
-
-NAME                                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
-service/shipping-shipping-service   NodePort   10.110.253.31   <none>        8080:30080/TCP   3s
-
+NAME                                TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+service/shipping-shipping-service   NodePort   10.108.152.107   <none>        8080:30080/TCP   3s
 NAME                                  DATA   AGE
 configmap/kube-root-ca.crt            1      3s
 configmap/shipping-shipping-service   6      3s
-    ok: shipping      127.0.0.1:8080 -> node:30080
-    stop with: scripts/tunnel.sh stop
 {"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"ACME-Post","storage":"memory","kafkaEnabled":false}
 Release "shipping" has been upgraded. Happy Helming!
 NAME: shipping
-LAST DEPLOYED: Thu Oct  8 10:41:58 2026
+LAST DEPLOYED: Thu Oct  8 17:58:13 2026
 NAMESPACE: hfd-04
 STATUS: deployed
 REVISION: 2
 DESCRIPTION: Upgrade complete
 TEST SUITE: None
 REVISION	UPDATED                 	STATUS    	CHART                 	APP VERSION	DESCRIPTION     
-1       	Thu Oct  8 10:41:54 2026	superseded	shipping-service-0.4.0	0.1.0      	Install complete
-2       	Thu Oct  8 10:41:58 2026	deployed  	shipping-service-0.4.0	0.1.0      	Upgrade complete
+1       	Thu Oct  8 17:58:09 2026	superseded	shipping-service-0.4.0	0.1.0      	Install complete
+2       	Thu Oct  8 17:58:13 2026	deployed  	shipping-service-0.4.0	0.1.0      	Upgrade complete
 Rollback was a success! Happy Helming!
 REVISION	UPDATED                 	STATUS    	CHART                 	APP VERSION	DESCRIPTION     
-1       	Thu Oct  8 10:41:54 2026	superseded	shipping-service-0.4.0	0.1.0      	Install complete
-2       	Thu Oct  8 10:41:58 2026	superseded	shipping-service-0.4.0	0.1.0      	Upgrade complete
-3       	Thu Oct  8 10:42:01 2026	deployed  	shipping-service-0.4.0	0.1.0      	Rollback to 1   
+1       	Thu Oct  8 17:58:09 2026	superseded	shipping-service-0.4.0	0.1.0      	Install complete
+2       	Thu Oct  8 17:58:13 2026	superseded	shipping-service-0.4.0	0.1.0      	Upgrade complete
+3       	Thu Oct  8 17:58:16 2026	deployed  	shipping-service-0.4.0	0.1.0      	Rollback to 1   
 NAME                             TYPE                 DATA   AGE
-sh.helm.release.v1.shipping.v1   helm.sh/release.v1   1      8s
-sh.helm.release.v1.shipping.v2   helm.sh/release.v1   1      4s
-sh.helm.release.v1.shipping.v3   helm.sh/release.v1   1      1s
-exit=
---- managed fields / SSA
-helm Apply
-kube-controller-manager Update
---- uninstall --keep-history
-release "shipping" uninstalled
-NAME    	NAMESPACE	REVISION	UPDATED                                	STATUS     	CHART                 	APP VERSION
-shipping	hfd-04   	3       	2026-10-08 10:42:01.772537047 -0400 EDT	uninstalled	shipping-service-0.4.0	0.1.0      
-NAME    	NAMESPACE	REVISION	UPDATED                                	STATUS     	CHART                 	APP VERSION
-shipping	hfd-04   	3       	2026-10-08 10:42:01.772537047 -0400 EDT	uninstalled	shipping-service-0.4.0	0.1.0      
-REVISION	UPDATED                 	STATUS     	CHART                 	APP VERSION	DESCRIPTION            
-1       	Thu Oct  8 10:41:54 2026	superseded 	shipping-service-0.4.0	0.1.0      	Install complete       
-2       	Thu Oct  8 10:41:58 2026	superseded 	shipping-service-0.4.0	0.1.0      	Upgrade complete       
-3       	Thu Oct  8 10:42:01 2026	uninstalled	shipping-service-0.4.0	0.1.0      	Uninstallation complete
---- history-max
-      --history-max int                            limit the maximum number of revisions saved per release. Use 0 for no limit (default 10)
---- plain helm list after --keep-history:
-NAME    	NAMESPACE	REVISION	UPDATED                                	STATUS     	CHART                 	APP VERSION
-shipping	hfd-04   	3       	2026-10-08 10:42:01.772537047 -0400 EDT	uninstalled	shipping-service-0.4.0	0.1.0      
---- history-max: reinstall then 12 upgrades
-REVISION STATUS;4 Oct;5 Oct;6 Oct;7 Oct;8 Oct;9 Oct;10 Oct;11 Oct;12 Oct;13 Oct;
-10
+sh.helm.release.v1.shipping.v1   helm.sh/release.v1   1      6s
+sh.helm.release.v1.shipping.v2   helm.sh/release.v1   1      3s
+sh.helm.release.v1.shipping.v3   helm.sh/release.v1   1      0s

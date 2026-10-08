@@ -17,10 +17,10 @@ nodes = [
     dict(x=40, y=140, w=360, h=60, style="box", lines=[".tools/bin", "helm 4.3.0, kubeconform, ct, cosign, helmfile"]),
     dict(x=40, y=228, w=360, h=60, style="sub", lines=[".tools/helm/{config,cache,data,plugins}", "repos, OCI cache, unittest and diff plugins"]),
     dict(x=40, y=316, w=170, h=84, style="muted", lines=["~/.local/bin/helm", "Helm 3, never read", "or modified"]),
-    dict(x=230, y=316, w=170, h=84, style="info", lines=["scripts/tunnel.sh", "SSH tunnels to", "NodePorts"]),
+    dict(x=230, y=316, w=170, h=84, style="info", lines=["127.0.0.1:<nodePort>", "published with", "minikube --ports"]),
 
     dict(x=490, y=52, w=230, h=60, style="box", lines=["Kubernetes API server", "helm --kube-context helm4dev"]),
-    dict(x=760, y=52, w=240, h=60, style="box", lines=["Registry addon", "localhost:5000, images 0.1.0"]),
+    dict(x=760, y=52, w=240, h=60, style="box", lines=["Registry addon", "127.0.0.1:5000, images 0.1.0"]),
     dict(x=490, y=130, w=230, h=60, style="sub", lines=["Release records", "Secrets sh.helm.release.v1.*"]),
     dict(x=760, y=130, w=240, h=60, style="sub", lines=["Images built by", "scripts/build-images.sh"]),
 
@@ -30,7 +30,7 @@ nodes = [
 ]
 edges = [
     dict(x1=400, y1=82, x2=490, y2=82, label="kubeconfig", ly=-8),
-    dict(x1=400, y1=346, x2=470, y2=346, amber=True, label="NodePort", ly=-8),
+    dict(x1=400, y1=346, x2=470, y2=346, amber=True, label="published NodePort", ly=-8),
     dict(x1=605, y1=112, x2=605, y2=130, dashed=True),
     dict(x1=210, y1=112, x2=210, y2=140, dashed=True),
 ]

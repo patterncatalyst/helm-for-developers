@@ -64,7 +64,7 @@ step "Bring-up complete"
 cat <<MSG
 
     Status:          scripts/platform/cluster-status.sh
-    Host access:     scripts/tunnel.sh   (shipping 8080, notification 8081, Grafana 3000, Argo CD 8443)
+    Host access:     127.0.0.1:<nodePort> (shipping 30080, notification 30081, Grafana 30300, Argo CD 30443)
     Images:          scripts/build-images.sh
     Tear down:       scripts/platform/teardown.sh
 

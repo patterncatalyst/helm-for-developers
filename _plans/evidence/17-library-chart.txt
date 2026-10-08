@@ -1,3 +1,5 @@
+# r1.1 re-run on 2026-10-08, helm4dev with NodePorts published on 127.0.0.1 (Helm 4.3.0)
+$ ./demo.sh   # exit 0
 
 ==> Build dependencies: pc-lib into each service, then the services into the umbrella
 NAME  	VERSION	REPOSITORY      	STATUS
@@ -36,7 +38,7 @@ Charts:      3 passed, 3 total
 Test Suites: 8 passed, 8 total
 Tests:       48 passed, 48 total
 Snapshot:    0 passed, 0 total
-Time:        158.308839ms
+Time:        154.28892ms
 
 
 ==> A library chart cannot be installed or rendered on its own
@@ -78,56 +80,52 @@ Summary: 15 resources found parsing stdin - Valid: 15, Invalid: 0, Errors: 0, Sk
 #1 DONE 0.0s
 
 #2 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
-#2 DONE 0.4s
+#2 DONE 0.3s
 
 #3 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
-#3 DONE 0.8s
+#3 DONE 0.3s
 
 #4 [internal] load .dockerignore
 #4 transferring context: 2B done
 #4 DONE 0.0s
 
-#5 [internal] load build context
+#5 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
+#5 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.0s done
 #5 DONE 0.0s
 
 #6 [builder 1/6] FROM registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
-#6 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.1s done
-#6 DONE 0.1s
+#6 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.0s done
+#6 DONE 0.0s
 
-#7 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
-#7 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
-#7 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.1s done
-#7 DONE 0.1s
+#7 [internal] load build context
+#7 transferring context: 28.25kB done
+#7 DONE 0.0s
 
-#5 [internal] load build context
-#5 transferring context: 28.25kB done
-#5 DONE 0.0s
-
-#8 [builder 5/6] COPY shipping-service/pyproject.toml /src/service/pyproject.toml
+#8 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
 #8 CACHED
 
-#9 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+#9 [builder 4/6] COPY common /src/common
 #9 CACHED
 
-#10 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+#10 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
 #10 CACHED
 
-#11 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+#11 [runtime 5/6] COPY shipping-service/ /app/
 #11 CACHED
 
-#12 [runtime 2/6] WORKDIR /app
+#12 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
 #12 CACHED
 
-#13 [builder 4/6] COPY common /src/common
+#13 [builder 5/6] COPY shipping-service/pyproject.toml /src/service/pyproject.toml
 #13 CACHED
 
-#14 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+#14 [runtime 3/6] COPY --from=builder /opt/python /opt/python
 #14 CACHED
 
-#15 [runtime 5/6] COPY shipping-service/ /app/
+#15 [runtime 2/6] WORKDIR /app
 #15 CACHED
 
-#16 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+#16 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
 #16 CACHED
 
 #17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
@@ -136,16 +134,15 @@ Summary: 15 resources found parsing stdin - Valid: 15, Invalid: 0, Errors: 0, Sk
 #18 exporting to image
 #18 exporting layers done
 #18 exporting manifest sha256:ac2cd575e5eb17d6172e2a77a94099ac903d80c1770bd98aeb3eb10d2f70f3ec done
-#18 exporting config sha256:d7577a9165c2732d167d639f1ad0b130db9a6ed6dab6eddc2c9002561802d5a3 0.0s done
-#18 exporting attestation manifest sha256:0f75ab1b1e10054d4922c29477e4126f53593ec6d78aba31563a08be6181463b
-#18 exporting attestation manifest sha256:0f75ab1b1e10054d4922c29477e4126f53593ec6d78aba31563a08be6181463b 0.1s done
-#18 exporting manifest list sha256:7c2a4e99f7df8c62ddede0dbf5ba3d7db79082a91a82ff478f7049b5c69c087d 0.1s done
-#18 naming to docker.io/library/shipping-service:0.1.0
-#18 naming to docker.io/library/shipping-service:0.1.0 0.0s done
-#18 unpacking to docker.io/library/shipping-service:0.1.0 0.0s done
-#18 DONE 0.3s
+#18 exporting config sha256:d7577a9165c2732d167d639f1ad0b130db9a6ed6dab6eddc2c9002561802d5a3 done
+#18 exporting attestation manifest sha256:8763b8a51e1feb4c313c08dc6c54454ee55cc08da5b940c39bf34c7310735ce2 0.0s done
+#18 exporting manifest list sha256:7027db3dca563d5b323a7233ea4d341a4490af8d978032cc6ff0b98f95439530 done
+#18 naming to docker.io/library/shipping-service:0.1.0 done
+#18 unpacking to docker.io/library/shipping-service:0.1.0
+#18 unpacking to docker.io/library/shipping-service:0.1.0 done
+#18 DONE 0.1s
 
-View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/vzmqwuaajn4dxtqzp85qjb163
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/lkynilv7ixmeukxlz9s2r9lis
 
 ==> notification-service:0.1.0
 #0 building with "desktop-linux" instance using docker driver
@@ -158,7 +155,7 @@ View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux
 #2 DONE 0.1s
 
 #3 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
-#3 DONE 0.1s
+#3 DONE 0.2s
 
 #4 [internal] load .dockerignore
 #4 transferring context: 2B done
@@ -176,28 +173,28 @@ View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux
 #7 transferring context: 10.71kB done
 #7 DONE 0.0s
 
-#8 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+#8 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
 #8 CACHED
 
-#9 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+#9 [builder 4/6] COPY common /src/common
 #9 CACHED
 
 #10 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
 #10 CACHED
 
-#11 [builder 5/6] COPY notification-service/pyproject.toml /src/service/pyproject.toml
+#11 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
 #11 CACHED
 
-#12 [runtime 5/6] COPY notification-service/ /app/
+#12 [runtime 2/6] WORKDIR /app
 #12 CACHED
 
-#13 [builder 4/6] COPY common /src/common
+#13 [runtime 5/6] COPY notification-service/ /app/
 #13 CACHED
 
-#14 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+#14 [builder 5/6] COPY notification-service/pyproject.toml /src/service/pyproject.toml
 #14 CACHED
 
-#15 [runtime 2/6] WORKDIR /app
+#15 [runtime 3/6] COPY --from=builder /opt/python /opt/python
 #15 CACHED
 
 #16 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
@@ -210,21 +207,21 @@ View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux
 #18 exporting layers done
 #18 exporting manifest sha256:9b7868487b929dac4e2855b558a0ed0c5dc4fa7d84c567df9ea5c3e725ad8a7a done
 #18 exporting config sha256:729ca706dc57d9db1ea09c441e64c81ccb956e853287c5c6b94bd53dac842f0b done
-#18 exporting attestation manifest sha256:d81dc0ecb14b5fdc974fc4a277f376c7bff18b6af3e92169a7aa70d36ce611d9 0.0s done
-#18 exporting manifest list sha256:fc8beb915490b38519dfa704531e1ca1ce9989380c8eb81363ea716376af6132 0.0s done
+#18 exporting attestation manifest sha256:9dfd750e4d289f79a8db181a9a97373de6e7ec55e051548712971522a9ab75d8 0.0s done
+#18 exporting manifest list sha256:f895afe8ec2a6541568604c0245e1ebf126f63cc68b956cc477bb0e92be49568 0.0s done
+#18 naming to docker.io/library/notification-service:0.1.0
 #18 naming to docker.io/library/notification-service:0.1.0 done
-#18 unpacking to docker.io/library/notification-service:0.1.0
 #18 unpacking to docker.io/library/notification-service:0.1.0 done
 #18 DONE 0.1s
 
-View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/ankm7trak3ul1iz8wixafj5e0
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/fm6f6fdax6mxngpyvq8fbjnic
 
 ==> images in the profile:
 docker.io/library/shipping-service:0.1.0
 docker.io/library/notification-service:0.1.0
 Release "platform" does not exist. Installing it now.
 NAME: platform
-LAST DEPLOYED: Thu Oct  8 11:28:41 2026
+LAST DEPLOYED: Thu Oct  8 18:23:42 2026
 NAMESPACE: hfd-17
 STATUS: deployed
 REVISION: 1
@@ -250,39 +247,28 @@ shipping-postgres-r              <none>
 shipping-postgres-ro             <none>
 shipping-postgres-rw             <none>
 NAME: platform
-LAST DEPLOYED: Thu Oct  8 11:28:41 2026
+LAST DEPLOYED: Thu Oct  8 18:23:42 2026
 NAMESPACE: hfd-17
 STATUS: deployed
 REVISION: 1
 DESCRIPTION: Install complete
 TEST SUITE:     platform-notification-test-connection
-Last Started:   Thu Oct  8 11:29:30 2026
-Last Completed: Thu Oct  8 11:29:32 2026
+Last Started:   Thu Oct  8 18:24:32 2026
+Last Completed: Thu Oct  8 18:24:34 2026
 Phase:          Succeeded
 TEST SUITE:     platform-shipping-test-connection
-Last Started:   Thu Oct  8 11:29:34 2026
-Last Completed: Thu Oct  8 11:29:36 2026
+Last Started:   Thu Oct  8 18:24:36 2026
+Last Completed: Thu Oct  8 18:24:38 2026
 Phase:          Succeeded
 TEST SUITE:     platform-platform-test
-Last Started:   Thu Oct  8 11:29:32 2026
-Last Completed: Thu Oct  8 11:29:34 2026
+Last Started:   Thu Oct  8 18:24:34 2026
+Last Completed: Thu Oct  8 18:24:36 2026
 Phase:          Succeeded
+demo rc=0
 
-## S7 extra: live annotations
-NAME                             DOMAIN         OWNER                DP
-platform-notification            notification   team-notifications   notifications
-platform-shipping                shipping       team-shipping        shipments
-shipping-kafka-entity-operator   <none>         <none>               <none>
-platform-notification            notification   team-notifications   notifications
-platform-shipping                shipping       team-shipping        shipments
-shipping-kafka-kafka-bootstrap   <none>         <none>               <none>
-shipping-kafka-kafka-brokers     <none>         <none>               <none>
-shipping-postgres-r              <none>         <none>               <none>
-shipping-postgres-ro             <none>         <none>               <none>
-shipping-postgres-rw             <none>         <none>               <none>
-NAME                                              READY   STATUS    RESTARTS      AGE
-platform-notification-78886f5ddd-s4xl7            1/1     Running   0             59s
-platform-shipping-86788f7ddb-pzwlt                1/1     Running   3 (45s ago)   59s
-shipping-kafka-dual-0                             1/1     Running   0             58s
-shipping-kafka-entity-operator-5b55447c4d-gq2xg   2/2     Running   0             35s
-shipping-postgres-1                               1/1     Running   0             53s
+$ ./demo.sh clean   # exit 0
+kafkatopic.kafka.strimzi.io "shipment.dispatched" deleted
+release "platform" uninstalled
+namespace "hfd-17" deleted
+$ kubectl get ns | grep hfd-   # after clean
+(none)

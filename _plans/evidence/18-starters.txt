@@ -1,9 +1,11 @@
+# r1.1 re-run on 2026-10-08, helm4dev with NodePorts published on 127.0.0.1 (Helm 4.3.0)
+$ ./demo.sh   # exit 0
 
 ==> Put the starter where helm create looks for it: $HELM_DATA_HOME/starters
 pc-fastapi
 
 ==> helm create --starter pc-fastapi (by name), next to a copy of pc-lib
-Creating /tmp/tmp.NgEBbf1rJ7/charts/inventory-service
+Creating /tmp/tmp.mm3Ccd9GKA/charts/inventory-service
 
 ==> helm create rewrote Chart.yaml: no dependencies block, and the file the starter ships is a sibling
 apiVersion: v2
@@ -38,7 +40,7 @@ pc-lib	0.18.0 	file://../pc-lib	ok
 
 
 ==> helm lint --strict, helm template, kubeconform
-==> Linting /tmp/tmp.NgEBbf1rJ7/charts/inventory-service
+==> Linting /tmp/tmp.mm3Ccd9GKA/charts/inventory-service
 [INFO] Chart.yaml: icon is recommended
 
 1 chart(s) linted, 0 chart(s) failed
@@ -62,11 +64,11 @@ kind: Deployment
 #1 transferring dockerfile: 2.17kB done
 #1 DONE 0.0s
 
-#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#2 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
 #2 DONE 0.3s
 
-#3 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
-#3 DONE 0.4s
+#3 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#3 DONE 0.3s
 
 #4 [internal] load .dockerignore
 #4 transferring context: 2B done
@@ -84,31 +86,31 @@ kind: Deployment
 #7 transferring context: 28.25kB done
 #7 DONE 0.0s
 
-#8 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+#8 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
 #8 CACHED
 
-#9 [runtime 2/6] WORKDIR /app
+#9 [builder 4/6] COPY common /src/common
 #9 CACHED
 
-#10 [runtime 5/6] COPY shipping-service/ /app/
+#10 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
 #10 CACHED
 
-#11 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+#11 [runtime 5/6] COPY shipping-service/ /app/
 #11 CACHED
 
-#12 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+#12 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
 #12 CACHED
 
-#13 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+#13 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
 #13 CACHED
 
 #14 [builder 5/6] COPY shipping-service/pyproject.toml /src/service/pyproject.toml
 #14 CACHED
 
-#15 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+#15 [runtime 3/6] COPY --from=builder /opt/python /opt/python
 #15 CACHED
 
-#16 [builder 4/6] COPY common /src/common
+#16 [runtime 2/6] WORKDIR /app
 #16 CACHED
 
 #17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
@@ -118,20 +120,20 @@ kind: Deployment
 #18 exporting layers done
 #18 exporting manifest sha256:ac2cd575e5eb17d6172e2a77a94099ac903d80c1770bd98aeb3eb10d2f70f3ec done
 #18 exporting config sha256:d7577a9165c2732d167d639f1ad0b130db9a6ed6dab6eddc2c9002561802d5a3 done
-#18 exporting attestation manifest sha256:bb4ec51158df6c5b0312f753f35caaee8b62072f6b8870c343aa67fe3a4d7b3b 0.0s done
-#18 exporting manifest list sha256:50a30182845a1432d0d8f215bda31ea26270729f2c4dfc83fedbf341e6944344 0.0s done
+#18 exporting attestation manifest sha256:340d2ce80430eed9728e4cef223fd5d2452f04ba31f858802192a5aebf34158a 0.0s done
+#18 exporting manifest list sha256:3b6cf83ddf907aae929f3ee6a4c56b79ace60475aeff18d068f17160b6e8c494 done
 #18 naming to docker.io/library/shipping-service:0.1.0 done
 #18 unpacking to docker.io/library/shipping-service:0.1.0 done
 #18 DONE 0.1s
 
-View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/xn1qn9fp6w1w3ehcdt22b1il2
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/ksjtvlgh6veq9ob5c15ms1ymm
 
 ==> images in the profile:
 docker.io/library/shipping-service:0.1.0
 docker.io/library/notification-service:0.1.0
 Release "shipping" does not exist. Installing it now.
 NAME: shipping
-LAST DEPLOYED: Thu Oct  8 11:29:54 2026
+LAST DEPLOYED: Thu Oct  8 18:25:10 2026
 NAMESPACE: hfd-18
 STATUS: deployed
 REVISION: 1
@@ -144,14 +146,21 @@ NAME                                         READY   UP-TO-DATE   AVAILABLE   AG
 deployment.apps/shipping-inventory-service   1/1     1            1           2s
 
 NAME                                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
-service/shipping-inventory-service   ClusterIP   10.105.197.90   <none>        8080/TCP   2s
+service/shipping-inventory-service   ClusterIP   10.100.158.92   <none>        8080/TCP   2s
 NAME: shipping
-LAST DEPLOYED: Thu Oct  8 11:29:54 2026
+LAST DEPLOYED: Thu Oct  8 18:25:10 2026
 NAMESPACE: hfd-18
 STATUS: deployed
 REVISION: 1
 DESCRIPTION: Install complete
 TEST SUITE:     shipping-inventory-service-test-connection
-Last Started:   Thu Oct  8 11:29:56 2026
-Last Completed: Thu Oct  8 11:29:58 2026
+Last Started:   Thu Oct  8 18:25:12 2026
+Last Completed: Thu Oct  8 18:25:14 2026
 Phase:          Succeeded
+demo rc=0
+
+$ ./demo.sh clean   # exit 0
+release "shipping" uninstalled
+namespace "hfd-18" deleted
+$ kubectl get ns | grep hfd-   # after clean
+(none)

@@ -1,23 +1,9 @@
-$ ./demo.sh
+# r1.1 re-run 2026-10-08, published NodePorts, helm4dev recreated with HFD_NODE_PORTS; Helm v4.3.0+gbec5b06
 
-#16 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
-#16 CACHED
-
-#17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
-#17 CACHED
-
-#18 exporting to image
-#18 exporting layers done
-#18 exporting manifest sha256:ac2cd575e5eb17d6172e2a77a94099ac903d80c1770bd98aeb3eb10d2f70f3ec done
-#18 exporting config sha256:d7577a9165c2732d167d639f1ad0b130db9a6ed6dab6eddc2c9002561802d5a3 done
-#18 exporting attestation manifest sha256:4e6d6606bdc23290b67b0c09ddebd0ea120f20a58e1613982ebc4fef0c55ac6e 0.0s done
-#18 exporting manifest list sha256:bfd78ca68d52ecafa61c793173e292594c5f1811114464ba817e9787a2885f82 done
-#18 naming to docker.io/library/shipping-service:0.1.0 done
-#18 unpacking to docker.io/library/shipping-service:0.1.0 done
-#18 DONE 0.1s
-
-View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/gnr4ngj7553f0jx87artafn6i
-
+$ ./demo.sh   # (example 03)
+Summary: 3 resources found in 3 files - Valid: 3, Invalid: 0, Errors: 0, Skipped: 0
+==> engine=docker mode=build tag=0.1.0
+==> shipping-service:0.1.0
 ==> images in the profile:
 docker.io/library/shipping-service:0.1.0
 docker.io/library/notification-service:0.1.0
@@ -29,42 +15,9 @@ Waiting for deployment "shipping-service" rollout to finish: 0 of 1 updated repl
 deployment "shipping-service" successfully rolled out
 NAME                               READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/shipping-service   1/1     1            1           3s
-
-NAME                       TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
-service/shipping-service   NodePort   10.104.167.12   <none>        8080:30080/TCP   3s
-
+NAME                       TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+service/shipping-service   NodePort   10.105.199.251   <none>        8080:30080/TCP   3s
 NAME                         DATA   AGE
-configmap/kube-root-ca.crt   1      4s
+configmap/kube-root-ca.crt   1      3s
 configmap/shipping-config    6      3s
-    ok: shipping      127.0.0.1:8080 -> node:30080
-    stop with: scripts/tunnel.sh stop
 {"service":"shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"ACME-Post","storage":"memory","kafkaEnabled":false}
-exit=
---- securityContext / pod state
-shipping-service-5dd7c6d5f9-8vfct Running ready=true restarts=0
-{"runAsNonRoot":true,"seccompProfile":{"type":"RuntimeDefault"}}
-{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsNonRoot":true,"seccompProfile":{"type":"RuntimeDefault"}}
---- rolling update: change tag
-NAME                          DESIRED   CURRENT   READY   AGE
-shipping-service-5dd7c6d5f9   1         1         1       4s
-configmap.yaml
-deployment.yaml
-service.yaml
---- rolling update with a changed image tag (0.1.1 = retag of 0.1.0 in the profile)
-docker.io/library/shipping-service:0.1.0
-deployment.apps/shipping-service configured
-Waiting for deployment "shipping-service" rollout to finish: 1 old replicas are pending termination...
-error: timed out waiting for the condition
-NAME                          DESIRED   CURRENT   READY   AGE
-shipping-service-5dd7c6d5f9   1         1         1       106s
-shipping-service-6d4ff67d64   1         1         0       90s
-(0.1.1 retag did not take; the new ReplicaSet exists but its pod cannot pull. The old ReplicaSet kept serving.)
-NAME                                READY   STATUS             RESTARTS   AGE
-shipping-service-5dd7c6d5f9-8vfct   1/1     Running            0          110s
-shipping-service-6d4ff67d64-x2hgf   0/1     ImagePullBackOff   0          94s
-deployment.apps/shipping-service rolled back
-deployment "shipping-service" successfully rolled out
-NAME                          DESIRED   CURRENT   READY   AGE
-shipping-service-5dd7c6d5f9   1         1         1       110s
-shipping-service-6d4ff67d64   0         0         0       94s
-api=200

@@ -1,0 +1,37 @@
+# Git-sourced Application: the shipping-service chart at tag r1.0 of the public repository.
+# Argo CD runs `helm dependency build` in the chart directory, which resolves the one file://
+# dependency (../pc-lib) because it sits in the same repository. The umbrella chart does not
+# work from a clean Git checkout: its subcharts' own dependency tarballs are gitignored, and
+# Argo CD builds dependencies for the top chart only (see chapter 25).
+# NodePort 30090 keeps this release apart from the OCI Application's 30080 and 30081.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: shipping-git
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/patterncatalyst/helm-for-developers
+    targetRevision: r1.0             # a tag; a branch such as main would follow every push
+    path: examples/25-gitops-argocd/charts/shipping-service
+    helm:
+      releaseName: shipping
+      valuesObject:
+        service:
+          type: NodePort
+          nodePort: 30090
+        auth:
+          token: dev-token
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: hfd-25-git
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

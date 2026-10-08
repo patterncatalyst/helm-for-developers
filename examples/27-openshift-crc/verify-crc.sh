@@ -2,13 +2,18 @@
 #
 # verify-crc.sh - check the OpenShift Local deployment end to end.
 #
-# Verified on OpenShift Local 2.64.0 (OpenShift 4.22.14), both profiles, 2026-10-08.
+# Verified on OpenShift Local 2.64.0 (OpenShift 4.22.14), both profiles, 2026-10-08, with
+# Strimzi 1.2.0 and with Streams for Apache Kafka 3.2.1.
 #
 #   ./verify-crc.sh                 minimal profile (no operators needed)
-#   PROFILE=full ./verify-crc.sh    full profile (CloudNativePG + Strimzi installed)
+#   PROFILE=full ./verify-crc.sh    full profile (CloudNativePG + Strimzi or Streams installed);
+#                                   adds a POST, dispatch and notification check through Kafka
+#   CONSOLE_CHECK=1 ./verify-crc.sh also checks that the Helm chart repository URL in the
+#                                   ProjectHelmChartRepository answers from the console pod
 #
 # Prints PASS or FAIL for each check and exits non-zero if any check failed.
-# Env: NAMESPACE (hfd-ocp), RELEASE (platform), PROFILE (minimal|full), TIMEOUT (10m).
+# Env: NAMESPACE (hfd-ocp), RELEASE (platform), PROFILE (minimal|full), TIMEOUT (10m),
+#      TOKEN (bearer token set in values-openshift.yaml, openshift-token), CONSOLE_CHECK (0|1).
 set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" && cd "$HERE"
 REPO_ROOT="$(cd "$HERE/../.." && pwd)"
@@ -22,6 +27,9 @@ NAMESPACE="${NAMESPACE:-hfd-ocp}"
 RELEASE="${RELEASE:-platform}"
 PROFILE="${PROFILE:-minimal}"
 TIMEOUT="${TIMEOUT:-10m}"
+TOKEN="${TOKEN:-openshift-token}"
+CONSOLE_CHECK="${CONSOLE_CHECK:-0}"
+REPO_URL="${REPO_URL:-https://patterncatalyst.github.io/helm-for-developers/charts}"
 CHART="charts/shipping-platform"
 VALUES=(-f values-openshift.yaml)
 [[ "$PROFILE" == "minimal" ]] && VALUES+=(-f values-openshift-minimal.yaml)
@@ -105,6 +113,36 @@ fi
 
 # 9. helm test
 check "helm test $RELEASE" helm test "$RELEASE" -n "$NAMESPACE" --logs
+
+# 10. full profile: shipping -> Kafka -> notification through the Routes
+if [[ "$PROFILE" == "full" && -n "$host" ]]; then
+    nhost="$(oc get route "$RELEASE-notification" -n "$NAMESPACE" -o jsonpath='{.spec.host}' 2>/dev/null || true)"
+    order=$((RANDOM + 30000))
+    payload="{\"orderId\":$order,\"address\":\"1 Verify Way\"}"
+    code="$(curl -sk -o /dev/null -w '%{http_code}' -X POST "https://$host/api/shipments" -H 'Content-Type: application/json' -d "$payload" 2>/dev/null || true)"
+    [[ "$code" == "401" ]] && pass "POST /api/shipments without a token -> 401" || fail "POST without a token -> 401" "got HTTP '${code:-none}'"
+    body="$(curl -sk -X POST "https://$host/api/shipments" -H 'Content-Type: application/json' -H "Authorization: Bearer $TOKEN" -d "$payload" 2>/dev/null || true)"
+    sid="$(sed -n 's/.*"id":\([0-9]*\).*/\1/p' <<<"$body")"
+    if [[ -n "$sid" ]]; then
+        pass "POST /api/shipments with the token -> shipment $sid"
+        code="$(curl -sk -o /dev/null -w '%{http_code}' -X POST "https://$host/api/shipments/$sid/dispatch" -H "Authorization: Bearer $TOKEN" 2>/dev/null || true)"
+        [[ "$code" == "200" ]] && pass "dispatch shipment $sid -> 200" || fail "dispatch shipment $sid -> 200" "got HTTP '${code:-none}'"
+        got=""
+        for _ in $(seq 1 15); do
+            curl -sk "https://$nhost/api/notifications" 2>/dev/null | grep -q "\"orderId\": *$order" && { got=1; break; }
+            sleep 2
+        done
+        [[ -n "$got" ]] && pass "notification for order $order arrived through Kafka" || fail "notification for order $order arrived through Kafka" "not listed at https://$nhost/api/notifications"
+    else
+        fail "POST /api/shipments with the token" "response: ${body:0:120}"
+    fi
+fi
+
+# 11. optional: the Helm chart repository behind the console's Helm view
+if [[ "$CONSOLE_CHECK" == "1" ]]; then
+    check "ProjectHelmChartRepository present in $NAMESPACE" bash -c "oc get projecthelmchartrepositories -n $NAMESPACE -o name | grep -q ."
+    check "console pod reads $REPO_URL/index.yaml" oc exec -n openshift-console deploy/console -- curl -sf -o /dev/null "$REPO_URL/index.yaml"
+fi
 
 echo
 if (( FAILS )); then echo "verify-crc: $FAILS check(s) FAILED"; exit 1; fi

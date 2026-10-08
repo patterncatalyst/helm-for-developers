@@ -4,8 +4,8 @@ Two Red Hat-branded 16:9 decks accompany the tutorial. Both are built with `pptx
 
 | Deck | Directory | Chapters | Output |
 |---|---|---|---|
-| Helm for Developers 101 | `helm-101/` | 02 to 12 | `helm-101/Helm-101-r1.0.pptx` |
-| Helm for Developers 201 | `helm-201/` | 13 to 27 | `helm-201/Helm-201-r1.0.pptx` |
+| Helm for Developers 101 | `helm-101/` | 02 to 12 | `helm-101/Helm-101-r1.1.pptx` |
+| Helm for Developers 201 | `helm-201/` | 13 to 27 | `helm-201/Helm-201-r1.1.pptx` |
 
 Each directory holds `deck.js`, `deck-helpers.js`, `assets/` (brand images), `diagrams.py` plus `dgen.py` (diagram scenes), `build_diagrams.py`, and the generated `diagrams/` (SVG and Excalidraw sources) and `png/` (what the deck embeds).
 
@@ -37,12 +37,12 @@ done
 # slide count and speaker-note count must match
 presentation/.venv/bin/python -c "
 from pptx import Presentation
-p = Presentation('presentation/helm-101/Helm-101-r1.0.pptx')
+p = Presentation('presentation/helm-101/Helm-101-r1.1.pptx')
 print(len(p.slides), sum(1 for s in p.slides if s.has_notes_slide and s.notes_slide.notes_text_frame.text.strip()))"
 
 # render to PDF and look at individual pages
-soffice --headless --convert-to pdf --outdir /tmp/deck-qa presentation/helm-101/Helm-101-r1.0.pptx
-pdftoppm -png -r 60 -f 1 -l 1 /tmp/deck-qa/Helm-101-r1.0.pdf /tmp/deck-qa/pg
+soffice --headless --convert-to pdf --outdir /tmp/deck-qa presentation/helm-101/Helm-101-r1.1.pptx
+pdftoppm -png -r 60 -f 1 -l 1 /tmp/deck-qa/Helm-101-r1.1.pdf /tmp/deck-qa/pg
 
 # command and syntax gates (the decks are in scope of both)
 source scripts/env.sh

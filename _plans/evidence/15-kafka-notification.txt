@@ -1,3 +1,5 @@
+# r1.1 re-run on 2026-10-08, helm4dev with NodePorts published on 127.0.0.1 (Helm 4.3.0)
+$ ./demo.sh   # exit 0
 
 ==> helm lint --strict
 ==> Linting charts/shipping-kafka
@@ -30,7 +32,7 @@ Charts:      2 passed, 2 total
 Test Suites: 5 passed, 5 total
 Tests:       33 passed, 33 total
 Snapshot:    0 passed, 0 total
-Time:        65.565247ms
+Time:        66.455099ms
 
 
 ==> helm template | kubeconform (Strimzi kinds checked against the CRDs-catalog)
@@ -59,13 +61,13 @@ Error: execution error at (notification-service/templates/deployment.yaml:50:16)
 #1 transferring dockerfile: 2.17kB done
 #1 DONE 0.0s
 
-#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#2 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
 #2 ...
 
-#3 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
-#3 DONE 0.3s
+#3 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#3 DONE 0.2s
 
-#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#2 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
 #2 DONE 0.3s
 
 #4 [internal] load .dockerignore
@@ -84,50 +86,54 @@ Error: execution error at (notification-service/templates/deployment.yaml:50:16)
 #7 transferring context: 1.42kB done
 #7 DONE 0.0s
 
-#8 [builder 5/6] COPY shipping-service/pyproject.toml /src/service/pyproject.toml
+#8 [builder 4/6] COPY common /src/common
 #8 CACHED
 
-#9 [runtime 2/6] WORKDIR /app
+#9 [runtime 5/6] COPY shipping-service/ /app/
 #9 CACHED
 
-#10 [runtime 5/6] COPY shipping-service/ /app/
+#10 [builder 5/6] COPY shipping-service/pyproject.toml /src/service/pyproject.toml
 #10 CACHED
 
-#11 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+#11 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
 #11 CACHED
 
-#12 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+#12 [runtime 3/6] COPY --from=builder /opt/python /opt/python
 #12 CACHED
 
-#13 [builder 4/6] COPY common /src/common
+#13 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
 #13 CACHED
 
-#14 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+#14 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
 #14 CACHED
 
-#15 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+#15 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
 #15 CACHED
 
-#16 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+#16 [runtime 2/6] WORKDIR /app
 #16 CACHED
 
 #17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
 #17 CACHED
 
 #18 exporting to image
+#18 exporting layers
 #18 exporting layers done
 #18 exporting manifest sha256:ac2cd575e5eb17d6172e2a77a94099ac903d80c1770bd98aeb3eb10d2f70f3ec done
 #18 exporting config sha256:d7577a9165c2732d167d639f1ad0b130db9a6ed6dab6eddc2c9002561802d5a3 done
-#18 exporting attestation manifest sha256:317b57c74cda07f0e5cd7b9c95fab5277ee5aaa670f8156d92bb35d4edd03eb1 0.0s done
-#18 exporting manifest list sha256:a3ca7449428d81009a5df60151ea30ad43fa7f73fcd9911ffe8fa57ac99fa68c 0.0s done
+#18 exporting attestation manifest sha256:577ac693f335314031b4483e06bcee735d95c05a2420dc8410903fcdfabcf4ae 0.0s done
+#18 exporting manifest list sha256:41e16b12bfc571988969b5207c4295be5fbe62b213fd2a704d31e77e5be30ea3 0.0s done
 #18 naming to docker.io/library/shipping-service:0.1.0 done
 #18 unpacking to docker.io/library/shipping-service:0.1.0 done
 #18 DONE 0.1s
 
-View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/jn4fhmdfyd1xudu26992ov7h9
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/3u0qc26683tsec59ncmek0syb
 
 ==> notification-service:0.1.0
 #0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Containerfile
+#1 DONE 0.0s
 
 #1 [internal] load build definition from Containerfile
 #1 transferring dockerfile: 2.17kB done
@@ -143,43 +149,43 @@ View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux
 #4 transferring context: 2B done
 #4 DONE 0.0s
 
-#5 [builder 1/6] FROM registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
-#5 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.0s done
+#5 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
+#5 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.0s done
 #5 DONE 0.0s
 
-#6 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
-#6 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.0s done
+#6 [builder 1/6] FROM registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
+#6 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.0s done
 #6 DONE 0.0s
 
 #7 [internal] load build context
 #7 transferring context: 10.71kB done
 #7 DONE 0.0s
 
-#8 [builder 5/6] COPY notification-service/pyproject.toml /src/service/pyproject.toml
+#8 [runtime 5/6] COPY notification-service/ /app/
 #8 CACHED
 
-#9 [runtime 5/6] COPY notification-service/ /app/
+#9 [runtime 2/6] WORKDIR /app
 #9 CACHED
 
-#10 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+#10 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
 #10 CACHED
 
-#11 [runtime 2/6] WORKDIR /app
+#11 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
 #11 CACHED
 
-#12 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+#12 [runtime 3/6] COPY --from=builder /opt/python /opt/python
 #12 CACHED
 
-#13 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+#13 [builder 4/6] COPY common /src/common
 #13 CACHED
 
-#14 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+#14 [builder 5/6] COPY notification-service/pyproject.toml /src/service/pyproject.toml
 #14 CACHED
 
-#15 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+#15 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
 #15 CACHED
 
-#16 [builder 4/6] COPY common /src/common
+#16 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
 #16 CACHED
 
 #17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
@@ -189,13 +195,13 @@ View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux
 #18 exporting layers done
 #18 exporting manifest sha256:9b7868487b929dac4e2855b558a0ed0c5dc4fa7d84c567df9ea5c3e725ad8a7a done
 #18 exporting config sha256:729ca706dc57d9db1ea09c441e64c81ccb956e853287c5c6b94bd53dac842f0b done
-#18 exporting attestation manifest sha256:b6c672b9a6baaea0ffdaf80a6f3c7ff331767644292b7c0c0a403f1ab73684ce 0.0s done
-#18 exporting manifest list sha256:1073969705fa269c97b3b32e629e78d526dea2fdf261bf6153e4ff374f54c8c9 done
+#18 exporting attestation manifest sha256:8de2a2dc302be31c914a79ee1f3271f1c5f06ff47dc8ce229b757cc4bcdbb1e1 0.0s done
+#18 exporting manifest list sha256:ba4903839ad2e120f2d47400e7263674ace9b9b3fbeebb42f59b53a0f398d70f 0.0s done
 #18 naming to docker.io/library/notification-service:0.1.0 done
-#18 unpacking to docker.io/library/notification-service:0.1.0 done
+#18 unpacking to docker.io/library/notification-service:0.1.0 0.0s done
 #18 DONE 0.1s
 
-View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/j722wllpg63ohxtsigkb019zs
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/0jg5ud01w6a7m5edpj8kvls50
 
 ==> images in the profile:
 docker.io/library/shipping-service:0.1.0
@@ -204,7 +210,7 @@ docker.io/library/notification-service:0.1.0
 ==> Install the Kafka cluster and wait for the Kafka resource to report Ready
 Release "kafka" does not exist. Installing it now.
 NAME: kafka
-LAST DEPLOYED: Thu Oct  8 11:17:51 2026
+LAST DEPLOYED: Thu Oct  8 18:20:56 2026
 NAMESPACE: hfd-15
 STATUS: deployed
 REVISION: 1
@@ -220,7 +226,7 @@ kafka.kafka.strimzi.io/shipping-kafka condition met
 ==> Install notification-service, then shipping-service
 Release "notification" does not exist. Installing it now.
 NAME: notification
-LAST DEPLOYED: Thu Oct  8 11:18:37 2026
+LAST DEPLOYED: Thu Oct  8 18:21:55 2026
 NAMESPACE: hfd-15
 STATUS: deployed
 REVISION: 1
@@ -237,7 +243,7 @@ Run the chart test:
   [host]$ helm test notification -n hfd-15
 Release "shipping" does not exist. Installing it now.
 NAME: shipping
-LAST DEPLOYED: Thu Oct  8 11:18:46 2026
+LAST DEPLOYED: Thu Oct  8 18:22:04 2026
 NAMESPACE: hfd-15
 STATUS: deployed
 REVISION: 1
@@ -261,93 +267,41 @@ NAME                                              CLUSTER          PARTITIONS   
 kafkatopic.kafka.strimzi.io/shipment.dispatched   shipping-kafka   1            1                    True
 
 NAME                                                    READY   STATUS    RESTARTS   AGE
-pod/notification-notification-service-db664d49d-vchbs   1/1     Running   0          12s
-pod/shipping-kafka-dual-0                               1/1     Running   0          56s
-pod/shipping-kafka-entity-operator-74dc84f4-zrr5q       2/2     Running   0          33s
-pod/shipping-shipping-service-5d99586d9f-tvh64          1/1     Running   0          3s
+pod/notification-notification-service-db664d49d-hg49k   1/1     Running   0          12s
+pod/shipping-kafka-dual-0                               1/1     Running   0          69s
+pod/shipping-kafka-entity-operator-54c9cff79d-4frdw     2/2     Running   0          34s
+pod/shipping-shipping-service-5d99586d9f-csbtw          1/1     Running   0          3s
 
 ==> Dispatch a shipment and read the notification
-    ok: shipping      127.0.0.1:8080 -> node:30080
-    ok: notification  127.0.0.1:8081 -> node:30081
-    stop with: scripts/tunnel.sh stop
-{"id":1,"orderId":1501,"address":"1 Main St, Springfield","status":"DISPATCHED","createdAt":"2026-10-08T15:18:50.125057Z"}
-[{"receivedAt":"2026-10-08T15:18:50.194880+00:00","topic":"shipment.dispatched","partition":0,"offset":0,"event":{"orderId":1501,"shipmentId":1,"address":"1 Main St, Springfield","status":"DISPATCHED","occurredAt":"2026-10-08T15:18:50.175124+00:00"}}]
+{"id":1,"orderId":1501,"address":"1 Main St, Springfield","status":"DISPATCHED","createdAt":"2026-10-08T22:22:07.154974Z"}
+[{"receivedAt":"2026-10-08T22:22:07.182172+00:00","topic":"shipment.dispatched","partition":0,"offset":0,"event":{"orderId":1501,"shipmentId":1,"address":"1 Main St, Springfield","status":"DISPATCHED","occurredAt":"2026-10-08T22:22:07.163410+00:00"}}]
 NAME: shipping
-LAST DEPLOYED: Thu Oct  8 11:18:46 2026
+LAST DEPLOYED: Thu Oct  8 18:22:04 2026
 NAMESPACE: hfd-15
 STATUS: deployed
 REVISION: 1
 DESCRIPTION: Install complete
 TEST SUITE:     shipping-shipping-service-test-connection
-Last Started:   Thu Oct  8 11:18:53 2026
-Last Completed: Thu Oct  8 11:18:55 2026
+Last Started:   Thu Oct  8 18:22:10 2026
+Last Completed: Thu Oct  8 18:22:12 2026
 Phase:          Succeeded
 NAME: notification
-LAST DEPLOYED: Thu Oct  8 11:18:37 2026
+LAST DEPLOYED: Thu Oct  8 18:21:55 2026
 NAMESPACE: hfd-15
 STATUS: deployed
 REVISION: 1
 DESCRIPTION: Install complete
 TEST SUITE:     notification-notification-service-test-connection
-Last Started:   Thu Oct  8 11:18:55 2026
-Last Completed: Thu Oct  8 11:18:57 2026
+Last Started:   Thu Oct  8 18:22:12 2026
+Last Completed: Thu Oct  8 18:22:14 2026
 Phase:          Succeeded
+demo rc=0
 
-## S7 extra
-NAME                                READY   UP-TO-DATE   AVAILABLE   AGE
-notification-notification-service   1/1     1            1           26s
-shipping-kafka-entity-operator      1/1     1            1           47s
-shipping-shipping-service           1/1     1            1           17s
-{"ts": "2026-10-08T15:18:38+0000", "level": "INFO", "logger": "aiokafka.consumer.subscription_state", "msg": "Updating subscribed topics to: frozenset({'shipment.dispatched'})", "trace_id": "-", "span_id": "-"}
-{"ts": "2026-10-08T15:18:41+0000", "level": "INFO", "logger": "aiokafka.consumer.group_coordinator", "msg": "Setting newly assigned partitions {TopicPartition(topic='shipment.dispatched', partition=0)} for group notification-service", "trace_id": "-"
-{"ts": "2026-10-08T15:18:50+0000", "level": "INFO", "logger": "app.consumer", "msg": "shipment 1 for order 1501 dispatched", "trace_id": "-", "span_id": "-"}
-[{"lastTransitionTime":"2026-10-08T15:17:52.777558223Z","message":"A Kafka cluster with a single broker node and ephemeral storage will lose topic messages after any restart or rolling update.","reason":"KafkaStorage","status":"True","type":"Warning"},{"lastTransitionTime":"2026-10-08T15:17:52.777596710Z","message":"A Kafka cluster with a single controller node and ephemeral storage will lose data after any restart or rolling update.","reason":"KafkaStorage","status":"True","type":"Warning"},{"lastTransitionTime":"2026-10-08T15:18:37.248480882Z","status":"True","type":"Ready"}]
-## wrong bootstrap
-level=WARN msg="upgrade failed" name=notification error="resource Deployment/hfd-15/notification-notification-service not ready. status: InProgress, message: Pending termination: 1\ncontext deadline exceeded"
-Error: UPGRADE FAILED: resource Deployment/hfd-15/notification-notification-service not ready. status: InProgress, message: Pending termination: 1
-context deadline exceeded
-NAME                                                READY   STATUS    RESTARTS   AGE
-notification-notification-service-7f798d7b5-qjmcs   0/1     Running   0          60s
-notification-notification-service-db664d49d-vchbs   1/1     Running   0          87s
-Found 2 pods, using pod/notification-notification-service-db664d49d-vchbs
-INFO:     10.244.0.1:39822 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.244.0.1:58196 - "GET /healthz HTTP/1.1" 200 OK
-INFO:     10.244.0.1:58202 - "GET /healthz HTTP/1.1" 200 OK
-INFO:     10.244.0.1:58204 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.244.0.1:47542 - "GET /healthz HTTP/1.1" 200 OK
-Rollback was a success! Happy Helming!
-
-## S7 extra: no topicOperator + concurrent shipping install (ns hfd-15b)
-NAME: kafka
-LAST DEPLOYED: Thu Oct  8 11:20:14 2026
-NAMESPACE: hfd-15b
-STATUS: deployed
-REVISION: 1
-DESCRIPTION: Install complete
-TEST SUITE: None
-NOTES:
-Strimzi Kafka shipping-kafka (kafka.strimzi.io/v1, KRaft, 1 node) requested in namespace hfd-15b.
-  [host]$ kubectl -n hfd-15b get kafka,kafkanodepool,kafkatopic
-Bootstrap address: shipping-kafka-kafka-bootstrap.hfd-15b.svc:9092
-Topic: shipment.dispatched
-Error: INSTALLATION FAILED: release shipping failed, and has been uninstalled due to rollback-on-failure being set: server-side apply failed for object hfd-15b/shipping-shipping-service /v1, Kind=Service: Service "shipping-shipping-service" is invalid: spec.ports[0].nodePort: Invalid value: 30080: provided port is already allocated
-NAME                                         READY   STATUS        RESTARTS   AGE
-shipping-shipping-service-6844cfd778-w9d95   0/1     Terminating   0          0s
-NAME                                    READY   WARNINGS   KAFKA VERSION   METADATA VERSION
-kafka.kafka.strimzi.io/shipping-kafka                                      
-
-NAME                                              CLUSTER          PARTITIONS   REPLICATION FACTOR   READY
-kafkatopic.kafka.strimzi.io/shipment.dispatched   shipping-kafka   1            1                    
-
-## retry shipping install in 15b after freeing NodePort
-STATUS: deployed
-NAME                                              READY   STATUS    RESTARTS      AGE
-shipping-kafka-dual-0                             1/1     Running   0             42s
-shipping-kafka-entity-operator-7679f4f5b4-j5vkr   1/1     Running   0             19s
-shipping-shipping-service-6844cfd778-27hxg        1/1     Running   3 (24s ago)   37s
-NAME                                    READY   WARNINGS   KAFKA VERSION   METADATA VERSION
-kafka.kafka.strimzi.io/shipping-kafka   True    True       4.3.1           4.3-IV0
-
-NAME                                              CLUSTER          PARTITIONS   REPLICATION FACTOR   READY
-kafkatopic.kafka.strimzi.io/shipment.dispatched   shipping-kafka   1            1                    
-
+$ ./demo.sh clean   # exit 0
+kafkatopic.kafka.strimzi.io "shipment.dispatched" deleted
+release "shipping" uninstalled
+release "notification" uninstalled
+release "kafka" uninstalled
+namespace "hfd-15" deleted
+$ kubectl get ns | grep hfd-   # after clean
+(none)

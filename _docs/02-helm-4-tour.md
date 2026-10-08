@@ -68,7 +68,7 @@ Each flag has a job.
 - `--wait` makes Helm block until the resources are ready. In Helm 4 the wait is driven by a [kstatus-based watcher](https://helm.sh/docs/overview/); `helm install --help` lists three strategies, `watcher`, `hookOnly` and `legacy`, and `--wait` alone selects `watcher`.
 - `--rollback-on-failure` is the Helm 4 name for what Helm 3 called `--atomic`. <!-- helm3-reference --> A failed install is removed instead of left in a `failed` state. `--timeout 3m` bounds the wait.
 
-After the install the script runs `helm list`, `helm status`, `kubectl get secret -l owner=helm` and `helm get values`, then probes the application with `podcli check http localhost:9898/healthz` inside the pod, and finishes with `helm uninstall --wait`. The probe uses the in-pod `podcli` binary so the chapter needs no tunnel. `./demo.sh clean` runs `helm uninstall --ignore-not-found` and deletes the namespace.
+After the install the script runs `helm list`, `helm status`, `kubectl get secret -l owner=helm` and `helm get values`, then probes the application with `podcli check http localhost:9898/healthz` inside the pod, and finishes with `helm uninstall --wait`. The probe uses the in-pod `podcli` binary so the chapter needs no host access. `./demo.sh clean` runs `helm uninstall --ignore-not-found` and deletes the namespace.
 
 Server-side apply is the other change visible here. For a new release Helm 4 now applies objects with [server-side apply by default](https://helm.sh/docs/overview/); `helm install --help` shows `--server-side` defaulting to true.
 
@@ -128,4 +128,4 @@ Chapter 03 returns to the shipping service and deploys it as raw manifests, so t
 
 ---
 
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/02-helm-tour.txt`. The install reached `deployed` with two ready pods, the `sh.helm.release.v1.podinfo.v1` Secret existed and was gone after uninstall, `podcli check http` returned 200 in-pod, and `helm get manifest` matched the live Deployment (2 replicas, image `ghcr.io/stefanprodan/podinfo:6.15.0`).*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/02-helm-tour.txt`. The install reached `deployed` with two ready pods, the `sh.helm.release.v1.podinfo.v1` Secret existed and was gone after uninstall, `podcli check http` returned 200 in-pod, and `helm get manifest` matched the live Deployment (2 replicas, image `ghcr.io/stefanprodan/podinfo:6.15.0`). Re-run on r1.1 on 2026-10-08 on the recreated helm4dev profile; this chapter makes no host requests, so only the cluster changed, and the behaviour above held.*
