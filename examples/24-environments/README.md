@@ -21,4 +21,4 @@ The umbrella chart from chapter 16 deployed to three environments with Helmfile 
 
 ## Verification status
 
-`unverified`. A live run must confirm that `helmfile -l env=dev sync` installs and `helm test` passes, and that `./demo.sh pin` writes a digest the node can pull.
+`verified` on 2026-10-08 (`_plans/evidence/24-environments.txt`): dev installed and passed `helm test`, and a pinned digest was pulled and ran. Stage and prod are offline only. `./demo.sh pin` needs `BUILD_ENGINE=podman` when Docker runs in a VM (Docker Desktop).

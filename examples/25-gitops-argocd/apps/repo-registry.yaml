@@ -1,5 +1,5 @@
 # Registers the in-cluster registry addon as an OCI Helm repository for Argo CD.
-# The URL has no oci:// prefix. The registry addon speaks plain HTTP, hence insecureOciForceHttp.
+# The URL has no oci:// prefix. The registry addon speaks plain HTTP, hence insecureOCIForceHttp.
 apiVersion: v1
 kind: Secret
 metadata:
@@ -12,4 +12,4 @@ stringData:
   type: helm
   url: registry.kube-system.svc.cluster.local:80/charts
   enableOCI: "true"
-  insecureOciForceHttp: "true"
+  insecureOCIForceHttp: "true"

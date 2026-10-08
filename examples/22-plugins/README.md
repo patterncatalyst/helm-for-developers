@@ -18,8 +18,8 @@ The demo also packages `helm-shipping-env` without a signature and shows that `h
 
 ## Against a cluster
 
-The first form of the plugin reads a deployed release. With the `platform` release from chapter 16 in `hfd-26`, run `helm shipping-env platform -n hfd-26` with the plugin installed. The demo does not do this.
+The first form of the plugin reads a deployed release: install the chart into a namespace, then run `helm shipping-env RELEASE -n NAMESPACE` with the plugin installed. The demo does not do this; the S7 run did (`_plans/evidence/22-plugins.txt`).
 
 ## Verification status
 
-Unverified. A live run must confirm the forms in the chapter against a deployed release.
+`verified` on 2026-10-08 (`_plans/evidence/22-plugins.txt`): the demo ran end to end, the release form matched the `--chart` form on a deployed release, and the Wasm module rebuilt on an empty module cache.

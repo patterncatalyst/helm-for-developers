@@ -72,7 +72,9 @@ case "${1:-all}" in
     clean)
         kubectl -n argocd delete application --all --ignore-not-found --timeout=5m || true
         helm uninstall argocd -n argocd || true
-        kubectl delete ns argocd hfd-25 hfd-25-git --ignore-not-found ;;
+        kubectl delete ns argocd hfd-25 hfd-25-git --ignore-not-found
+        # The Argo CD chart keeps its CRDs on uninstall (crds.keep=true); remove them for a clean lab.
+        kubectl delete crd applications.argoproj.io applicationsets.argoproj.io appprojects.argoproj.io --ignore-not-found ;;
     all|"") offline; live ;;
     *) echo "usage: $0 [offline|clean]" >&2; exit 2 ;;
 esac

@@ -19,7 +19,8 @@ GitOps rests on a few principles: the desired state is declared, the declaration
 For a Helm chart, "renders" is literal. Argo CD runs `helm template`, not `helm install`. The consequences, in order of how often they bite:
 
 - **There is no Helm release.** `helm list -n hfd-25` shows nothing and there is no `sh.helm.release.v1.*` Secret. Argo CD tracks objects through its own tracking label and the Application's status.
-- **`lookup` returns an empty map.** Rendering happens without a live API call, so a template that reads a Secret with `lookup` takes its "not found" branch on every sync. The golden charts do not use `lookup`; a chart that generates a password once and reuses it (chapter 8) would regenerate it on each render. Use `existingSecret` under Argo CD.
+- **`lookup` returns an empty map.** Rendering happens without a live API call, so a template that reads a Secret with `lookup` takes its "not found" branch on every sync. The golden charts do not use `lookup`; a chart that generates a password once and reuses it (chapter 8) would regenerate it on each render. Use `existingSecret` under Argo CD. Observed: a one-ConfigMap probe chart that tests `lookup "v1" "Namespace" "" "kube-system"` rendered `"yes"` from `helm install` and `"no"` from an Argo CD Application.
+- **Drift is reverted.** With `selfHeal: true`, `kubectl -n hfd-25 scale deploy platform-shipping --replicas=3` was set back to 1 within about six seconds, and the Application stayed `Synced`. Argo CD also reports the migration Job as a `PostSync` hook that ended `Succeeded`.
 - **Helm hooks become Argo CD hooks.** Argo CD maps `pre-install` and `pre-upgrade` to `PreSync`, `post-install` and `post-upgrade` to `PostSync`, and `helm.sh/hook-weight` to a sync wave. Argo CD cannot tell install from upgrade, so every sync runs both. `test` hooks have no equivalent and are ignored, so `helm test` does not apply. If a chart defines any native Argo CD hook, Argo CD ignores all its Helm hooks.
 
 ## Installing Argo CD with Helm
@@ -55,10 +56,10 @@ stringData:
   type: helm
   url: registry.kube-system.svc.cluster.local:80/charts
   enableOCI: "true"
-  insecureOciForceHttp: "true"
+  insecureOCIForceHttp: "true"
 ```
 
-The label makes Argo CD read the Secret as a repository definition. `type: helm` with `enableOCI: "true"` says the URL is an OCI registry, and the URL has no `oci://` prefix; that is Argo CD's convention. `insecureOciForceHttp` is the equivalent of Helm's `--plain-http`. The demo pushes the chart first with `helm push shipping-platform-1.0.0.tgz oci://127.0.0.1:5000/charts --plain-http`, reaching the same registry through the tunnel.
+The label makes Argo CD read the Secret as a repository definition. `type: helm` with `enableOCI: "true"` says the URL is an OCI registry, and the URL has no `oci://` prefix; that is Argo CD's convention. `insecureOCIForceHttp` is the equivalent of Helm's `--plain-http`. The demo pushes the chart first with `helm push shipping-platform-1.0.0.tgz oci://127.0.0.1:5000/charts --plain-http`, reaching the same registry through the tunnel.
 
 The `Application` then names the chart:
 
@@ -111,7 +112,7 @@ The first shows the workloads; the second prints an empty table. Together they c
 ## What you learned
 
 - Argo CD installs from a Helm chart and syncs a chart by running `helm template`; there is no Helm release, `lookup` is empty and `helm test` does not apply.
-- An OCI source needs a repository Secret (`enableOCI`, plus `insecureOciForceHttp` for the plain-HTTP lab registry) and an exact `targetRevision`.
+- An OCI source needs a repository Secret (`enableOCI`, plus `insecureOCIForceHttp` for the plain-HTTP lab registry) and an exact `targetRevision`.
 - `valueFiles` and `valuesObject` layer like `-f` and `--set`; hooks map to PreSync and PostSync, and weights map to sync waves.
 
 The last chapter in this part uses the same umbrella to follow a request through the LGTM stack.
@@ -128,4 +129,4 @@ The last chapter in this part uses the same umbrella to follow a request through
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. The OCI repository Secret over plain HTTP, the Application reaching Synced and Healthy, the PostSync migration, and the empty `helm list` need a real run.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/25-gitops-argocd.txt`. Observed on Helm 4.3.0 with Argo CD chart 10.10.1: the demo ran end to end; the OCI Application reached Synced and Healthy once the repository Secret used the key `insecureOCIForceHttp` (the first run, with the key spelled `insecureOciForceHttp`, failed with an HTTPS pull); `helm list -n hfd-25` was empty; the PostSync migration ran; `ARGO-Post` showed at `/api/info`; self-heal reverted a scaled Deployment; `lookup` was empty under Argo CD. The Git-sourced Application (`apps/shipping-platform-git.yaml`) is not verified: the repository is not pushed yet.*

@@ -80,7 +80,7 @@ runtimeConfig:
   timeout: 5000
 ```
 
-`runtime: extism/v1` replaces the `platformCommand`. Helm looks for a module named `plugin.wasm` in the plugin directory. `maxPages` caps linear memory at 64 KiB per page, and `timeout` is in milliseconds. A first attempt with `maxPages: 16` fails with `section memory: min 42 pages (2 Mi) over limit of 16 pages (1 Mi)`: a Go module needs at least 42 pages, so the plugin asks for 256.
+`runtime: extism/v1` replaces the `platformCommand`. Helm looks for a module named `plugin.wasm` in the plugin directory. `maxPages` caps linear memory at 64 KiB per page, and `timeout` is in milliseconds. A first attempt with `maxPages: 16` fails with `Error: failed to create existing plugin: section memory: min 42 pages (2 Mi) over limit of 16 pages (1 Mi)`: a Go module needs at least 42 pages, so the plugin asks for 256.
 
 The Go source needs one exported function:
 
@@ -175,4 +175,4 @@ The next chapter uses the third plugin type to rewrite manifests after Helm rend
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. The release form `helm shipping-env RELEASE` against a live release, and the `plugin.wasm` build on a clean module cache, need a real run.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/22-plugins.txt`. Observed on Helm 4.3.0: the demo ran end to end; `helm shipping-env shipping -n hfd-22` against a deployed release printed the same env list as the `--chart` form and matched `kubectl get deploy -o yaml`; Helm exported `HELM_BIN`, `HELM_NAMESPACE` and `HELM_PLUGIN_DIR` to the subprocess; `ignoreFlags: true` passed no arguments; `maxPages: 16` failed with the quoted error; `plugin.wasm` rebuilt from an empty `GOPATH`.*

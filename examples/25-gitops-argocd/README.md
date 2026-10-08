@@ -22,4 +22,4 @@ The full run installs Argo CD, pushes `shipping-platform-1.0.0.tgz` to `oci://12
 
 ## Verification status
 
-`unverified`. A live run must confirm that the OCI repository secret works over plain HTTP, that the `Application` reaches Synced and Healthy, and that the migration hook runs as a PostSync hook.
+`verified` on 2026-10-08 (`_plans/evidence/25-gitops-argocd.txt`): the demo ran end to end and the OCI Application reached Synced and Healthy. `apps/shipping-platform-git.yaml` is not verified: the GitHub repository is not pushed yet.

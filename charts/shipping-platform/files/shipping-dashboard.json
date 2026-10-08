@@ -16,7 +16,7 @@
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
       "datasource": {"type": "prometheus", "uid": "mimir"},
       "targets": [
-        {"refId": "A", "expr": "sum by (service_name) (rate(http_server_duration_milliseconds_count{service_name=~\"{{ .Release.Name }}-.*\"}[5m]))", "legendFormat": "{{ "{{" }}service_name{{ "}}" }}"}
+        {"refId": "A", "expr": "sum by (job) (rate(http_server_duration_milliseconds_count{job=~\".*/{{ .Release.Name }}-.*\"}[5m]))", "legendFormat": "{{ "{{" }}job{{ "}}" }}"}
       ]
     },
     {

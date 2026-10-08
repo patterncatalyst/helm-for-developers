@@ -80,7 +80,7 @@ patches:
         value: kustomize-postrender
 ```
 
-The patch is a JSON 6902 operation aimed at every `Deployment`. In a JSON Pointer path a `/` inside a key is written `~1`, so `patterncatalyst.io~1post-rendered-by` is the single key `patterncatalyst.io/post-rendered-by`. The `add` needs `spec/template/metadata/annotations` to exist, and the golden chart always sets pod annotations (its `checksum/config`). Run by hand on a Deployment without annotations, the script exits 1 with `error: add operation does not apply: doc is missing path`, and Helm reports the post-renderer failure. A real plugin would guard that case.
+The patch is a JSON 6902 operation aimed at every `Deployment`. In a JSON Pointer path a `/` inside a key is written `~1`, so `patterncatalyst.io~1post-rendered-by` is the single key `patterncatalyst.io/post-rendered-by`. The `add` needs `spec/template/metadata/annotations` to exist, and the golden chart always sets pod annotations (its `checksum/config`). Run by hand on a Deployment without annotations, the script exits 1 with `error: add operation does not apply: doc is missing path`, and Helm reports only `Error: INSTALLATION FAILED: error while running post render on files: failed to invoke post-renderer plugin "kustomize-postrender": plugin "kustomize-postrender" exited with error`. The script's own stderr does not reach the terminal. A real plugin would guard that case.
 
 The last line, `kubectl kustomize "$work"`, writes the result to stdout. Nothing else may print to stdout, or the noise becomes part of the manifest. Diagnostics belong on stderr.
 
@@ -131,7 +131,7 @@ On a live install the flags are the same, for example `helm install shipping cha
 
 ## Troubleshooting
 
-Post-renderer failures surface as a single error from `helm install` or `helm template`, so the first step is to run the script by hand with the same input.
+Post-renderer failures surface as a single error from `helm install` or `helm template` that does not include the script's stderr, so the first step is to run the script by hand with the same input.
 
 - **`plugin: {Name:... Type:postrenderer/v1} not found`.** `--post-renderer` takes the name of an installed plugin of type `postrenderer/v1`. A path to an executable fails with this message, and so does a misspelled name. Run `helm plugin list` and confirm the name and the type column.
 - **A patch step exits 1 with `add operation does not apply: doc is missing path`.** The script's JSON patch adds a key under a path the object does not have; a Deployment without pod-template annotations is the example in the demo. Either create the parent map first or write the patch as a merge that tolerates a missing parent. The failing object is the one on standard input, so pipe `helm template` into the script to reproduce it.
@@ -162,4 +162,4 @@ The next part moves from extending Helm to running it across environments, start
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. The label landing on live objects after `helm install --post-renderer kustomize-postrender`, and the failure path when the patch target is missing, need a real run.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/23-post-renderers.txt`. Observed on Helm 4.3.0: `helm install --post-renderer kustomize-postrender` on the cluster put `patterncatalyst.io/post-rendered` on the Deployment, Service, ConfigMap and Secret and the annotation on the pod template, `spec.selector.matchLabels` stayed unchanged, `helm get manifest` carried the label (install and upgrade), two `--post-renderer-args` arrived as `$1` and `$2`, and the missing-annotations Deployment failed the install.*

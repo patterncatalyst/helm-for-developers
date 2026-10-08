@@ -14,4 +14,4 @@ The full run needs the LGTM stack from `scripts/platform/setup-lgtm.sh`. It upgr
 
 ## Verification status
 
-`unverified`. A live run must confirm that the dashboard appears in Grafana, that the dispatch trace holds spans from both services, and that the dashboard's metric name (`http_server_duration_milliseconds_count`) exists in Mimir.
+`verified` on 2026-10-08 (`_plans/evidence/26-observability.txt`): the demo ran end to end, the dashboard loaded after the sidecar upgrade, and one trace holds spans from both services. The dashboard metric exists in Mimir but is labelled `job`, not `service_name`; the dashboard was corrected.

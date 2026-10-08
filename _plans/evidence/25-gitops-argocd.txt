@@ -1,0 +1,93 @@
+# 25 gitops-argocd, 2026-10-08, Helm 4.3.0, Argo CD chart 10.10.1 (v3.5.4)
+# First run: Application stuck Unknown: repo-server ran 'helm pull oci://registry.kube-system.svc.cluster.local:80/...' over https ('server gave HTTP response to HTTPS client'). Cause: repo Secret key was insecureOciForceHttp; Argo CD reads insecureOCIForceHttp (case-sensitive). After patching the key + hard refresh: Synced/Healthy. Fixed apps/repo-registry.yaml and chapter.
+
+# observations on the first (patched) run
+## helm list -n hfd-25
+NAME	NAMESPACE	REVISION	UPDATED	STATUS	CHART	APP VERSION
+(end)
+## argocd svc
+NAME            TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)                      AGE
+argocd-server   NodePort   10.98.31.184   <none>        80:30082/TCP,443:30443/TCP   13m
+    ok: shipping      127.0.0.1:8080 -> node:30080
+    ok: argocd already up on 127.0.0.1:8443
+    stop with: scripts/tunnel.sh stop
+## UI
+200
+## /api/info
+{"service":"platform-shipping","version":"0.1.0","environment":"dev","defaultCarrier":"ARGO-Post","storage":"postgres","kafkaEnabled":true}
+## hooks / events
+82s         Normal    SuccessfulCreate              job/shipping-postgres-1-initdb                         Created pod: shipping-postgres-1-initdb-vq6r8
+76s         Normal    Completed                     job/shipping-postgres-1-initdb                         Job completed
+33s         Normal    Created                       pod/platform-shipping-migrate-gc2fx                    Container created
+33s         Normal    Pulled                        pod/platform-shipping-migrate-gc2fx                    Container image "shipping-service:0.1.0" already present on machine and can be accessed by the pod
+33s         Normal    Scheduled                     pod/platform-shipping-migrate-gc2fx                    Successfully assigned hfd-25/platform-shipping-migrate-gc2fx to helm4dev
+33s         Normal    Started                       pod/platform-shipping-migrate-gc2fx                    Container started
+33s         Normal    SuccessfulCreate              job/platform-shipping-migrate                          Created pod: platform-shipping-migrate-gc2fx
+30s         Normal    Completed                     job/platform-shipping-migrate                          Job completed
+No resources found in hfd-25 namespace.
+Job/platform-shipping-migrate PostSync Succeeded Reached expected number of succeeded pods
+Succeeded
+## schema_migrations
+ version |          applied_at           
+---------+-------------------------------
+       1 | 2026-10-08 15:56:59.957345+00
+       2 | 2026-10-08 15:56:59.960993+00
+(2 rows)
+
+
+## drift: scale shipping to 3 (selfHeal)
+1
+deployment.apps/platform-shipping scaled
+t+1x3s replicas=3 sync=Synced
+t+2x3s replicas=1 sync=Synced
+t+3x3s replicas=1 sync=Synced
+t+4x3s replicas=1 sync=Synced
+t+5x3s replicas=1 sync=Synced
+t+6x3s replicas=1 sync=Synced
+t+7x3s replicas=1 sync=Synced
+t+8x3s replicas=1 sync=Synced
+t+9x3s replicas=1 sync=Synced
+t+10x3s replicas=1 sync=Synced
+t+11x3s replicas=1 sync=Synced
+t+12x3s replicas=1 sync=Synced
+## lookup probe
+Pushed: 127.0.0.1:5000/charts/lookupprobe:0.1.0
+Digest: sha256:6da35d474630000867c596496cb135f51c7fe5db297df06018f42cad74d45aa5
+NAME: lp
+LAST DEPLOYED: Thu Oct  8 11:58:23 2026
+NAMESPACE: hfd-25-lp
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+helm install result:
+{"kubeSystemNamespaceFound":"yes"}
+application.argoproj.io/lookupprobe created
+argo result:
+{"kubeSystemNamespaceFound":"no"}
+
+# clean run, then full demo.sh rerun from scratch with the corrected key (exit 0, 6m51s)
+application.argoproj.io "platform" deleted
+These resources were kept due to the resource policy:
+[CustomResourceDefinition] applications.argoproj.io
+[CustomResourceDefinition] applicationsets.argoproj.io
+[CustomResourceDefinition] appprojects.argoproj.io
+
+release "argocd" uninstalled
+namespace "argocd" deleted
+namespace "hfd-25" deleted
+./demo.sh clean  0.65s user 0.11s system 1% cpu 43.045 total
+    ok: argocd        127.0.0.1:8443 -> node:30443
+    stop with: scripts/tunnel.sh stop
+Pushed: 127.0.0.1:5000/charts/shipping-platform:1.0.0
+Digest: sha256:b6020ec8673be85dd3c00ffd6c206e1506aded4add4467e711ba3346c160e8bd
+==> register the repository and create the Application
+secret/lab-registry created
+Warning: metadata.finalizers: "resources-finalizer.argocd.argoproj.io": prefer a domain-qualified finalizer name including a path (/) to avoid accidental conflicts with other finalizer writers
+application.argoproj.io/platform created
+application.argoproj.io/platform condition met
+application.argoproj.io/platform condition met
+NAME       SYNC STATUS   HEALTH STATUS
+platform   Synced        Healthy
+Argo CD UI: https://127.0.0.1:8443 (admin / <password>)
+timeout 1500 ./demo.sh  6.79s user 1.62s system 2% cpu 6:51.60 total
