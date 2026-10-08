@@ -114,6 +114,19 @@ Error: no signatures found
 
 Each negative step is expected to fail, and the script turns an unexpected pass into an error.
 
+## Troubleshooting
+
+Each failure below was observed while writing the demo, and each message points at a different layer.
+
+- **`provided key is not a private key`.** `--keyring` defaulted to `pubring.kbx`, which holds public keys only. Export a legacy secret keyring with `gpg --export-secret-keys` and pass it explicitly.
+- **`sha256 sum does not match`.** `helm verify` recomputed the archive hash and found it differs from the `files:` entry in the signed `.prov`. The archive changed after signing, or the `.prov` belongs to a different build. Re-package and re-sign; do not edit the `.prov`.
+- **`failed to fetch provenance` on `install --verify` or `pull --verify`.** The registry artifact has no provenance layer, so the chart was pushed unsigned. Push the `.prov` next to the archive. Helm uploads it as the layer `application/vnd.cncf.helm.chart.provenance.v1.prov`, which `curl` against the manifest shows.
+- **`no signatures found` from `cosign verify` after a re-push.** A cosign signature binds to a manifest digest, not to a tag. Pushing different content to `1.0.0` creates a new digest with no signature, while the original digest still verifies. Verify by digest, and let admission policy reference digests rather than tags.
+
+A fifth observation comes with a caveat. A byte-identical unsigned copy of a chart that had already been verified once passed `--verify` on a machine whose Helm cache had not been cleared. The likely cause is the content cache that Helm 4 keeps for downloaded charts, but the demo did not isolate it. Do not rely on a cached verification as proof of signing. In a CI job, start from an empty `HELM_CACHE_HOME` so each verification reads what the registry holds.
+
+Registries on plain HTTP need extra cosign flags: `--allow-http-registry`, `--use-signing-config=false` and, for a throwaway key without a transparency log, `--tlog-upload=false` when signing and `--insecure-ignore-tlog` when verifying. Production signing against a TLS registry drops the first flag, and keyless signing replaces the key file with an identity token.
+
 ## Cross-check
 
 Verify the same artifact two independent ways. `helm pull --verify` checks the PGP signature over the archive hash, and `cosign verify` checks an unrelated key over the manifest digest. `curl` against the manifest shows the provenance layer media type, and `sha256sum` of the pulled archive equals the hash in the `.prov`. Four views agreeing on one artifact is the evidence that the push preserved what you signed.

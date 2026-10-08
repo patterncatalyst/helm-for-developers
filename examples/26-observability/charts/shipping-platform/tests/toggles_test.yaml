@@ -28,3 +28,31 @@ tests:
       - matchRegex:
           path: raw
           pattern: "Components: shipping, notification, kafka\n"
+
+---
+suite: shipping-platform connection test pod
+templates:
+  - templates/tests/test-connection.yaml
+release:
+  name: platform
+tests:
+  - it: probes shipping and notification by default
+    asserts:
+      - matchRegex:
+          path: spec.containers[0].command[2]
+          pattern: "platform-shipping"
+      - matchRegex:
+          path: spec.containers[0].command[2]
+          pattern: "platform-notification"
+
+  - it: probes only shipping when tags.messaging is false
+    set:
+      tags.messaging: false
+      shipping.kafka.enabled: false
+    asserts:
+      - matchRegex:
+          path: spec.containers[0].command[2]
+          pattern: "platform-shipping"
+      - notMatchRegex:
+          path: spec.containers[0].command[2]
+          pattern: "notification"

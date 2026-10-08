@@ -27,7 +27,7 @@ Pinned and dated 2026-10-08. Re-verify against upstream before each release.
 - helmfile: latest 1.x that supports Helm 4, optional
 - Argo CD Helm chart: latest stable
 - CNPG chart: 0.23.0 in the lgtm-minikube-stack skill; re-verify
-- Strimzi 0.51.0
+- Strimzi 1.2.0
 - LGTM chart versions as in `setup-lgtm.sh`
 - Python 3.15.0; FastAPI latest; Pydantic, uvicorn, asyncpg, aiokafka and OpenTelemetry versions pinned in `pyproject.toml`
 
@@ -113,7 +113,7 @@ Chapters 12, 13, 20, 21, 22, 23 and 28 are docs-only and contain no ISBN lines.
 | Kubernetes for Developers (Denniss; Manning 2024; 9781617297175) | Chapters 03 and 11 | Helm behavior |
 | GitOps and Kubernetes (Yuen et al.; Manning 2021; 9781617297274) | Chapter 25 GitOps principles | Argo CD CLI or version specifics |
 | Platform Engineering on Kubernetes (Salatino; Manning 2024; 9781617299322) | Chapters 18, 24, 25 | Helm behavior |
-| Effective Platform Engineering (Chankramath et al.; Manning 2025; 9781633436497) | Chapters 17, 18, 24 | Helm behavior |
+| Effective Platform Engineering (Oliver et al.; Manning 2025; 9781633436497) | Chapters 17, 18, 24 | Helm behavior |
 
 ### Chapter format
 

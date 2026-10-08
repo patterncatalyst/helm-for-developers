@@ -30,6 +30,16 @@
         "hosts": {"type": "object"}
       }
     },
+    "dashboards": {
+      "type": "object",
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "label": {"type": "string", "minLength": 1},
+        "labelValue": {"type": "string"},
+        "folder": {"type": "string"},
+        "namespace": {"type": "string"}
+      }
+    },
     "tests": {"type": "object"}
   }
 }

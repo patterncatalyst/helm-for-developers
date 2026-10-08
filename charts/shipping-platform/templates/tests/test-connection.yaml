@@ -30,5 +30,5 @@ spec:
         - >-
           import urllib.request as u;
           [u.urlopen(url, timeout=10).read() for url in (
-          "http://{{ include "shipping-platform.svcName" (dict "root" . "alias" "shipping") }}:{{ .Values.shipping.service.port | default 8080 }}/healthz",
-          "http://{{ include "shipping-platform.svcName" (dict "root" . "alias" "notification") }}:{{ .Values.notification.service.port | default 8080 }}/healthz")]
+          "http://{{ include "shipping-platform.svcName" (dict "root" . "alias" "shipping") }}:{{ .Values.shipping.service.port | default 8080 }}/healthz"{{ if .Values.tags.messaging }},
+          "http://{{ include "shipping-platform.svcName" (dict "root" . "alias" "notification") }}:{{ .Values.notification.service.port | default 8080 }}/healthz"{{ end }},)]

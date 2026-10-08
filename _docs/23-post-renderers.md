@@ -129,6 +129,17 @@ Helm looks the value up as a plugin name and fails. The same error appears for a
 
 On a live install the flags are the same, for example `helm install shipping chart --post-renderer kustomize-postrender`, with the plugin installed in the plugin directory Helm reads.
 
+## Troubleshooting
+
+Post-renderer failures surface as a single error from `helm install` or `helm template`, so the first step is to run the script by hand with the same input.
+
+- **`plugin: {Name:... Type:postrenderer/v1} not found`.** `--post-renderer` takes the name of an installed plugin of type `postrenderer/v1`. A path to an executable fails with this message, and so does a misspelled name. Run `helm plugin list` and confirm the name and the type column.
+- **A patch step exits 1 with `add operation does not apply: doc is missing path`.** The script's JSON patch adds a key under a path the object does not have; a Deployment without pod-template annotations is the example in the demo. Either create the parent map first or write the patch as a merge that tolerates a missing parent. The failing object is the one on standard input, so pipe `helm template` into the script to reproduce it.
+- **Arguments arrive in the wrong position.** Each `--post-renderer-args` value becomes one positional argument, in order, so two flags give `$1` and `$2`. Quote values that contain spaces, and keep the script's argument handling as short as the demo's.
+- **Selectors changed and an upgrade fails.** Adding a label through a transformer that also rewrites selectors changes immutable fields on a Deployment. Keep `includeSelectors: false` in the Kustomize `labels` entry so the label lands on metadata and pod templates and `spec.selector.matchLabels` stays untouched.
+
+Because the stored release holds the post-rendered manifest, `helm get manifest` is the quickest check that a transformation took effect. If the label is missing there, the renderer did not run, regardless of what the live objects show after an earlier install.
+
 ## Cross-check
 
 Run the script by hand, outside Helm: `helm template shipping chart -f values-demo.yaml | ./plugins/kustomize-postrender/postrender.sh` (no plugin lookup happens, so `HELM_PLUGINS` is not needed). It prints the same stream Helm prints through the flag, and `grep -c post-rendered` on it returns 6, the five labels plus the annotation. Agreement shows the plugin adds nothing beyond what the script does: Helm only supplies stdin and reads stdout.

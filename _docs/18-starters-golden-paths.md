@@ -92,7 +92,7 @@ Chapter 19 packages these charts as `1.0.0` and serves them from a repository.
 
 ## Further reading
 
-- Chankramath et al., *Effective Platform Engineering* (Manning, 2025), ISBN 9781633436497. Used here for: golden paths and self-service templates as platform products.
+- Oliver et al., *Effective Platform Engineering* (Manning, 2025), ISBN 9781633436497. Used here for: golden paths and self-service templates as platform products.
 - Mauricio Salatino, *Platform Engineering on Kubernetes* (Manning, 2024), ISBN 9781617299322. Used here for: platform capabilities that give teams a paved route to a running service.
 
 ---

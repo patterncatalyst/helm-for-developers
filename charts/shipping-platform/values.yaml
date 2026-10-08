@@ -50,6 +50,16 @@ route:
     shipping: ""              # empty: OpenShift generates the host
     notification: ""
 
+# Grafana dashboard shipped as a ConfigMap. The Grafana sidecar loads every ConfigMap that
+# carries the label below (scripts/platform/setup-lgtm.sh sets label grafana_dashboard=1).
+dashboards:
+  enabled: true
+  label: grafana_dashboard
+  labelValue: "1"
+  folder: Shipping
+  namespace: ""               # empty: the release namespace. The sidecar must watch it
+                              # (sidecar.dashboards.searchNamespace=ALL) or set this to observability.
+
 tests:
   # Needs python and a numeric non-root USER (runAsNonRoot is verified by the kubelet),
   # so it reuses the shipping image. Set global.imageRegistry-qualified refs here if needed.

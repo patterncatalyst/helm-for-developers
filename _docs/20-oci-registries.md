@@ -113,6 +113,17 @@ The demo prints a heading per step, in this order: registries start, push withou
 
 The demo stops after the install and leaves both registries running so you can query them with `curl` against `/v2/_catalog`. Remove everything with `./demo.sh clean`.
 
+## Troubleshooting
+
+Four failures account for most registry problems, and each prints a message that names the cause.
+
+- **`server gave HTTP response to HTTPS client`.** Helm assumes TLS for every registry. A local `registry:2` container speaks plain HTTP, so `helm push`, `pull`, `show` and `dependency update` all need `--plain-http`. A registry behind real TLS never needs the flag; if you find yourself adding it for a production host, the URL scheme or the proxy is wrong.
+- **`basic credential not found`.** The registry requires authentication and Helm found no stored credential for that host. Run `helm registry login 127.0.0.1:5002 --username demo --password-stdin --plain-http` and pipe the password in. Credentials live in the registry config under `HELM_CONFIG_HOME`, which the project-local `scripts/env.sh` keeps separate from any other Helm installation on the machine.
+- **A tag points at different bytes than yesterday.** Pushing `1.0.0` again replaces the tag's manifest, and nothing in the registry objects. Consumers that pinned the tag follow it silently. Consumers that pinned `@sha256:<manifest digest>` keep getting the original content, or fail if the registry has garbage-collected it. Treat tags as mutable and digests as the record of what shipped.
+- **`helm dependency update` contacts unrelated repositories.** The command refreshes every classic repository configured on the machine before it resolves dependencies, so an unreachable one slows or breaks an OCI-only update. `--skip-refresh` skips that step, which is correct whenever every dependency comes from an `oci://` URL.
+
+One environment detail belongs to the demo, not to Helm. The authenticated registry needs an `htpasswd` file inside the container. A bind mount from a scratch directory was denied on the authoring machine, so the script uses `docker create`, `docker cp` and `docker start` to place the file. If you adapt the demo to rootless podman, expect to adjust that step.
+
 ## Cross-check
 
 Compare the registry's view with Helm's. `curl -H 'Accept: application/vnd.oci.image.manifest.v1+json' http://127.0.0.1:5001/v2/charts/shipping-service/manifests/1.0.0` returns a manifest whose chart layer digest matches `sha256sum` of the pulled archive. `helm get metadata shipping -n hfd-20` reports the installed chart version `1.0.0`. Two independent views of the same bytes confirm the pull path did not alter the chart.

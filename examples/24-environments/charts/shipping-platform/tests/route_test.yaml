@@ -40,3 +40,19 @@ tests:
     asserts:
       - hasDocuments:
           count: 0
+
+  - it: renders only the shipping Route when tags.messaging is false
+    capabilities:
+      apiVersions:
+        - route.openshift.io/v1
+    release:
+      name: platform
+    set:
+      tags.messaging: false
+      shipping.kafka.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: spec.to.name
+          value: platform-shipping

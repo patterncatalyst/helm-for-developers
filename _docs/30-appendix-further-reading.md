@@ -24,7 +24,7 @@ The *CKAD Study Guide* has a Helm section written for Helm 3, which is not cited
 - William Denniss, *Kubernetes for Developers* (Manning, 2024), ISBN 9781617297175. Used here for: containerizing an application and configuring probes.
 - Billy Yuen et al., *GitOps and Kubernetes* (Manning, 2021), ISBN 9781617297274. Used here for: GitOps principles.
 - Mauricio Salatino, *Platform Engineering on Kubernetes* (Manning, 2024), ISBN 9781617299322. Used here for: platform thinking, golden paths and GitOps delivery.
-- Ajay Chankramath et al., *Effective Platform Engineering* (Manning, 2025), ISBN 9781633436497. Used here for: platform as a product and golden paths.
+- Oliver et al., *Effective Platform Engineering* (Manning, 2025), ISBN 9781633436497. Used here for: platform as a product and golden paths.
 
 The two GitOps and platform books pair with chapters 17, 18, 24 and 25. *GitOps and Kubernetes* predates the current Argo CD CLI and release line, so take principles from it and command details from the Argo CD documentation.
 

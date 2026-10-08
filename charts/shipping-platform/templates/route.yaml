@@ -1,5 +1,7 @@
 {{- if and .Values.route.enabled (.Capabilities.APIVersions.Has "route.openshift.io/v1") }}
-{{- range $alias := list "shipping" "notification" }}
+{{- $aliases := list "shipping" }}
+{{- if .Values.tags.messaging }}{{- $aliases = append $aliases "notification" }}{{- end }}
+{{- range $alias := $aliases }}
 {{- $svc := include "shipping-platform.svcName" (dict "root" $ "alias" $alias) }}
 ---
 apiVersion: route.openshift.io/v1

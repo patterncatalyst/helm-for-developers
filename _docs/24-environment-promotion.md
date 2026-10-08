@@ -116,7 +116,7 @@ The next chapter hands the reconcile loop to Argo CD, which reads the same chart
 - Reference for installing a chart, including the wait and rollback flags: <https://helm.sh/docs/helm/helm_install/>
 - Helmfile 1.8.1 release: <https://github.com/helmfile/helmfile/releases/tag/v1.8.1>
 - Mauricio Salatino, *Platform Engineering on Kubernetes* (Manning, 2024), ISBN 9781617299322. Used here for: promoting one artifact through environments as a platform practice.
-- Ajay Chankramath et al., *Effective Platform Engineering* (Manning, 2025), ISBN 9781633436497. Used here for: environments and paved-road delivery as platform concerns.
+- Oliver et al., *Effective Platform Engineering* (Manning, 2025), ISBN 9781633436497. Used here for: environments and paved-road delivery as platform concerns.
 
 ---
 

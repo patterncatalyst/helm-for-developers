@@ -119,7 +119,7 @@ Chapter 18 turns this into a scaffold so the next service starts on the library.
 ## Further reading
 
 - Matt Butcher, Matt Farina, Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: library charts and named templates.
-- Chankramath et al., *Effective Platform Engineering* (Manning, 2025), ISBN 9781633436497. Used here for: shared, opinionated defaults as a platform product.
+- Oliver et al., *Effective Platform Engineering* (Manning, 2025), ISBN 9781633436497. Used here for: shared, opinionated defaults as a platform product.
 
 ---
 
