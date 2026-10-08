@@ -131,7 +131,7 @@ Every claim starts `unverified`. A footer moves to `verified` only with an evide
 
 Recorded 2026-10-08.
 
-1. **Base image.** UBI 10 `ubi-minimal` with uv-installed CPython 3.15.0. Fallbacks: F1 is `PYTHON_VERSION=3.14` with the same build; F2 is `registry.access.redhat.com/ubi9/python-314`. Any fallback is recorded here and in `_plans/reconciliation-plan.md`, never applied silently. No Docker Hub Python base image. Fallback in use: none yet.
+1. **Base image.** UBI 10 `ubi-minimal` with uv-installed CPython 3.15.0. Fallbacks: F1 is `PYTHON_VERSION=3.14` with the same build; F2 is `registry.access.redhat.com/ubi9/python-314`. Any fallback is recorded here and in `_plans/reconciliation-plan.md`, never applied silently. No Docker Hub Python base image. Fallback in use: **F1** (Python 3.14.8, recorded 2026-10-08). `uv` had no 3.15.0 build, only 3.15.0rc3, and aiokafka 0.14.0 has no cp315 wheel. Move to 3.15 by changing `ARG PYTHON_VERSION` in `services/Containerfile` once both exist. See `services/README.md`.
 2. **Helm 4 location.** Installed project-locally under `.tools/`. The global `~/.local/bin/helm` (3.18.3) is untouched.
 3. **Publishing.** Public repository `patterncatalyst/helm-for-developers`, GitHub Pages, hub change through a pull request. Re-confirm before any outward action.
 4. **Plan.** Approved; execution started. The full plan is `_plans/r1-plan.md`.

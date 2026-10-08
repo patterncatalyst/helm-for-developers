@@ -26,3 +26,9 @@ Tracks every claim the tutorial makes about behavior that a real run must confir
 | Iteration | Date | Note |
 |---|---|---|
 | r1.0 | 2026-10-08 | Scaffold created |
+
+## Recorded deviations
+| Date | Item | Decision | Reason |
+|---|---|---|---|
+| 2026-10-08 | Python base | F1: CPython 3.14.8 on UBI 10 ubi-minimal via uv | uv offered only 3.15.0rc3; aiokafka 0.14.0 has no cp315 wheel. Swap `ARG PYTHON_VERSION` when available. |
+| 2026-10-08 | Arbitrary UID test | `--user 54321:0` instead of `123456:0` | Rootless podman maps 65536 ids; OpenShift-sized UID checked on CRC host (ch27). |
