@@ -92,6 +92,11 @@ PNG_DIR = os.environ.get("PNG_DIR", "./png")
 # =========================================================================
 #  Scene
 # =========================================================================
+# Text scale: diagram labels are shown at about 11 in wide on a slide, so type is
+# enlarged for legibility at projection size.
+FS = 1.2
+
+
 class Scene:
     """A drawing surface that accumulates SVG and Excalidraw primitives."""
 
@@ -130,31 +135,31 @@ class Scene:
         # title
         if title:
             tx = x + w / 2
-            ty = y + 24 if lines else y + h / 2 + 5
+            ty = y + 24 * FS if lines else y + h / 2 + 5 * FS
             font = "Red Hat Mono, Menlo, monospace" if mono else "Overpass, Red Hat Text, Arial, sans-serif"
             self._svg_parts.append(
-                f'<text x="{tx}" y="{ty}" font-family="{font}" font-size="14" font-weight="600" '
+                f'<text x="{tx}" y="{ty}" font-family="{font}" font-size="{14 * FS:g}" font-weight="600" '
                 f'fill="{PALETTE["neutral"]}" text-anchor="middle">{_xml(title)}</text>'
             )
         # sub-lines
         if lines:
-            line_h = 16
-            base_y = y + 44
+            line_h = 16 * FS
+            base_y = y + 44 * FS
             for i, ln in enumerate(lines):
                 self._svg_parts.append(
                     f'<text x="{x + w/2}" y="{base_y + i*line_h}" '
-                    f'font-family="Red Hat Text, Arial, sans-serif" font-size="12" '
+                    f'font-family="Red Hat Text, Arial, sans-serif" font-size="{12 * FS:g}" '
                     f'fill="{PALETTE["muted"]}" text-anchor="middle">{_xml(ln)}</text>'
                 )
         # Excalidraw equivalent
         self._excali_elements.append(_excali_rect(x, y, w, h, kind))
         if title:
             self._excali_elements.append(
-                _excali_text(x + w/2, y + (24 if lines else h/2 - 8), title, size=16, align="center", bold=True)
+                _excali_text(x + w/2, y + (24 * FS if lines else h/2 - 8), title, size=16 * FS, align="center", bold=True)
             )
         for i, ln in enumerate(lines or []):
             self._excali_elements.append(
-                _excali_text(x + w/2, y + 44 + i*16, ln, size=12, align="center", color=EXCALI_STROKE["muted"])
+                _excali_text(x + w/2, y + 44 * FS + i * 16 * FS, ln, size=12 * FS, align="center", color=EXCALI_STROKE["muted"])
             )
 
     def label(self, x, y, text, size=12, weight="normal", color=None, anchor="start", mono=False):
@@ -162,10 +167,10 @@ class Scene:
         color = color or PALETTE["neutral"]
         font = "Red Hat Mono, Menlo, monospace" if mono else "Overpass, Red Hat Text, Arial, sans-serif"
         self._svg_parts.append(
-            f'<text x="{x}" y="{y}" font-family="{font}" font-size="{size}" font-weight="{weight}" '
+            f'<text x="{x}" y="{y}" font-family="{font}" font-size="{size * FS:g}" font-weight="{weight}" '
             f'fill="{color}" text-anchor="{anchor}">{_xml(text)}</text>'
         )
-        self._excali_elements.append(_excali_text(x, y - size, text, size=size, align=anchor, color=color))
+        self._excali_elements.append(_excali_text(x, y - size * FS, text, size=size * FS, align=anchor, color=color))
 
     def text(self, x, y, text, size=12, weight="normal", color=None, anchor="start"):
         """Alias for label."""
@@ -185,14 +190,14 @@ class Scene:
             mx = (x1 + x2) / 2
             my = (y1 + y2) / 2 + label_offset
             self._svg_parts.append(
-                f'<text x="{mx}" y="{my}" font-family="Red Hat Text, Arial, sans-serif" font-size="11" '
+                f'<text x="{mx}" y="{my}" font-family="Red Hat Text, Arial, sans-serif" font-size="{11 * FS:g}" '
                 f'fill="{PALETTE["muted"]}" text-anchor="middle">{_xml(label)}</text>'
             )
         # Excalidraw arrow
         self._excali_elements.append(_excali_arrow(x1, y1, x2, y2, kind, dashed))
         if label:
             self._excali_elements.append(
-                _excali_text((x1+x2)/2, (y1+y2)/2 + label_offset - 12, label, size=11, color=EXCALI_STROKE["muted"], align="center")
+                _excali_text((x1+x2)/2, (y1+y2)/2 + label_offset - 12, label, size=11 * FS, color=EXCALI_STROKE["muted"], align="center")
             )
 
     def divider(self, x1, y1, x2, y2, kind="grid"):
@@ -234,17 +239,17 @@ class Scene:
         self._svg_parts.append(
             f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="6" ry="6" fill="{PALETTE["code"]}"/>'
         )
-        line_h = 16
+        line_h = 16 * FS
         for i, ln in enumerate(lines):
             color = "#8FB98F" if ln.lstrip().startswith("#") or ln.lstrip().startswith("//") else PALETTE["code_fg"]
             self._svg_parts.append(
-                f'<text x="{x + 12}" y="{y + 22 + i*line_h}" '
-                f'font-family="Red Hat Mono, Menlo, monospace" font-size="11" '
+                f'<text x="{x + 12}" y="{y + 22 * FS + i*line_h}" '
+                f'font-family="Red Hat Mono, Menlo, monospace" font-size="{11 * FS:g}" '
                 f'fill="{color}">{_xml(ln)}</text>'
             )
         self._excali_elements.append(_excali_rect(x, y, w, h, "neutral"))
         for i, ln in enumerate(lines):
-            self._excali_elements.append(_excali_text(x + 12, y + 10 + i*16, ln, size=11, color=EXCALI_STROKE["neutral"]))
+            self._excali_elements.append(_excali_text(x + 12, y + 10 + i * 16 * FS, ln, size=11 * FS, color=EXCALI_STROKE["neutral"]))
 
     # -------- markers (arrows) --------
     def _ensure_marker(self, key, color):

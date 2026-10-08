@@ -185,7 +185,7 @@ function addStatusTable(slide, rows, opts = {}) {
       text: r.code,
       options: {
         bold: true, color: r.codeColor || COLOR.red,
-        fontFace: FONT.mono, fontSize: 15,
+        fontFace: FONT.mono, fontSize: opts.fs ? opts.fs[0] : 15,
         align: "left", valign: "middle",
       },
     },
@@ -193,7 +193,7 @@ function addStatusTable(slide, rows, opts = {}) {
       text: r.name,
       options: {
         bold: true, color: COLOR.ink,
-        fontFace: FONT.body, fontSize: 14,
+        fontFace: FONT.body, fontSize: opts.fs ? opts.fs[1] : 14,
         align: "left", valign: "middle",
       },
     },
@@ -201,7 +201,7 @@ function addStatusTable(slide, rows, opts = {}) {
       text: r.purpose,
       options: {
         color: COLOR.body,
-        fontFace: FONT.body, fontSize: 13,
+        fontFace: FONT.body, fontSize: opts.fs ? opts.fs[2] : 13,
         align: "left", valign: "middle",
       },
     },
@@ -293,11 +293,23 @@ function addCodeSlide(slide, eyebrow, title, lang, codeLines, caption, opts = {}
   if (lang) addLangChip(slide, lang);
   // dark code box
   const x = opts.x ?? 0.62;
-  const y = opts.y ?? 1.85;
+  const y = opts.y ?? 1.55;
   const w = opts.w ?? 12.09;
-  const h = opts.h ?? 4.65;
+  const h = opts.h ?? 4.85;
+  // Largest mono size (11..18 pt) at which the longest line fits the box width and
+  // every line fits its height (Red Hat Mono advance is 0.6 em; line pitch ~1.1 x 1.19 em).
+  if (opts.fontSize === undefined) {
+    const longest = Math.max(...codeLines.map((l) => l.length));
+    const usableW = w - 0.40 - 0.30, usableH = h - 0.20;
+    let fs = 20;
+    while (fs > 11 && (longest * 0.603 * fs / 72 > usableW || codeLines.length * fs * 1.1 * 1.19 / 72 > usableH)) fs -= 0.5;
+    opts = { ...opts, fontSize: fs };
+  }
+  // Snug box: height follows the text so short snippets do not leave a black void.
+  const needH = codeLines.length * opts.fontSize * 1.1 * 1.19 / 72 + 0.45;
+  const boxH = opts.h === undefined ? Math.min(h, Math.max(2.6, needH)) : h;
   slide.addShape("rect", {
-    x, y, w, h,
+    x, y, w, h: boxH,
     fill: { color: COLOR.codeBg },
     line: { color: COLOR.codeBg, width: 0 },
   });
@@ -316,7 +328,7 @@ function addCodeSlide(slide, eyebrow, title, lang, codeLines, caption, opts = {}
     };
   });
   slide.addText(items, {
-    x: x + 0.20, y: y + 0.10, w: w - 0.40, h: h - 0.20,
+    x: x + 0.20, y: y + 0.10, w: w - 0.40, h: boxH - 0.20,
     fontFace: FONT.mono, fontSize: opts.fontSize ?? 11, color: COLOR.codeFg,
     align: "left", valign: "top",
     paraSpaceAfter: 0,
@@ -324,8 +336,8 @@ function addCodeSlide(slide, eyebrow, title, lang, codeLines, caption, opts = {}
   });
   if (caption) {
     // When the code box is taller than default, push the caption below it.
-    const codeBottom = y + h;
-    const captionY = codeBottom > 6.50 ? codeBottom + 0.06 : 6.50;
+    const codeBottom = y + boxH;
+    const captionY = Math.min(6.50, codeBottom + 0.10);
     addCaption(slide, caption, captionY);
   }
 }

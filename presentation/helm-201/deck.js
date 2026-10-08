@@ -17,9 +17,29 @@ const pres = newDeck();
 pres.title = "Helm for Developers 201";
 let pageNum = 0;
 
-function S() { const s = pres.addSlide(); pageNum += 1; addFooter(s, pageNum); return s; }
+// Keep flags and hyphenated tool names on one line: swap hyphen-minus for U+2011 in
+// non-code text (code runs in Red Hat Mono are left untouched).
+const NB_NAMES = /\b(helm-unittest|helm-diff|chart-testing|post-renderers?|server-side|read-only|group-0|Wasm-hello)\b/g;
+function nb(t) {
+  if (typeof t !== "string") return t;
+  return t.replace(/(^|[\s(])(--?[A-Za-z][\w.-]*)/g, (m, a, f) => a + f.replace(/-/g, "\u2011"))
+          .replace(NB_NAMES, (m) => m.replace(/-/g, "\u2011"));
+}
+function nbRuns(t, o) {
+  if (typeof t === "string") return (o && o.fontFace === FONT.mono) ? t : nb(t);
+  if (Array.isArray(t)) return t.map((r) => (r && r.options && r.options.fontFace === FONT.mono) ? r : { ...r, text: nb(r.text) });
+  return t;
+}
+function patch(s) {
+  const at = s.addText.bind(s);
+  s.addText = (t, o) => at(nbRuns(t, o), o);
+  const atb = s.addTable.bind(s);
+  s.addTable = (rows, o) => atb(rows.map((r) => r.map((c) => (c && c.options && c.options.fontFace === FONT.mono) ? c : { ...c, text: nb(c.text) })), o);
+  return s;
+}
+function S() { const s = patch(pres.addSlide()); pageNum += 1; addFooter(s, pageNum); return s; }
 function divider(code, title, subtitle, notes) {
-  const s = pres.addSlide(); pageNum += 1; addSectionDivider(s, code, title, subtitle); addNotes(s, notes);
+  const s = patch(pres.addSlide()); pageNum += 1; addSectionDivider(s, code, title, subtitle); addNotes(s, notes);
 }
 
 // Notes: "What it shows / What to show / Fallback".
@@ -33,7 +53,7 @@ function code(block) { return block.replace(/^\n/, "").replace(/\n$/, "").split(
 // Bold-lead bullets (bold subject, then text).
 function leadBullets(slide, items, opts = {}) {
   const x = opts.x ?? 0.62, y = opts.y ?? 1.95, w = opts.w ?? 12.09, h = opts.h ?? 4.7;
-  const fontSize = opts.fontSize ?? 17;
+  const fontSize = opts.fontSize ?? 20;
   const runs = [];
   items.forEach((b) => {
     const para = { fontFace: FONT.body, fontSize, bullet: { code: "25CF", indent: 18 }, paraSpaceBefore: 4, paraSpaceAfter: 13 };
@@ -51,8 +71,8 @@ function codeSlide(eyebrow, title, lang, lines, caption, notes, opts) {
 function diagramSlide(eyebrow, title, png, caption, notes) {
   const s = S(); addDiagramSlide(s, eyebrow, title, png, caption, { x: 0.97, y: 1.80, w: 11.4, h: 4.65 }); addNotes(s, notes); return s;
 }
-function tableSlide(eyebrow, title, rows, colW, notes, rowH) {
-  const s = S(); addContentTitle(s, eyebrow, title); addStatusTable(s, rows, { colW, rowH: rowH ?? 0.62 }); addNotes(s, notes); return s;
+function tableSlide(eyebrow, title, rows, colW, notes, rowH, fs) {
+  const s = S(); addContentTitle(s, eyebrow, title); addStatusTable(s, rows, { colW, rowH: rowH ?? 0.86, fs: fs ?? [17, 16, 15] }); addNotes(s, notes); return s;
 }
 
 // ===== 1 COVER ===============================================================
@@ -81,7 +101,7 @@ function tableSlide(eyebrow, title, rows, colW, notes, rowH) {
   addTwoColBullets(s,
     ["Testing and debugging: the debug ladder, helm-unittest, chart-testing", "Multi-service applications: Strimzi, umbrella charts, library charts, starters", "Distribution: SemVer, OCI registries, provenance, cosign"],
     ["Extending Helm: plugin types, Wasm, post-renderer plugins", "Delivery: environments, Helmfile, Argo CD, observability", "OpenShift: SCCs, Routes and the console (Helm 101 is the prerequisite)"],
-    { fontSize: 16 });
+    { fontSize: 20 });
   addNotes(s, N("Six sections that follow the order a chart team meets the problems: prove the chart works, compose several charts into a platform, publish it, extend Helm where the chart cannot reach, deliver it across environments, and run it on OpenShift. Helm 101 is assumed: charts, values precedence, templates, hooks, --wait and --rollback-on-failure.",
     "the repository tree: `ls examples/` and `ls charts/`; the 201 uses examples/13 to 27.",
     "the tutorial site lists the same chapters in the same order."));
@@ -113,13 +133,15 @@ codeSlide("TESTING · DEBUGGING", "Diff and server dry-run", "bash · helm 4.3",
 # Rung 4: compare two chart directories locally (helm-diff plugin)
 helm diff local charts/shipping-service /tmp/changed
 # Rung 5: resolve kinds and run lookup against the API server
-helm upgrade shipping charts/shipping-service -n hfd-13 --dry-run=server
+helm upgrade shipping charts/shipping-service -n hfd-13 \\
+  --dry-run=server
 # Rung 6: what an upgrade would change in the live release
-helm diff upgrade shipping charts/shipping-service -n hfd-13 --set replicaCount=2
-# Rung 7: the manifest the cluster was sent, fed back to the schema check
+helm diff upgrade shipping charts/shipping-service -n hfd-13 \\
+  --set replicaCount=2
+# Rung 7: the stored manifest, fed back to the schema check
 helm get manifest shipping -n hfd-13 | kubeconform -strict -summary
 `),
-  "--dry-run=server resolves kinds and runs lookup; it does not schema-validate fields on 4.3.0.",
+  "From examples/13-debugging. --dry-run=server resolves kinds and runs lookup; it does not schema-validate fields on 4.3.0.",
   N("The cluster-facing rungs. `--dry-run=server` connects to the API server, resolves every kind against it and runs `lookup`, which catches unknown kinds. On Helm 4.3.0 it does not schema-validate fields: a string containerPort, an unknown field, negative replicas and a Pod Security violation all pass. For field validation pipe `helm template` into `kubectl apply --server-side --dry-run=server -f -`, which rejects them. `helm diff` is a plugin that compares rendered output against another chart directory or the live release. `helm get manifest` closes the loop by feeding the stored manifest back into kubeconform.",
     "`cd examples/13-debugging && ./demo.sh` runs the cluster rungs in namespace hfd-13.",
     "the chapter 13 transcript for rungs five to seven."));
@@ -127,7 +149,7 @@ helm get manifest shipping -n hfd-13 | kubeconform -strict -summary
 diagramSlide("TESTING · DEBUGGING", "Chart test pyramid", "h201-test-pyramid",
   "Figure: pure rendering tests at the base, cluster tests at the top.",
   N("Three layers. The base is many fast tests that only render: helm-unittest and lint. The middle validates rendered output against schemas and the API server. The top installs the chart into a real cluster and runs helm test. Each layer asserts something the layer below cannot see.",
-    "`helm unittest charts/shipping-service` (30 tests across 6 suites in the golden chart) and then `helm test shipping -n hfd-14`.",
+    "`helm unittest charts/shipping-service` (30 tests across 6 suites in the reference chart) and then `helm test shipping -n hfd-14`.",
     "the chapter 14 transcript lists the passing suites."));
 
 codeSlide("TESTING · DEBUGGING", "helm-unittest suites", "yaml · tests/",
@@ -171,15 +193,19 @@ codeSlide("TESTING · DEBUGGING", "Chart CI pipeline", "bash · ci",
 # Stage 1: static checks, no cluster, every push
 helm lint --strict charts/shipping-service
 helm unittest charts/shipping-service
-helm template shipping charts/shipping-service -f charts/shipping-service/ci/ci-values.yaml | kubeconform -strict -summary
+helm template shipping charts/shipping-service \\
+  -f charts/shipping-service/ci/ci-values.yaml \\
+  | kubeconform -strict -summary
 ct lint --config ct.yaml --all
 # Stage 2: install test on a throwaway cluster
-ct install --charts charts/shipping-service --helm-extra-args '--timeout 3m'
+ct install --charts charts/shipping-service \\
+  --helm-extra-args '--timeout 3m'
 # Stage 3: publish on a version tag
 helm package charts/shipping-service --dependency-update -d dist
-helm push dist/shipping-service-1.0.0.tgz oci://registry.example.com/charts
+helm push dist/shipping-service-1.0.0.tgz \\
+  oci://registry.example.com/charts
 `),
-  "Three stages: static checks on every push, an install test, and publication on a tag.",
+  "Run from examples/14-chart-testing. Three stages: static checks on every push, an install test, and publication on a tag.",
   N("The pipeline is the chapter 14 commands in order, with publication from chapter 20 appended. Stage one is cheap and runs on every push. Stage two needs a cluster, so it runs in a job that provisions one. Stage three runs only on a version tag. The same script runs locally, which is the point: the pipeline adds no check a developer cannot run.",
     "`cd examples/14-chart-testing && ./demo.sh` runs stages one and two against minikube.",
     "the pipeline slide itself; every command appears in chapters 14 and 20."));
@@ -262,26 +288,29 @@ tableSlide("MULTI-SERVICE", "CRDs and operators",
    { code: "Operator chart", name: "Operator-owned CRDs", purpose: "The operator installs its CRDs; the application chart ships only custom resources." },
    { code: "fail guard", name: "Readable failure", purpose: "Template stops with a clear message when the required API is not served." }],
   [2.90, 2.60, 6.59],
-  N("Four ways a chart relates to a CRD. The golden charts use the third and fourth: CloudNativePG and Strimzi own their CRDs, and the application charts ship Cluster and Kafka resources and refuse to render if the API is missing. A CRD placed in templates/ is deleted on uninstall together with every custom resource of that kind, which is rarely intended.",
+  N("Four ways a chart relates to a CRD. The reference charts use the third and fourth: CloudNativePG and Strimzi own their CRDs, and the application charts ship Cluster and Kafka resources and refuse to render if the API is missing. A CRD placed in templates/ is deleted on uninstall together with every custom resource of that kind, which is rarely intended.",
     "`cd examples/10-crds-operators && ./demo.sh offline`; the cluster run prints the CRD's managed fields.",
     "chapter 10 transcript with the planted guard failure."));
 
 codeSlide("MULTI-SERVICE", "Capabilities guards", "go template",
   code(`
-{{- if and .Values.requireOperator (not (.Capabilities.APIVersions.Has "postgresql.cnpg.io/v1")) }}
+{{- if and .Values.requireOperator
+      (not (.Capabilities.APIVersions.Has "postgresql.cnpg.io/v1")) }}
 {{- fail "shipping-postgres needs the CloudNativePG operator: ..." }}
 {{- end }}
 
-# shipping-platform/templates/route.yaml renders only where the API exists
-{{- if and .Values.route.enabled (.Capabilities.APIVersions.Has "route.openshift.io/v1") }}
+# templates/route.yaml renders only where the API exists
+{{- if and .Values.route.enabled
+      (.Capabilities.APIVersions.Has "route.openshift.io/v1") }}
 ...
 {{- end }}
 
 # Offline there is no cluster to ask: supply the API yourself
-helm template platform charts/shipping-platform -n hfd-ocp --api-versions route.openshift.io/v1
+helm template platform charts/shipping-platform -n hfd-ocp \\
+  --api-versions route.openshift.io/v1
 helm template platform charts/shipping-platform -n hfd-ocp
 `),
-  "Capabilities.APIVersions.Has asks the cluster at install time; helm template needs --api-versions.",
+  "Has asks the cluster at install time; helm template needs --api-versions (examples/27-openshift-crc).",
   N("`.Capabilities.APIVersions.Has` reports which APIs the target cluster serves. The first guard turns a missing operator into a message that names the fix instead of an opaque apply error. The second makes a Route render only on OpenShift, so the same umbrella installs on minikube unchanged. Offline, `helm template` has no cluster, so `--api-versions` supplies the answer; without it the Route is absent, and the example asserts both outcomes.",
     "`cd examples/27-openshift-crc && ./demo.sh offline` shows the Route with and without the flag.",
     "chapters 10 and 27 carry both outputs."));
@@ -294,16 +323,18 @@ diagramSlide("MULTI-SERVICE", "Library charts", "h201-library-charts",
 
 codeSlide("MULTI-SERVICE", "Starters and golden paths", "bash · helm create",
   code(`
-# A starter is a chart directory where <CHARTNAME> stands for the new chart's name
+# A starter is a chart directory; <CHARTNAME> becomes the new name
 helm create --starter pc-fastapi charts/inventory-service
 helm dependency build charts/inventory-service
 helm lint --strict charts/inventory-service
-helm template inventory charts/inventory-service | kubeconform -strict -summary
-helm upgrade --install inventory charts/inventory-service -n hfd-18 --create-namespace
+helm template inventory charts/inventory-service \\
+  | kubeconform -strict -summary
+helm upgrade --install inventory charts/inventory-service \\
+  -n hfd-18 --create-namespace
 helm test inventory -n hfd-18
 # Starters live in HELM_DATA_HOME/starters or at an absolute path
 `),
-  "The starter is the first commit; the library, schema and ci/ values carry the guardrails.",
+  "Run from examples/18-starters. The starter is the first commit; the library, schema and ci/ values carry the guardrails.",
   N("A golden path is the supported route to a working service. The starter supplies the first commit, pc-lib supplies behavior, and the schema and ci/ values supply the guardrails. `helm create --starter` copies the starter and replaces `<CHARTNAME>`; it also rewrites Chart.yaml, so the pc-lib dependency ships as a snippet to append. Version the starter and record which version a service was built from, and measure the path by how many teams stay on it.",
     "`cd examples/18-starters && ./demo.sh`; it generates a service and runs it through lint, kubeconform, install and helm test.",
     "chapter 18 transcript."));
@@ -319,7 +350,8 @@ version: 1.0.0        # the chart: templates, values keys, dependencies
 appVersion: "0.1.0"   # the application the chart deploys; default image tag
 
 # CI stamps both without editing the file
-helm package charts/shipping-service --version 1.0.1 --app-version 0.1.1 -d .work/repo
+helm package charts/shipping-service \\
+  --version 1.0.1 --app-version 0.1.1 -d .work/repo
 # Pre-releases are valid SemVer and hidden from search until --devel
 helm package charts/shipping-service --version 1.1.0-rc.1 -d .work/repo
 helm search repo hfd-local --devel
@@ -349,13 +381,16 @@ diagramSlide("DISTRIBUTION", "Push and pull with OCI", "h201-oci-flow",
 codeSlide("DISTRIBUTION", "Provenance files", "bash · helm package --sign",
   code(`
 # Sign at package time; the key must come from a secret keyring file
-helm package examples/21-signing/charts/shipping-service --dependency-update --sign --key "HFD Throwaway Signer" --keyring .work/keys/secring.gpg -d .work/signed
+helm package charts/shipping-service --dependency-update --sign \\
+  --key "HFD Throwaway Signer" --keyring .work/keys/secring.gpg \\
+  -d .work/signed
 # Verify the tarball against its .prov file
 helm verify .work/signed/shipping-service-1.0.0.tgz
 # Verify while pulling from an OCI registry
-helm pull oci://127.0.0.1:5001/signed/shipping-service --version 1.0.0 --plain-http --verify -d .work/pull
+helm pull oci://127.0.0.1:5001/signed/shipping-service \\
+  --version 1.0.0 --plain-http --verify -d .work/pull
 `),
-  "A .prov file holds a PGP signature over the chart's hash; tampering fails verification.",
+  "From examples/21-signing. A .prov file holds a PGP signature over the chart's hash; tampering fails verification.",
   N("Helm's native provenance is a PGP signature. `helm package --sign` writes a .prov file next to the tarball containing the chart metadata and its sha256, signed with the key. `helm verify` recomputes the hash and checks the signature. In the example a modified tarball fails with a sha256 mismatch. Keys here are throwaway keys in a project-local GNUPGHOME; production keys belong in a managed keyring or hardware token.",
     "`cd examples/21-signing && ./demo.sh`, which also shows the tamper failure.",
     "chapter 21 transcript with the 'Chart Hash Verified' output and the mismatch error."));
@@ -393,9 +428,8 @@ tableSlide("EXTENDING HELM", "Helm 4 plugin types",
     "`cd examples/22-plugins && ./demo.sh`; it runs `helm plugin list` showing TYPE and APIVERSION columns.",
     "chapter 22 transcript."));
 
-codeSlide("EXTENDING HELM", "Wasm plugins", "yaml and go",
+codeSlide("EXTENDING HELM", "Wasm plugin manifest", "yaml · plugin.yaml",
   code(`
-# plugin.yaml
 apiVersion: v1
 type: cli/v1
 name: wasm-hello
@@ -405,16 +439,27 @@ runtimeConfig:
   memory:
     maxPages: 256
   timeout: 5000
+`),
+  "The runtime field selects the sandbox; memory and time limits live in the plugin's own configuration.",
+  N("The Wasm runtime is the reason for the redesign. The module is sandboxed, with memory and time limits set in the plugin's own configuration, so it holds fewer permissions than a subprocess plugin. `runtime: extism/v1` tells Helm to load plugin.wasm into the Extism runtime instead of running a platform command.",
+    "`cd examples/22-plugins && ./demo.sh` runs `helm wasm-hello Helm4`; the committed plugin.wasm means no Go toolchain is needed.",
+    "chapter 22 transcript with the greeting output."));
+
+codeSlide("EXTENDING HELM", "Wasm plugin entry point", "go and bash",
+  code(`
 // main.go: the exported entry point
 //go:wasmexport helm_plugin_main
 func helmPluginMain() uint32 { ...; return 0 }
+
 # build the module Helm loads as plugin.wasm
-GOOS=wasip1 GOARCH=wasm go build -buildmode=c-shared -o plugin.wasm .
+GOOS=wasip1 GOARCH=wasm go build \\
+  -buildmode=c-shared -o plugin.wasm .
+
 # run it: helm wasm-hello Helm4
 `),
-  "Hello, Helm4! (from a Wasm Helm plugin): the module runs inside Helm's Extism runtime.",
-  N("The Wasm runtime is the reason for the redesign. The module is sandboxed, with memory and time limits set in the plugin's own configuration, so it holds fewer permissions than a subprocess plugin. The entry point is the exported `helm_plugin_main`; input and output are JSON through the Extism PDK, and the plugin returns an empty JSON object on success. The example builds with Go targeting wasip1.",
-    "`cd examples/22-plugins && ./demo.sh` runs `helm wasm-hello Helm4`; the committed plugin.wasm means no Go toolchain is needed.",
+  "Output: Hello, Helm4! (from a Wasm Helm plugin). The module runs inside Helm's Extism runtime.",
+  N("The entry point is the exported `helm_plugin_main`; input and output are JSON through the Extism PDK, and the plugin returns an empty JSON object on success. The example builds with Go targeting wasip1 and the resulting plugin.wasm sits beside plugin.yaml.",
+    "`cd examples/22-plugins && ./demo.sh` prints the greeting.",
     "chapter 22 transcript with the greeting output."));
 
 diagramSlide("EXTENDING HELM", "Post-renderer plugins", "h201-post-renderer",
@@ -515,13 +560,13 @@ leadSlide("OPENSHIFT", "SCCs and arbitrary UIDs",
    { lead: "runAsUser fails", text: "a manifest that asks for a specific UID, such as 1001, is rejected at admission." },
    { lead: "pc-lib avoids it", text: "renders runAsNonRoot, no privilege escalation, dropped capabilities and RuntimeDefault seccomp, and never emits runAsUser or fsGroup." },
    { lead: "Group-0 files", text: "the image makes its files group-0 readable, so the assigned UID, near 1000650000, still runs the container." }],
-  N("The one place a chart written for minikube can fail on OpenShift without a template error. The golden charts avoid it by construction: no runAsUser, no fsGroup. The Containerfile's USER 1001:0 is only a default, replaced by the project's assigned UID. On CRC every pod, the operator-managed ones included, carried `openshift.io/scc: restricted-v2`, and `id` inside the services showed uid=1000650000 gid=0, not 1001; the root filesystem stayed read-only and the app ran. verify-crc.sh checks both.",
+  N("The one place a chart written for minikube can fail on OpenShift without a template error. The reference charts avoid it by construction: no runAsUser, no fsGroup. The Containerfile's USER 1001:0 is only a default, replaced by the project's assigned UID. On CRC every pod, the operator-managed ones included, carried `openshift.io/scc: restricted-v2`, and `id` inside the services showed uid=1000650000 gid=0, not 1001; the root filesystem stayed read-only and the app ran. verify-crc.sh checks both.",
     "`./verify-crc.sh` on a CRC host prints PASS or FAIL for the SCC annotation and the UID check; `oc exec deploy/platform-shipping -- id` shows it directly.",
     "the rendered Deployment from `helm template` shows no runAsUser; the `id` output from the CRC run in the chapter."));
 
-codeSlide("OPENSHIFT", "Routes and the console", "yaml · helm",
+codeSlide("OPENSHIFT", "OpenShift overrides", "bash and yaml · helm",
   code(`
-# Install with the OpenShift overrides, same chart as minikube
+# Same chart as minikube, with the OpenShift overrides
 helm upgrade --install platform charts/shipping-platform -n hfd-ocp \\
   -f values-openshift.yaml -f values-openshift-minimal.yaml \\
   --wait --rollback-on-failure
@@ -532,7 +577,15 @@ global:
 shipping:
   service:
     type: ClusterIP
-# Developer console: expose a chart repository to the project
+`),
+  "From examples/27-openshift-crc. Routes replace NodePorts; images come from the internal registry.",
+  N("The OpenShift overrides switch Services to ClusterIP, point images at the internal registry and enable the Route template gated on `route.openshift.io/v1`. A Route is OpenShift's native entry point, served by the cluster router with edge TLS termination and a redirect from HTTP. On OpenShift Local 2.64.0 (OpenShift 4.22.14) the Route host was generated as platform-shipping-hfd-ocp.apps-crc.testing, `/api/info` returned 200 and plain HTTP redirected with 302.",
+    "`cd examples/27-openshift-crc && ./demo.sh offline` for the Route render; on CRC, `./verify-crc.sh`.",
+    "the offline render; the OpenShift Container Platform documentation for Routes."));
+
+codeSlide("OPENSHIFT", "Console chart repository", "yaml · console",
+  code(`
+# Developer console: expose a chart repository to one project
 apiVersion: helm.openshift.io/v1beta1
 kind: ProjectHelmChartRepository
 metadata:
@@ -542,10 +595,10 @@ spec:
   connectionConfig:
     url: https://patterncatalyst.github.io/helm-for-developers
 `),
-  "Routes replace NodePorts; the console installs charts from a repository registered per project.",
-  N("The OpenShift overrides switch Services to ClusterIP, point images at the internal registry and enable the Route template gated on `route.openshift.io/v1`. A Route is OpenShift's native entry point, served by the cluster router with edge TLS termination and a redirect from HTTP. A `ProjectHelmChartRepository` makes a chart repository visible in the Developer console's Helm catalog for one project. On CRC the Route host was generated as platform-shipping-hfd-ocp.apps-crc.testing, `/api/info` returned 200 and plain HTTP redirected with 302; the ProjectHelmChartRepository was accepted, but the console view was not opened.",
-    "`cd examples/27-openshift-crc && ./demo.sh offline` for the Route render; on CRC, `./verify-crc.sh`.",
-    "the offline render; the OpenShift Container Platform documentation for Routes and SCCs."));
+  "The console installs charts from a repository registered per project; the index must be published at that URL.",
+  N("A `ProjectHelmChartRepository` makes a chart repository visible in the Developer console's Helm catalog for one project. On OpenShift Local 2.64.0 the resource was accepted and listed by `oc get`. The console view was not opened, and the index URL returned 404 at verification time because the repository index is not published yet, so the listing could not populate.",
+    "`oc get projecthelmchartrepository -n hfd-ocp` on a CRC host; the console view needs a published index.",
+    "the YAML on this slide and the chapter 27 section on the Developer console."));
 
 // ===== TAKEAWAYS =============================================================
 leadSlide("201 · SUMMARY", "Takeaways",
@@ -555,7 +608,7 @@ leadSlide("201 · SUMMARY", "Takeaways",
    { lead: "Extend through plugins", text: "typed plugins and Wasm in Helm 4; post-renderers are plugins only." },
    { lead: "Choose who runs the release", text: "helm directly, Helmfile, or Argo CD, each with different hook and wait semantics." }],
   N("Five points. If the audience keeps one: every check in this deck can run from the command line before CI, and every release step has a Helm-native form even when a GitOps tool drives it. Next steps are the chapter exercises, the cheat sheet that follows, and the reading list.",
-    "return to the tutorial site's chapter list.", "the cheat sheet slide."), { fontSize: 16 });
+    "return to the tutorial site's chapter list.", "the cheat sheet slide."), { fontSize: 18 });
 
 // ===== APPENDIX: CHEAT SHEET ================================================
 tableSlide("APPENDIX · REFERENCE", "Cheat sheet",
@@ -570,7 +623,7 @@ tableSlide("APPENDIX · REFERENCE", "Cheat sheet",
   [3.30, 2.30, 6.49],
   N("A reference page to keep open in another window. It lists the commands that matter most from chapters 13 to 27; the full cheat sheet is chapter 29 on the tutorial site, including the Helm 3 to Helm 4 flag map in chapter 28.",
     "`helm <command> --help` from .tools/bin after `source scripts/env.sh` for any flag in doubt.",
-    "chapter 29."), 0.52);
+    "chapter 29."), 0.56, [15, 14, 14]);
 
 // ===== APPENDIX: READING LIST ===============================================
 {
@@ -591,7 +644,7 @@ tableSlide("APPENDIX · REFERENCE", "Cheat sheet",
      "helm.sh/docs, Helm 4 overview, changelog and release notes",
      "Helm Improvement Proposals, including HIP-0026 for plugins",
      "OpenShift Local and OpenShift documentation"],
-    { fontSize: 13 });
+    { fontSize: 14 });
   addNotes(s, N("The nine books the tutorial cites, and the official sources. Books are cited for concepts Helm 4 left unchanged: chart anatomy, templating, Kubernetes objects, GitOps and platform ideas. Anything Helm 4 changed, including flags, plugins, post-renderers, OCI and server-side apply, comes from helm.sh/docs, the release notes and the HIPs, because the two Helm books were written for Helm 3.",
     "chapter 30 on the tutorial site, which gives each book's scope and ISBN.",
     "chapter 30."));
