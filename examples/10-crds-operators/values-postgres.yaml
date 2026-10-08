@@ -1,0 +1,16 @@
+# Turns the shipping-postgres subchart on and points the service at it.
+config:
+  storage: postgres
+
+shipping-postgres:
+  enabled: true
+
+service:
+  type: NodePort
+  nodePort: 30080
+
+# The tables do not exist until the schema is migrated (chapter 11 automates that),
+# so readiness uses /health here instead of the database-aware /healthz.
+probes:
+  readiness:
+    path: /health

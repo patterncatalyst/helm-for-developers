@@ -1,0 +1,46 @@
+suite: shipping-service config and database wiring
+templates:
+  - templates/configmap.yaml
+  - templates/deployment.yaml
+tests:
+  - it: defaults to in-memory storage and no PG env
+    template: templates/configmap.yaml
+    asserts:
+      - equal:
+          path: data.SHIPPING_STORAGE
+          value: memory
+
+  - it: reads PG_* from the imported Secret in postgres mode
+    template: templates/deployment.yaml
+    set:
+      config.storage: postgres
+      postgres.host: shipping-postgres-rw
+      postgres.existingSecret: shipping-postgres-app
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: PG_HOST
+            value: shipping-postgres-rw
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: PG_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: shipping-postgres-app
+                key: password
+
+  - it: rejects postgres storage without a host
+    template: templates/deployment.yaml
+    set:
+      config.storage: postgres
+    asserts:
+      - failedTemplate: {}
+
+  - it: has a checksum/config annotation
+    template: templates/deployment.yaml
+    asserts:
+      - matchRegex:
+          path: spec.template.metadata.annotations["checksum/config"]
+          pattern: "^[0-9a-f]{64}$"

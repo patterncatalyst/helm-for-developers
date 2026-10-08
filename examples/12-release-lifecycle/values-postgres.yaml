@@ -1,0 +1,20 @@
+# Postgres from the subchart, migrated by a post-install,post-upgrade hook.
+config:
+  storage: postgres
+
+shipping-postgres:
+  enabled: true
+
+service:
+  type: NodePort
+  nodePort: 30080
+
+# The database is created by this release, so the hook cannot run before install.
+migration:
+  hooks: post-install,post-upgrade
+
+# /health, not the database-aware /healthz: with --wait, post-install hooks run only
+# after every resource is ready, and /healthz is not ready until the hook has run.
+probes:
+  readiness:
+    path: /health
