@@ -11,6 +11,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)" && cd "$SCRIPT_DIR"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # shellcheck source=../../scripts/env.sh
 source "$REPO_ROOT/scripts/env.sh"
+# shellcheck source=../../scripts/kube-context.sh
+source "$REPO_ROOT/scripts/kube-context.sh"
 
 NS=hfd-09
 REL=shipping
@@ -49,11 +51,10 @@ full() {
     # Chapter 11 turns this step into a hook. Until then, run the migration by hand
     # in the app container, which already has the PG_* environment.
     kubectl -n "$NS" exec "deploy/$FULL" -- python -m app.migrate
-    "$REPO_ROOT/scripts/tunnel.sh" start shipping
-    curl -s --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:8080/api/info; echo
-    curl -s -X POST http://127.0.0.1:8080/api/shipments -H 'Content-Type: application/json' \
+    curl -s --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:30080/api/info; echo
+    curl -s -X POST http://127.0.0.1:30080/api/shipments -H 'Content-Type: application/json' \
         -d '{"orderId": 1001, "address": "1 Main St, Springfield"}'; echo
-    curl -s 'http://127.0.0.1:8080/api/shipments?orderId=1001'; echo
+    curl -s 'http://127.0.0.1:30080/api/shipments?orderId=1001'; echo
     kubectl -n "$NS" get secret shipping-postgres-app -o jsonpath='{.data}' | python3 -c 'import json,sys; print(sorted(json.load(sys.stdin)))'
     echo "clean up with: ./demo.sh clean"
 }

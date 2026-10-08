@@ -94,7 +94,7 @@ platform-shipping | SELECT
 platform-shipping | UPDATE
 ```
 
-One trace holds spans from both services, which proves the context crossed Kafka. Open Grafana at `http://127.0.0.1:3000` (user `admin`, password `admin`) after `scripts/tunnel.sh grafana` and look for "Shipping platform (platform)" in the Shipping folder.
+One trace holds spans from both services, which proves the context crossed Kafka. Open Grafana at `http://127.0.0.1:30300` (user `admin`, password `admin`) (published NodePort 30300) and look for "Shipping platform (platform)" in the Shipping folder.
 
 ## Cross-check
 
@@ -122,4 +122,4 @@ This ends the delivery chapters. The appendices cover OpenShift Local, the Helm 
 
 ---
 
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/26-observability.txt`. Observed on Helm 4.3.0 with Grafana chart 8.5.0: the dashboard stayed hidden until `searchNamespace=ALL` and then appeared in the Shipping folder; a dispatch trace held spans from `platform-shipping` and `platform-notification`; `http_server_duration_milliseconds_count` exists in Mimir but without a `service_name` label, so the panel and this chapter now use `job`; Loki has `service_name`. The demo ran end to end and left `platform` installed in `hfd-26`.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/26-observability.txt`. Observed on Helm 4.3.0 with Grafana chart 8.5.0: the dashboard stayed hidden until `searchNamespace=ALL` and then appeared in the Shipping folder; a dispatch trace held spans from `platform-shipping` and `platform-notification`; `http_server_duration_milliseconds_count` exists in Mimir but without a `service_name` label, so the panel and this chapter now use `job`; Loki has `service_name`. The demo ran end to end and left `platform` installed in `hfd-26`. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0; the trace held spans from both services, the TraceQL and Mimir polls succeeded (series found after 0 s), and the dashboard loaded. The release `platform` stays installed in `hfd-26` as the reference state, so `clean` was not run.*

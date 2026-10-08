@@ -22,4 +22,4 @@ The first form of the plugin reads a deployed release: install the chart into a 
 
 ## Verification status
 
-`verified` on 2026-10-08 (`_plans/evidence/22-plugins.txt`): the demo ran end to end, the release form matched the `--chart` form on a deployed release, and the Wasm module rebuilt on an empty module cache.
+`verified` on 2026-10-08 (`_plans/evidence/22-plugins.txt`): the demo ran end to end, the release form matched the `--chart` form on a deployed release, and the Wasm module rebuilt on an empty module cache. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; plugins installed into isolated directories and the signature-policy checks passed.

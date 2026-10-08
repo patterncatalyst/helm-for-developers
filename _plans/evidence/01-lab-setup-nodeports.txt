@@ -1,0 +1,208 @@
+$ scripts/platform/setup-profile.sh   # existing profile has no published ports
+ERROR: profile helm4dev does not publish these host ports: 30080 30081 30082 30090 30190 30191 30300 30443 5000 
+  published:  
+  required:  5000 30080 30081 30082 30090 30190 30191 30300 30443 
+  Ports are fixed at profile creation. Recreate the profile:
+  scripts/platform/setup-profile.sh --replace --confirm=helm4dev
+exit=1
+
+$ scripts/platform/setup-profile.sh --replace --confirm=helm4dev   # trimmed
+==> Deleting profile helm4dev (--replace --confirm=helm4dev)
+==> Publishing NodePorts to 127.0.0.1: 5000:5000,30080:30080,30081:30081,30082:30082,30090:30090,30190:30190,30191:30191,30300:30300,30443:30443
+==> Starting helm4dev (12g RAM, 8 CPUs, 60g disk, docker driver, containerd runtime)
+==> Enabling the registry addon
+==> Verifying cluster health
+Profile helm4dev is ready (kubectl context: helm4dev).
+
+$ scripts/platform/bootstrap.sh   # trimmed
+==> Active configuration
+==> 1/4 Profile and registry
+==> Profile helm4dev already running
+==> 2/4 CloudNativePG operator
+==> Adding the CloudNativePG helm repository
+==> Installing CloudNativePG 0.29.1 into cnpg-system
+==> Waiting for the operator and its CRDs
+==> 3/4 Strimzi operator
+==> Installing the Strimzi operator 1.2.0 into strimzi (watchAnyNamespace=true)
+==> Waiting for the operator and its CRDs
+==> 4/4 LGTM observability stack
+==> Ensuring helm repos are registered
+==> Namespace observability
+==> Applying Grafana datasource and dashboard ConfigMaps
+==> Loki 6.16.0 (single-binary)
+ Welcome to Grafana Loki
+Connecting Grafana to Loki
+If Grafana operates within the cluster, you'll set up a new Loki datasource by utilizing the following URL:
+==> Tempo 1.10.0 (monolithic)
+==> Mimir 5.4.0 (mimir-distributed, trimmed for one node)
+Welcome to Grafana Mimir!
+Remote write endpoints for Prometheus or Grafana Agent:
+Read address, Grafana data source (Prometheus) URL:
+==> OpenTelemetry Collector 0.97.0
+==> Grafana 8.5.0 (NodePort 30300)
+2. The Grafana server can be accessed via port 80 on the following DNS name from within your cluster:
+   Get the Grafana URL to visit by running these commands in the same shell:
+  Grafana http://127.0.0.1:30300  (admin/admin)
+==> Bring-up complete
+    Host access:     127.0.0.1:<nodePort> (shipping 30080, notification 30081, Grafana 30300, Argo CD 30443)
+
+$ scripts/build-images.sh
+
+==> images in the profile:
+docker.io/library/shipping-service:0.1.0
+docker.io/library/notification-service:0.1.0
+
+$ scripts/build-images.sh push
+    pushed: 127.0.0.1:5000/shipping-service
+    pushed: 127.0.0.1:5000/notification-service
+$ curl -s 127.0.0.1:5000/v2/_catalog
+{"repositories":["notification-service","shipping-service"]}
+
+
+$ scripts/platform/cluster-status.sh
+
+==> minikube profile helm4dev
+    ok: running
+
+==> Control plane
+    ok: API server /readyz
+    ok: control-plane pods Running
+
+==> Registry addon
+    ok: registry addon enabled
+
+==> Operators
+    ok: CloudNativePG operator (cnpg-system): pods Running
+    ok: Strimzi operator (strimzi): pods Running
+    ok: CRD clusters.postgresql.cnpg.io
+    ok: CRD kafkas.kafka.strimzi.io
+
+==> Observability
+    ok: LGTM (observability): pods Running
+
+==> Examples (hfd-* namespaces)
+
+==> Verdict
+    ok: platform healthy
+
+$ docker port helm4dev
+22/tcp -> 127.0.0.1:44687
+2376/tcp -> 127.0.0.1:33187
+5000/tcp -> 0.0.0.0:5000
+5000/tcp -> 127.0.0.1:39049
+5000/tcp -> [::]:5000
+8443/tcp -> 127.0.0.1:45495
+30080/tcp -> 0.0.0.0:30080
+30080/tcp -> [::]:30080
+30081/tcp -> 0.0.0.0:30081
+30081/tcp -> [::]:30081
+30082/tcp -> 0.0.0.0:30082
+30082/tcp -> [::]:30082
+30090/tcp -> 0.0.0.0:30090
+30090/tcp -> [::]:30090
+30190/tcp -> 0.0.0.0:30190
+30190/tcp -> [::]:30190
+30191/tcp -> 0.0.0.0:30191
+30191/tcp -> [::]:30191
+30300/tcp -> 0.0.0.0:30300
+30300/tcp -> [::]:30300
+30443/tcp -> 0.0.0.0:30443
+30443/tcp -> [::]:30443
+32443/tcp -> 127.0.0.1:44695
+
+$ published HFD_NODE_PORTS check
+5000 published
+30080 published
+30081 published
+30082 published
+30090 published
+30190 published
+30191 published
+30300 published
+30443 published
+NOTE: minikube --ports binds 0.0.0.0 (and ::), not 127.0.0.1 only.
+
+$ curl -s http://127.0.0.1:30300/api/health
+{
+  "commit": "2e2ef4e402f6169b8bd8eb4e8d6f56168bbf7855",
+  "database": "ok",
+  "version": "11.1.5"
+}
+$ scripts/platform/setup-profile.sh   # profile now matches
+
+==> Profile helm4dev already running
+    ok: nothing to do
+NAME       STATUS   ROLES           AGE     VERSION
+helm4dev   Ready    control-plane   4m54s   v1.35.1
+exit=0
+
+=== 2026-10-08 loopback re-publication (127.0.0.1:<p>:<p>) ===
+NOTE: supersedes the 0.0.0.0 note above. minikube --ports accepts the 127.0.0.1:p:p form.
+$ scripts/platform/setup-profile.sh   # against the 0.0.0.0-bound profile
+ERROR: profile helm4dev does not publish these ports on 127.0.0.1: 30080 30081 30082 30090 30190 30191 30300 30443 5000 
+  published:  
+  required:  5000 30080 30081 30082 30090 30190 30191 30300 30443 
+  Ports are fixed at profile creation. Recreate the profile:
+  scripts/platform/setup-profile.sh --replace --confirm=helm4dev
+rc=1
+
+$ scripts/platform/setup-profile.sh --replace --confirm=helm4dev   # trimmed
+==> Deleting profile helm4dev (--replace --confirm=helm4dev)
+==> Publishing NodePorts to 127.0.0.1: 127.0.0.1:5000:5000,127.0.0.1:30080:30080,127.0.0.1:30081:30081,127.0.0.1:30082:30082,127.0.0.1:30090:30090,127.0.0.1:30190:30190,127.0.0.1:30191:30191,127.0.0.1:30300:30300,127.0.0.1:30443:30443
+==> Starting helm4dev (12g RAM, 8 CPUs, 60g disk, docker driver, containerd runtime)
+==> Enabling the registry addon
+    ok: registry reachable from the host at 127.0.0.1:5000 (published node port)
+==> Verifying cluster health
+Profile helm4dev is ready (kubectl context: helm4dev).
+
+$ docker inspect -f '{{json .HostConfig.PortBindings}}' helm4dev
+{"22/tcp":[{"HostIp":"127.0.0.1","HostPort":""}],"2376/tcp":[{"HostIp":"127.0.0.1","HostPort":""}],"30080/tcp":[{"HostIp":"127.0.0.1","HostPort":"30080"}],"30081/tcp":[{"HostIp":"127.0.0.1","HostPort":"30081"}],"30082/tcp":[{"HostIp":"127.0.0.1","HostPort":"30082"}],"30090/tcp":[{"HostIp":"127.0.0.1","HostPort":"30090"}],"30190/tcp":[{"HostIp":"127.0.0.1","HostPort":"30190"}],"30191/tcp":[{"HostIp":"127.0.0.1","HostPort":"30191"}],"30300/tcp":[{"HostIp":"127.0.0.1","HostPort":"30300"}],"30443/tcp":[{"HostIp":"127.0.0.1","HostPort":"30443"}],"32443/tcp":[{"HostIp":"127.0.0.1","HostPort":""}],"5000/tcp":[{"HostIp":"127.0.0.1","HostPort":"5000"},{"HostIp":"127.0.0.1","HostPort":""}],"8443/tcp":[{"HostIp":"127.0.0.1","HostPort":""}]}
+
+$ bootstrap.sh; build-images.sh; build-images.sh push; cluster-status.sh   # exit 0, tail
+    ok: running
+
+==> Control plane
+    ok: API server /readyz
+    ok: control-plane pods Running
+
+==> Registry addon
+    ok: registry addon enabled
+
+==> Operators
+    ok: CloudNativePG operator (cnpg-system): pods Running
+    ok: Strimzi operator (strimzi): pods Running
+    ok: CRD clusters.postgresql.cnpg.io
+    ok: CRD kafkas.kafka.strimzi.io
+
+==> Observability
+    ok: LGTM (observability): pods Running
+
+==> Examples (hfd-* namespaces)
+
+==> Verdict
+    ok: platform healthy
+
+$ ss -ltn | grep HFD_NODE_PORTS; curl registry; curl grafana; setup-profile.sh
+LISTEN 0      4096            127.0.0.1:30443      0.0.0.0:*   
+LISTEN 0      4096            127.0.0.1:30300      0.0.0.0:*   
+LISTEN 0      4096            127.0.0.1:30090      0.0.0.0:*   
+LISTEN 0      4096            127.0.0.1:30081      0.0.0.0:*   
+LISTEN 0      4096            127.0.0.1:30080      0.0.0.0:*   
+LISTEN 0      4096            127.0.0.1:30082      0.0.0.0:*   
+LISTEN 0      4096            127.0.0.1:30191      0.0.0.0:*   
+LISTEN 0      4096            127.0.0.1:30190      0.0.0.0:*   
+LISTEN 0      4096            127.0.0.1:5000       0.0.0.0:*   
+---
+{"repositories":["notification-service","shipping-service"]}
+
+{
+  "commit": "2e2ef4e402f6169b8bd8eb4e8d6f56168bbf7855",
+  "database": "ok",
+  "version": "11.1.5"
+}---
+
+==> Profile helm4dev already running
+    ok: nothing to do
+NAME       STATUS   ROLES           AGE     VERSION
+helm4dev   Ready    control-plane   4m57s   v1.35.1
+rc=0

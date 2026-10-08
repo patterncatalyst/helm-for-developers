@@ -1,4 +1,4 @@
-# Development: one replica, debug logging, NodePort for the host tunnel.
+# Development: one replica, debug logging, NodePort published to the host at profile creation.
 config:
   logLevel: DEBUG
 service:

@@ -17,4 +17,4 @@ The demo renders the chart three ways (no post-renderer, default argument, `--po
 
 ## Verification status
 
-`verified` on 2026-10-08 (`_plans/evidence/23-post-renderers.txt`): the demo ran end to end and a live `helm install --post-renderer kustomize-postrender` put the label on the live objects and in the stored manifest.
+`verified` on 2026-10-08 (`_plans/evidence/23-post-renderers.txt`): the demo ran end to end and a live `helm install --post-renderer kustomize-postrender` put the label on the live objects and in the stored manifest. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; the post-renderer plugin annotated the rendered objects and the path form was rejected as documented.

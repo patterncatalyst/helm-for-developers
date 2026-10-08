@@ -27,6 +27,23 @@ OBS_NS="${OBS_NAMESPACE:-observability}"
 CNPG_NS="cnpg-system"
 STRIMZI_NS="strimzi"
 
+# Host ports published when the profile is created (minikube start --ports).
+# Host port = NodePort, so 127.0.0.1:<port> reaches the service directly. No
+# SSH tunnels, kubectl port-forward, or minikube tunnel anywhere in the project.   # forbidden-ok
+# Ports are fixed at profile creation: adding one means recreating the profile
+# (scripts/platform/setup-profile.sh --replace --confirm=helm4dev).
+HFD_NODE_PORTS=(
+    5000    # registry addon (hostPort on the node): build-images.sh push, ch20 helm push, ch24 digest pin, ch25 OCI source
+    30080   # shipping-service NodePort: ch03-ch12, ch15-ch17, ch19-ch21, ch24-ch26
+    30081   # notification-service NodePort: ch15-ch17, ch24-ch26
+    30082   # Argo CD server HTTP NodePort: ch25 (argocd-values.yaml)
+    30090   # ch25 Git Application shipping-git: shipping-service NodePort
+    30190   # ch25 Helm repository Application platform-repo: shipping NodePort
+    30191   # ch25 Helm repository Application platform-repo: notification NodePort
+    30300   # Grafana NodePort: ch26 (scripts/platform/setup-lgtm.sh)
+    30443   # Argo CD server HTTPS NodePort: ch25 (argocd-values.yaml)
+)
+
 step() { printf '\n==> %s\n' "$1"; }
 ok()   { printf '    ok: %s\n' "$1"; }
 skip() { printf '    skip: %s\n' "$1"; }

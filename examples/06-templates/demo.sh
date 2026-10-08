@@ -10,6 +10,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)" && cd "$SCRIPT_DIR"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # shellcheck source=../../scripts/env.sh
 source "$REPO_ROOT/scripts/env.sh"
+# shellcheck source=../../scripts/kube-context.sh
+source "$REPO_ROOT/scripts/kube-context.sh"
 NS=hfd-06
 CHART=./shipping-service
 
@@ -31,8 +33,7 @@ live() {
   helm upgrade --install shipping "$CHART" -n "$NS" --create-namespace --wait --timeout 3m --set service.type=NodePort --set service.nodePort=30080 -f values-dev.yaml
   helm list -n "$NS"
   kubectl -n "$NS" get deploy,svc,cm
-  "$REPO_ROOT/scripts/tunnel.sh" start shipping
-  curl -s --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:8080/api/info; echo
+  curl -s --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:30080/api/info; echo
   helm upgrade shipping "$CHART" -n "$NS" -f values-dev.yaml --wait
   kubectl -n "$NS" get pods -l app.kubernetes.io/instance=shipping -o jsonpath='{.items[0].metadata.annotations}'; echo
 }

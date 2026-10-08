@@ -1,6 +1,6 @@
-# 23 post-renderers, 2026-10-08, Helm 4.3.0
-$ examples/23-post-renderers/demo.sh
-== chart: lint
+# r1.1 re-run on 2026-10-08, helm4dev with NodePorts published on 127.0.0.1 (Helm 4.3.0)
+$ ./demo.sh   # exit 0
+== chart: build the pc-lib dependency, then lint
 ==> Linting chart
 [INFO] Chart.yaml: icon is recommended
 
@@ -30,45 +30,9 @@ post-rendered lines: 0
 Error: invalid argument "./plugins/kustomize-postrender/postrender.sh" for "--post-renderer" flag: plugin: {Name:./plugins/kustomize-postrender/postrender.sh Type:postrenderer/v1} not found
 Uninstalled plugin: kustomize-postrender
 OK
+demo rc=0
 
-# live: helm install shipping chart -f values-demo.yaml -n hfd-23 --post-renderer kustomize-postrender --post-renderer-args live --wait
-Installing plugin from local directory (development mode)
-Installed plugin: kustomize-postrender
-NAME: shipping
-LAST DEPLOYED: Thu Oct  8 11:37:16 2026
-NAMESPACE: hfd-23
-STATUS: deployed
-REVISION: 1
-DESCRIPTION: Install complete
-## live objects
-NAME                                        READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/shipping-shipping-service   1/1     1            1           3s
-
-NAME                                TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
-service/shipping-shipping-service   ClusterIP   10.103.119.38   <none>        8080/TCP   3s
-
-NAME                                  DATA   AGE
-configmap/shipping-shipping-service   8      3s
-
-NAME                               TYPE     DATA   AGE
-secret/shipping-shipping-service   Opaque   1      3s
-## pod template annotation
-{"checksum/config":"7db712d4d39b74f57eb1fef5f9cdd8c9c6340636752a78d75d79f1954ec6fcb0","patterncatalyst.io/data-product":"shipments","patterncatalyst.io/domain":"shipping","patterncatalyst.io/owner":"team-shipping","patterncatalyst.io/post-rendered-by":"kustomize-postrender"}
-## selector unchanged
-{"app.kubernetes.io/instance":"shipping","app.kubernetes.io/name":"shipping-service"}
-## stored manifest
-5
-## upgrade with other arg
-Release "shipping" has been upgraded. Happy Helming!
-NAME: shipping
-LAST DEPLOYED: Thu Oct  8 11:37:19 2026
-      4     patterncatalyst.io/post-rendered: two
-## args test
-(args.txt from throwaway plugin with --post-renderer-args one --post-renderer-args two:)
-argc=2 1=one 2=two
-
-# failure path: scratch chart with a Deployment lacking pod-template annotations
-$ helm install bare ... --post-renderer kustomize-postrender
-Error: INSTALLATION FAILED: error while running post render on files: failed to invoke post-renderer plugin "kustomize-postrender": plugin "kustomize-postrender" exited with error
-$ helm template bare ... | sh postrender.sh
-error: add operation does not apply: doc is missing path: "/spec/template/metadata/annotations/patterncatalyst.io~1post-rendered-by": missing value (exit 1)
+$ ./demo.sh clean   # exit 0
+clean: removed .tmp
+$ kubectl get ns | grep hfd-   # after clean
+(none)

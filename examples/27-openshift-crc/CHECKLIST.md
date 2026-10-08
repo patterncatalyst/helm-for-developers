@@ -24,9 +24,9 @@ Tick each box in order. `verify-crc.sh` automates steps 5 to 10.
 ## 3. Operators (full profile only)
 
 - [ ] Console, Operators, OperatorHub: CloudNativePG installed (all namespaces)
-- [ ] Console, Operators, OperatorHub: Strimzi (channel `strimzi-1.2.x` for the v1 API), or Streams for Apache Kafka, installed (all namespaces)
+- [ ] Console, Operators, OperatorHub: Strimzi (channel `strimzi-1.2.x`), or Streams for Apache Kafka (`amq-streams`, channel `stable`, 3.2.1-14), installed (all namespaces). Install one, not both: they own the same CRDs
 - [ ] `[crc-host]$ oc get crd clusters.postgresql.cnpg.io kafkas.kafka.strimzi.io` lists both
-- [ ] `oc get crd kafkas.kafka.strimzi.io -o jsonpath='{.spec.versions[*].name}'` prints `v1`; if it prints only `v1beta2`, set `kafka.strimzi.apiVersion` to `kafka.strimzi.io/v1beta2` in `values-openshift.yaml`
+- [ ] `oc get crd kafkas.kafka.strimzi.io -o jsonpath='{.spec.versions[*].name}'` prints `v1` (Streams 3.2.1 prints `v1 v1beta2`, either works); if it prints only `v1beta2`, set `kafka.strimzi.apiVersion` to `kafka.strimzi.io/v1beta2` in `values-openshift.yaml`
 
 ## 4. Project and images
 
@@ -55,4 +55,5 @@ Tick each box in order. `verify-crc.sh` automates steps 5 to 10.
 
 - [ ] `[crc-host]$ helm test platform -n hfd-ocp` passes
 - [ ] `[crc-host]$ ./verify-crc.sh` prints PASS on every line and exits 0
+- [ ] Optional, console Helm view: `oc apply` the `ProjectHelmChartRepository` from chapter 27 (URL `https://patterncatalyst.github.io/helm-for-developers/charts`), then open Developer perspective, Helm, Create, Helm Release and look for the `hfd-charts` repository filter; `CONSOLE_CHECK=1 ./verify-crc.sh` covers the reachable parts
 - [ ] `[crc-host]$ ./demo.sh clean` removes the release and the project (it deletes the KafkaTopic first)

@@ -1,0 +1,107 @@
+# 25 GitOps with Argo CD: umbrella from the published Helm repository, 2026-10-08, Helm 4.3.0, Argo CD chart 10.10.1 (v3.5.4), minikube helm4dev
+# Source: https://patterncatalyst.github.io/helm-for-developers/charts, chart shipping-platform 1.0.0 (archive contains charts/*/charts/pc-lib: verified with tar tzf)
+# No repository Secret was applied for this Application. Images shipping-service:0.1.0 and notification-service:0.1.0 present in the node.
+
+## A. Full ./demo.sh run: offline, Argo CD install, OCI Application, Git Application (all Synced/Healthy; Git revision and drift revert as in 25-gitops-argocd-git.txt)
+==> Argo CD chart 10.10.1 renders under v4.3.0+gbec5b06
+==> the chart as Argo CD renders it: helm template, valueFiles then valuesObject
+==> helm hook annotations Argo CD maps to sync hooks:
+==> Application manifests parse
+==> engine=docker mode=build tag=0.1.0
+==> shipping-service:0.1.0
+==> notification-service:0.1.0
+==> images in the profile:
+==> install Argo CD
+==> package the umbrella and push it to the registry addon
+==> register the repository and create the Application
+application.argoproj.io/platform condition met
+application.argoproj.io/platform condition met
+platform   Synced        Healthy
+==> the Git-sourced Application: tag r1.0, path examples/25-gitops-argocd/charts/shipping-service
+application.argoproj.io/shipping-git condition met
+application.argoproj.io/shipping-git condition met
+shipping-git   Synced        Healthy
+==> no Helm release behind it:
+==> change through the Application spec (a push to the tag would do the same): defaultCarrier -> GIT-Post
+{"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"GIT-Post","storage":"memory","kafkaEnabled":false}
+==> drift: scale the Deployment to 3 by hand; selfHeal restores 1
+spec.replicas reverted to 1 after about 18 s
+application.argoproj.io/shipping-git condition met
+==> the umbrella from the published Helm repository (no repository Secret, no path)
+application.argoproj.io/platform-repo condition met
+application.argoproj.io/platform-repo condition met
+platform-repo   Synced        Healthy
+==> no Helm release behind it:
+==> the migration Job ran as an Argo CD sync hook:
+==> Kafka path: create, dispatch, then read the notification
+
+## B. First helmrepo step. Synced/Healthy, hook listed, no Helm release. The Kafka POST failed in the demo: minikube ssh re-joined quoted args (curl exit 3). Fixed in demo.sh by passing one quoted string.
+==> the umbrella from the published Helm repository (no repository Secret, no path)
+application.argoproj.io/platform-repo unchanged
+application.argoproj.io/platform-repo condition met
+application.argoproj.io/platform-repo condition met
+NAME            SYNC STATUS   HEALTH STATUS
+platform-repo   Synced        Healthy
+https://patterncatalyst.github.io/helm-for-developers/charts shipping-platform 1.0.0
+==> no Helm release behind it:
+NAME	NAMESPACE	REVISION	UPDATED	STATUS	CHART	APP VERSION
+NAME                                             READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/platform-notification            1/1     1            1           10m
+deployment.apps/platform-shipping                1/1     1            1           10m
+deployment.apps/shipping-kafka-entity-operator   1/1     1            1           10m
+
+NAME                                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                               AGE
+service/platform-notification            NodePort    10.101.94.22     <none>        8080:30191/TCP                        10m
+service/platform-shipping                NodePort    10.108.2.87      <none>        8080:30190/TCP                        10m
+service/shipping-kafka-kafka-bootstrap   ClusterIP   10.103.219.158   <none>        9091/TCP,9092/TCP                     10m
+service/shipping-kafka-kafka-brokers     ClusterIP   None             <none>        9090/TCP,9091/TCP,8443/TCP,9092/TCP   10m
+service/shipping-postgres-r              ClusterIP   10.103.116.84    <none>        5432/TCP                              10m
+service/shipping-postgres-ro             ClusterIP   10.108.103.45    <none>        5432/TCP                              10m
+service/shipping-postgres-rw             ClusterIP   10.111.217.53    <none>        5432/TCP                              10m
+==> the migration Job ran as an Argo CD sync hook:
+Job/platform-shipping-migrate PostSync Succeeded
+==> Kafka path: create, dispatch, then read the notification
+
+## C. Observed incident: patching valuesObject while repo-server DNS timed out
+ComparisonError: ... lookup argocd-repo-server on 10.96.0.10:53: dial udp 10.96.0.10:53: i/o timeout  (Sync Unknown, Deployment stayed at 3 replicas; transient, 8 minutes after minikube start with three Applications syncing)
+After 'argocd.argoproj.io/refresh=hard' the Application returned to Synced, and self-heal restored 1 replica.
+
+## D. Rerun of ./demo.sh helmrepo (clean pass)
+==> the umbrella from the published Helm repository (no repository Secret, no path)
+application.argoproj.io/platform-repo unchanged
+application.argoproj.io/platform-repo condition met
+application.argoproj.io/platform-repo condition met
+NAME            SYNC STATUS   HEALTH STATUS
+platform-repo   Synced        Healthy
+https://patterncatalyst.github.io/helm-for-developers/charts shipping-platform 1.0.0
+==> no Helm release behind it:
+NAME	NAMESPACE	REVISION	UPDATED	STATUS	CHART	APP VERSION
+NAME                                             READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/platform-notification            1/1     1            1           17m
+deployment.apps/platform-shipping                1/1     1            1           17m
+deployment.apps/shipping-kafka-entity-operator   1/1     1            1           16m
+
+NAME                                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                               AGE
+service/platform-notification            NodePort    10.101.94.22     <none>        8080:30191/TCP                        17m
+service/platform-shipping                NodePort    10.108.2.87      <none>        8080:30190/TCP                        17m
+service/shipping-kafka-kafka-bootstrap   ClusterIP   10.103.219.158   <none>        9091/TCP,9092/TCP                     17m
+service/shipping-kafka-kafka-brokers     ClusterIP   None             <none>        9090/TCP,9091/TCP,8443/TCP,9092/TCP   17m
+service/shipping-postgres-r              ClusterIP   10.103.116.84    <none>        5432/TCP                              17m
+service/shipping-postgres-ro             ClusterIP   10.108.103.45    <none>        5432/TCP                              17m
+service/shipping-postgres-rw             ClusterIP   10.111.217.53    <none>        5432/TCP                              17m
+==> the migration Job ran as an Argo CD sync hook:
+Job/platform-shipping-migrate PostSync Succeeded
+==> Kafka path: create, dispatch, then read the notification
+{"id":3,"orderId":29303,"address":"25 Repo Rd, Springfield","status":"DISPATCHED","createdAt":"2026-10-08T21:27:11.334068Z"}
+[{"receivedAt":"2026-10-08T21:27:11.621923+00:00","topic":"shipment.dispatched","partition":0,"offset":1,"event":{"orderId":29303,"shipmentId":3,"address":"25 Repo Rd, Springfield","status":"DISPATCHED","occurredAt":"2026-10-08T21:27:11.618346+00:00"}},{"receivedAt":"2026-10-08T21:20:36.126247+00:00","topic":"shipment.dispatched","partition":0,"offset":0,"event":{"orderId":45520,"shipmentId":2,"address":"25 Repo Rd, Springfield","status":"DISPATCHED","occurredAt":"2026-10-08T21:20:36.106122+00:00"}}]
+{"service":"platform-shipping","version":"0.1.0","environment":"dev","defaultCarrier":"REPO-Post","storage":"postgres","kafkaEnabled":true}
+==> change through the Application spec: defaultCarrier -> REPO-Post-2
+application.argoproj.io/platform-repo patched
+{"service":"platform-shipping","version":"0.1.0","environment":"dev","defaultCarrier":"REPO-Post-2","storage":"postgres","kafkaEnabled":true}
+==> drift: scale the Deployment to 3 by hand; selfHeal restores 1
+deployment.apps/platform-shipping scaled
+spec.replicas right after the edit: 3
+spec.replicas reverted to 1 after about 1 s
+application.argoproj.io/platform-repo condition met
+NAME            SYNC STATUS   HEALTH STATUS
+platform-repo   Synced        Healthy

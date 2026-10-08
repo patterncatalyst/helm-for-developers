@@ -18,4 +18,4 @@ The full run needs the Strimzi and CloudNativePG operators. The offline run copi
 
 ## Verification status
 
-`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/16-umbrella.txt`. The full demo exits 0 and `helm test platform` passes. Also observed: `/healthz` readiness times out and `--rollback-on-failure` uninstalls the release; `tags.messaging=false` plus `shipping.kafka.enabled=false` installs without Kafka and notification; a set `condition` overrides `tags`.
+`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/16-umbrella.txt`. The full demo exits 0 and `helm test platform` passes. Also observed: `/healthz` readiness times out and `--rollback-on-failure` uninstalls the release; `tags.messaging=false` plus `shipping.kafka.enabled=false` installs without Kafka and notification; a set `condition` overrides `tags`. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; the umbrella installed, the Kafka dispatch reached notification and `helm test platform` passed.

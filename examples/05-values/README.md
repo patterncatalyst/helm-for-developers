@@ -12,8 +12,8 @@ Version 0.5.0 moves config, resources, probes and the container port into `value
 ./demo.sh clean     # remove the release and namespace
 ```
 
-The live run builds `shipping-service:0.1.0` with `scripts/build-images.sh` and reaches the service through `scripts/tunnel.sh` at http://127.0.0.1:8080. Source `scripts/env.sh` first if you run commands by hand; it selects the project-local Helm 4.3.0.
+The live run builds `shipping-service:0.1.0` with `scripts/build-images.sh` and reaches the service on the published NodePort at http://127.0.0.1:30080. Source `scripts/env.sh` first if you run commands by hand; it selects the project-local Helm 4.3.0.
 
 ## Verification status
 
-`verified` on 2026-10-08 (`_plans/evidence/05-values.txt`): The prod upgrade gave 3 replicas, `helm get values --all` showed the merged values, `--reset-then-reuse-values` kept the overrides and took a new chart default while `--reuse-values` did not, and the `--set` family and schema checks behaved as described.
+`verified` on 2026-10-08 (`_plans/evidence/05-values.txt`): The prod upgrade gave 3 replicas, `helm get values --all` showed the merged values, `--reset-then-reuse-values` kept the overrides and took a new chart default while `--reuse-values` did not, and the `--set` family and schema checks behaved as described. Re-run on r1.1 with published NodePorts on 2026-10-08 (helm4dev recreated with `HFD_NODE_PORTS`, host requests at `http://127.0.0.1:30080`, no tunnel); the behaviour above held.

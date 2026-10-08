@@ -29,4 +29,4 @@ The live run uses memory mode, so it needs no operator.
 
 ## Verification status
 
-`verified` on 2026-10-08 (`_plans/evidence/10-crds-operators.txt`): `helm upgrade` left the CRD unchanged, `kubectl apply` updated it without a conflict and added `kubectl-client-side-apply` to `managedFields`, `helm uninstall` kept the CRD and the sample object, the lint guard printed `level=INFO msg="funcMap fail"` with 0 failures, and the guard passed on a cluster with the CNPG operator.
+`verified` on 2026-10-08 (`_plans/evidence/10-crds-operators.txt`): `helm upgrade` left the CRD unchanged, `kubectl apply` updated it without a conflict and added `kubectl-client-side-apply` to `managedFields`, `helm uninstall` kept the CRD and the sample object, the lint guard printed `level=INFO msg="funcMap fail"` with 0 failures, and the guard passed on a cluster with the CNPG operator. Re-run on r1.1 on 2026-10-08 on the recreated helm4dev profile; this chapter makes no host requests, so only the cluster changed, and the behaviour above held.

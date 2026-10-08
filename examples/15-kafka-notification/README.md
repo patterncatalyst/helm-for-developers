@@ -16,8 +16,8 @@ Chart versions are `0.15.0`. Both service charts still carry their own copy of t
     [host]$ ./demo.sh           # offline checks, build images, install, dispatch a shipment, read the notification
     [host]$ ./demo.sh clean
 
-The full run needs the helm4dev cluster with the Strimzi operator (`scripts/platform/bootstrap.sh`). It reaches the services through `scripts/tunnel.sh` on `127.0.0.1:8080` and `127.0.0.1:8081`.
+The full run needs the helm4dev cluster with the Strimzi operator (`scripts/platform/bootstrap.sh`). It reaches the services on the published NodePorts `127.0.0.1:30080` and `127.0.0.1:30081`.
 
 ## Verification status
 
-`verified` on 2026-10-08 (Helm 4.3.0, Strimzi 1.2.0, minikube `helm4dev`), evidence `_plans/evidence/15-kafka-notification.txt`. The full demo exits 0: the three releases install in order, the dispatched `shipmentId` appears in `/api/notifications`, and `helm test` passes for both services. Shipping shows 0 restarts in the demo (it installs after Kafka is Ready); installed concurrently with Kafka it restarted 3 times.
+`verified` on 2026-10-08 (Helm 4.3.0, Strimzi 1.2.0, minikube `helm4dev`), evidence `_plans/evidence/15-kafka-notification.txt`. The full demo exits 0: the three releases install in order, the dispatched `shipmentId` appears in `/api/notifications`, and `helm test` passes for both services. Shipping shows 0 restarts in the demo (it installs after Kafka is Ready); installed concurrently with Kafka it restarted 3 times. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; the Strimzi Kafka path and `helm test` passed for both services.

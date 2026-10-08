@@ -12,6 +12,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)" && cd "$SCRIPT_DIR"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # shellcheck source=../../scripts/env.sh
 source "$REPO_ROOT/scripts/env.sh"
+# shellcheck source=../../scripts/kube-context.sh
+source "$REPO_ROOT/scripts/kube-context.sh"
 
 NS=hfd-12
 REL=shipping
@@ -61,12 +63,12 @@ full() {
 
     step "6. inspect what Helm stored"
     helm get values "$REL" -n "$NS"
-    helm get values "$REL" -n "$NS" --all | head -20
-    helm get manifest "$REL" -n "$NS" | head -30
+    helm get values "$REL" -n "$NS" --all | sed -n '1,20p'
+    helm get manifest "$REL" -n "$NS" | sed -n '1,30p'
     helm get notes "$REL" -n "$NS"
     helm get metadata "$REL" -n "$NS"
     helm get hooks "$REL" -n "$NS"
-    helm get all "$REL" -n "$NS" | head -20
+    helm get all "$REL" -n "$NS" | sed -n '1,20p'
 
     step "7. decode the release Secret by hand"
     kubectl -n "$NS" get secrets -l owner=helm

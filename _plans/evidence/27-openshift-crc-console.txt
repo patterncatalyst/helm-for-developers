@@ -1,0 +1,53 @@
+# Developer console Helm view, OpenShift Local 2.64.0 (OpenShift 4.22.14), Helm 4.3.0, 2026-10-08. Tokens, cookies and passwords not recorded.
+$ oc apply -f projecthelmchartrepository.yaml   (URL https://patterncatalyst.github.io/helm-for-developers/charts)
+projecthelmchartrepository.helm.openshift.io/hfd-charts unchanged
+hfd-charts url=https://patterncatalyst.github.io/helm-for-developers/charts status=
+$ oc exec -n openshift-console deploy/console -- curl -s -o /dev/null -w %{http_code} <url>/index.yaml   (the console backend pod reaches the published index)
+200
+$ curl -sk -H "Authorization: Bearer <token>" "https://console-openshift-console.apps-crc.testing/api/helm/charts/index.yaml?namespace=hfd-ocp"
+HTTP 401
+$ curl ... -b openshift-session-token=<token> (same URL)
+HTTP 401
+# Both 401: the console backend authenticates browser sessions (OAuth login cookie), not API bearer tokens. A scripted console login would need the kubeadmin password, so the listing itself was NOT retrieved here.
+$ helm repo add hfd-ocp-check https://patterncatalyst.github.io/helm-for-developers/charts; helm search repo hfd-ocp-check/
+NAME                              	CHART VERSION	APP VERSION	DESCRIPTION                                       
+hfd-ocp-check/notification-service	1.0.0        	0.1.0      	Notification service. Consumes ShipmentDispatch...
+hfd-ocp-check/pc-lib              	1.0.0        	0.1.0      	Pattern Catalyst library chart. Shared Deployme...
+hfd-ocp-check/shipping-kafka      	1.0.0        	0.1.0      	Strimzi Kafka (KRaft) cluster, node pool and th...
+hfd-ocp-check/shipping-platform   	1.0.0        	0.1.0      	Umbrella chart. Deploys shipping-service, notif...
+hfd-ocp-check/shipping-postgres   	1.0.0        	0.1.0      	CloudNativePG Cluster for the shipping data pro...
+hfd-ocp-check/shipping-service    	1.0.0        	0.1.0      	Shipping data product. FastAPI service that cre...
+$ oc get helmchartrepositories
+NAME                    AGE
+openshift-helm-charts   23d
+$ oc new-project hfd-helm-scratch; allow image pulls from hfd-ocp
+Warning: Group 'system:serviceaccounts:hfd-helm-scratch' not found
+clusterrole.rbac.authorization.k8s.io/system:image-puller added: "system:serviceaccounts:hfd-helm-scratch"
+$ helm install scratch hfd-ocp-check/shipping-service -n hfd-helm-scratch --set global.imageRegistry=image-registry.openshift-image-registry.svc:5000/hfd-ocp --set service.type=ClusterIP --wait --rollback-on-failure
+NAME: scratch
+LAST DEPLOYED: Thu Oct  8 16:47:31 2026
+NAMESPACE: hfd-helm-scratch
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+NOTES:
+scratch-shipping-service 0.1.0 installed as release "scratch" in namespace hfd-helm-scratch.
+Storage: memory
+
+Reach the service:
+  [host]$ kubectl -n hfd-helm-scratch get svc scratch-shipping-service
+
+Run the chart test:
+  [host]$ helm test scratch -n hfd-helm-scratch
+(eval):7: no matches found: custom-columns=NAME:.metadata.name,READY:.status.containerStatuses[0].ready,SCC:.metadata.annotations.openshift\.io/scc
+NAME   	NAMESPACE       	REVISION	UPDATED                                	STATUS  	CHART                 	APP VERSION
+scratch	hfd-helm-scratch	1       	2026-10-08 16:47:31.754195663 -0400 EDT	deployed	shipping-service-1.0.0	0.1.0      
+$ helm uninstall scratch; oc delete project hfd-helm-scratch
+release "scratch" uninstalled
+project.project.openshift.io "hfd-helm-scratch" deleted
+$ cluster-scoped HelmChartRepository variant
+helmchartrepository.helm.openshift.io/hfd-charts-cluster created
+NAME                    AGE
+hfd-charts-cluster      1s
+openshift-helm-charts   23d
+helmchartrepository.helm.openshift.io "hfd-charts-cluster" deleted

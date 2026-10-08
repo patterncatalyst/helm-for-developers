@@ -14,6 +14,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)" && cd "$SCRIPT_DIR"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # shellcheck source=../../scripts/env.sh
 source "$REPO_ROOT/scripts/env.sh"
+# shellcheck source=../../scripts/kube-context.sh
+source "$REPO_ROOT/scripts/kube-context.sh"
 UMBRELLA=charts/shipping-platform
 
 # replicas <env>: spec.replicas of the shipping Deployment in the rendered environment
@@ -37,7 +39,7 @@ offline() {
         echo "==> $env: helm lint --strict with the environment's values"
         helm lint --strict "$UMBRELLA" -f "$UMBRELLA/values-$env.yaml" -f "pins/$env.yaml" >/dev/null
         echo "==> $env: helmfile template | kubeconform"
-        helmfile -l "env=$env" template --skip-deps > "/tmp/hfd-24-$env.yaml" 2>/dev/null
+        helmfile --kube-context "$HELM_KUBECONTEXT" -l "env=$env" template --skip-deps > "/tmp/hfd-24-$env.yaml" 2>/dev/null
         kubeconform -ignore-missing-schemas -summary < "/tmp/hfd-24-$env.yaml"
     done
     echo "==> layering check: prod shipping runs 3 replicas, dev runs 1"
@@ -56,7 +58,6 @@ offline() {
 pin() {
     local env="${1:?usage: ./demo.sh pin <dev|stage|prod>}" accept digest
     "$REPO_ROOT/scripts/build-images.sh" push
-    "$REPO_ROOT/scripts/tunnel.sh" registry
     accept='application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json'
     digest="$(curl -sI -H "Accept: $accept" http://127.0.0.1:5000/v2/shipping-service/manifests/0.1.0 \
         | tr -d '\r' | awk 'tolower($1)=="docker-content-digest:" {print $2}')"
@@ -76,19 +77,23 @@ live() {
     deps
     "$REPO_ROOT/scripts/build-images.sh"
     echo "==> helmfile sync (dev)"
-    helmfile -l env=dev sync --skip-deps
+    helmfile --kube-context "$HELM_KUBECONTEXT" -l env=dev sync --skip-deps
     echo "==> helm test"
     helm test platform -n hfd-24-dev
     echo "==> releases"
     helm list -A --filter '^platform$'
-    echo "Next: scripts/tunnel.sh shipping, then curl -s http://127.0.0.1:8080/api/info"
+    echo "Next: curl -s http://127.0.0.1:30080/api/info"
 }
 
 case "${1:-all}" in
     offline) offline ;;
     pin) pin "${2:-}" ;;
     clean)
-        helmfile destroy --skip-deps || true
+        # Delete the KafkaTopics while the entity operators still run (finalizer, see chapter 15).
+        for ns in hfd-24-dev hfd-24-stage hfd-24-prod; do
+            kubectl delete kafkatopic --all -n "$ns" --wait --timeout=120s 2>/dev/null || true
+        done
+        helmfile --kube-context "$HELM_KUBECONTEXT" destroy --skip-deps || true
         kubectl delete ns hfd-24-dev hfd-24-stage hfd-24-prod --ignore-not-found ;;
     all|"") offline; live ;;
     *) echo "usage: $0 [offline|pin <env>|clean]" >&2; exit 2 ;;

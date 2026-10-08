@@ -27,4 +27,4 @@ demo.sh
 
 ## Verification status
 
-`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/19-packaging-repos.txt`. The full demo exits 0, the release installs from the local repository, and `/api/info` answers through `scripts/tunnel.sh`.
+`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/19-packaging-repos.txt`. The full demo exits 0, the release installs from the local repository, and `/api/info` answers on the published NodePort. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; the local repository served the chart and the install from it reached deployed (the demo only prints the `curl http://127.0.0.1:30080/api/info` hint, so that request was not exercised).

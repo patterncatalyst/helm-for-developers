@@ -10,8 +10,8 @@ const {
   addStatusTable, addCaption, addCodeSlide, addSectionDivider, addNotes, patchSlide,
 } = H;
 
-const OUT = "Helm-101-r1.0.pptx";
-const REV = "r1.0";
+const OUT = "Helm-101-r1.1.pptx";
+const REV = "r1.1";
 
 const pres = newDeck();
 pres.title = "Helm for Developers 101";
@@ -346,8 +346,8 @@ tableSlide("TEMPLATES · FUNCTIONS", "tpl, required, fail, lookup",
 codeSlide("TEMPLATES · POST-INSTALL", "Post-install notes", "text",
   L(`
 Reach the service:
-{{- if eq .Values.service.type "NodePort" }}
-  [host]$ minikube -p helm4dev service {{ include "pc-lib.fullname" . }} -n {{ .Release.Namespace }} --url
+{{- if and (eq .Values.service.type "NodePort") .Values.service.nodePort }}
+  [host]$ curl http://127.0.0.1:{{ .Values.service.nodePort }}/api/info
 {{- else }}
   [host]$ kubectl -n {{ .Release.Namespace }} get svc {{ include "pc-lib.fullname" . }}
 {{- end }}
@@ -356,7 +356,7 @@ Run the chart test:
   [host]$ helm test {{ .Release.Name }} -n {{ .Release.Namespace }}
 `),
   "charts/shipping-service/templates/NOTES.txt (abridged: the header and storage lines are omitted)",
-  "What it shows: a NOTES.txt template. It renders with the same context as any template and is printed by helm install and helm upgrade; helm get notes reprints it later. This one branches on service.type so a NodePort release gets the minikube service command and every other type gets kubectl get svc. The file in templates/ is the place for the next command the reader needs. The same context gives access to .Files: .Files.Get returns a chart file as a string, and .Files.Glob with .AsConfig renders files as ConfigMap data. What to show: examples/07-helpers-notes, helm install with --dry-run=client prints the NOTES block, and helm get notes shipping -n hfd-07 after a live install. Fallback: the observed NOTES output in chapter 07. helm template never prints notes.");
+  "What it shows: a NOTES.txt template. It renders with the same context as any template and is printed by helm install and helm upgrade; helm get notes reprints it later. This one branches on service.type and service.nodePort so a NodePort release gets a curl against 127.0.0.1 and the published port, and every other case gets kubectl get svc. The file in templates/ is the place for the next command the reader needs. The same context gives access to .Files: .Files.Get returns a chart file as a string, and .Files.Glob with .AsConfig renders files as ConfigMap data. What to show: examples/07-helpers-notes, helm install with --dry-run=client prints the NOTES block, and helm get notes shipping -n hfd-07 after a live install. Fallback: the observed NOTES output in chapter 07. helm template never prints notes.");
 
 // ===== CONFIG, DATA, HOOKS =====================================================
 divider("06", "Config, data, hooks", "Rollouts, secrets, dependencies and migrations.",
