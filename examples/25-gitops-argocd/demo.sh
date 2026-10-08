@@ -8,7 +8,7 @@
 #   ./demo.sh offline   render Argo CD, render the chart the way Argo does, parse the manifests
 #   ./demo.sh clean     delete the Application, uninstall Argo CD, remove namespaces
 #
-# Argo CD: namespace argocd, release argocd, https://127.0.0.1:8443 after `scripts/tunnel.sh argocd`.
+# Argo CD: namespace argocd, release argocd, https://127.0.0.1:30443 (published NodePort).
 # Workload: namespace hfd-25, release name platform (set by helm.releaseName).
 # Git Application shipping-git: shipping-service at tag r1.0 of the public repository, namespace hfd-25-git, NodePort 30090.
 # Helm repository Application platform-repo: umbrella 1.0.0 from the GitHub Pages repository, namespace hfd-25-repo, NodePorts 30190, 30191.
@@ -68,18 +68,17 @@ live() {
         -f argocd-values.yaml --wait --timeout 10m --rollback-on-failure
     echo "==> package the umbrella and push it to the registry addon"
     helm package "$UMBRELLA" -d "$WORK" >/dev/null
-    "$REPO_ROOT/scripts/tunnel.sh" registry argocd
     helm push "$WORK/shipping-platform-1.0.0.tgz" oci://127.0.0.1:5000/charts --plain-http
     echo "==> register the repository and create the Application"
     kubectl apply -f apps/repo-registry.yaml -f apps/shipping-platform-oci.yaml
     kubectl -n argocd wait application/platform --for=jsonpath='{.status.sync.status}'=Synced --timeout=15m
     kubectl -n argocd wait application/platform --for=jsonpath='{.status.health.status}'=Healthy --timeout=15m
     kubectl -n argocd get application platform
-    echo "Argo CD UI: https://127.0.0.1:8443 (admin / $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d))"
+    echo "Argo CD UI: https://127.0.0.1:30443 (admin / $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d))"
 }
 
-# Probe a NodePort from inside the node (the tunnel script maps only the OCI release's ports).
-node_curl() { minikube -p helm4dev ssh -- curl -s --retry 10 --retry-all-errors --retry-delay 1 "$@"; }
+# Probe a published NodePort from the host. Retry covers pods that are not Ready yet.
+node_curl() { curl -s --retry 10 --retry-all-errors --retry-delay 1 "$@"; }
 
 git_app() {
     echo "==> the Git-sourced Application: tag r1.0, path examples/25-gitops-argocd/charts/shipping-service"
@@ -127,9 +126,8 @@ helmrepo_app() {
         -o jsonpath='{range .status.operationState.syncResult.resources[*]}{.kind}/{.name} {.hookType} {.hookPhase}{"\n"}{end}' | grep -E 'PreSync|Sync |PostSync'
     echo "==> Kafka path: create, dispatch, then read the notification"
     local id
-    # minikube ssh joins its arguments into one remote shell command, so pass a single quoted string.
-    id="$(minikube -p helm4dev ssh -- "curl -s --retry 10 --retry-all-errors --retry-delay 1 -X POST http://127.0.0.1:30190/api/shipments -H 'Authorization: Bearer dev-token' -H 'content-type: application/json' -d '{\"orderId\":$((25000 + RANDOM)),\"address\":\"25 Repo Rd, Springfield\"}'" | python3 -I -c 'import sys,json; print(json.load(sys.stdin)["id"])')"
-    minikube -p helm4dev ssh -- "curl -s -X POST http://127.0.0.1:30190/api/shipments/$id/dispatch -H 'Authorization: Bearer dev-token'"; echo
+    id="$(node_curl -X POST http://127.0.0.1:30190/api/shipments -H 'Authorization: Bearer dev-token' -H 'content-type: application/json' -d "{\"orderId\":$((25000 + RANDOM)),\"address\":\"25 Repo Rd, Springfield\"}" | python3 -I -c 'import sys,json; print(json.load(sys.stdin)["id"])')"
+    node_curl -X POST "http://127.0.0.1:30190/api/shipments/$id/dispatch" -H 'Authorization: Bearer dev-token'; echo
     for _ in $(seq 1 30); do
         node_curl http://127.0.0.1:30191/api/notifications | grep -q "\"$id\"\|$id" && break || sleep 2
     done

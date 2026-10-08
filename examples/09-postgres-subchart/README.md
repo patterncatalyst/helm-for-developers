@@ -19,7 +19,7 @@ The templates are inlined (no library chart yet; that is chapter 17).
 ./demo.sh clean
 ```
 
-The live run needs the helm4dev cluster with the CloudNativePG operator (`scripts/platform/bootstrap.sh`) and the images from `scripts/build-images.sh`. It binds NodePort 30080, so uninstall any other release that uses it first. Host access goes through `scripts/tunnel.sh` at `http://127.0.0.1:8080`.
+The live run needs the helm4dev cluster with the CloudNativePG operator (`scripts/platform/bootstrap.sh`) and the images from `scripts/build-images.sh`. It binds NodePort 30080, so uninstall any other release that uses it first. Host access uses the published NodePort at `http://127.0.0.1:30080`.
 
 ## What to look for
 

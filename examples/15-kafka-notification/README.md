@@ -16,7 +16,7 @@ Chart versions are `0.15.0`. Both service charts still carry their own copy of t
     [host]$ ./demo.sh           # offline checks, build images, install, dispatch a shipment, read the notification
     [host]$ ./demo.sh clean
 
-The full run needs the helm4dev cluster with the Strimzi operator (`scripts/platform/bootstrap.sh`). It reaches the services through `scripts/tunnel.sh` on `127.0.0.1:8080` and `127.0.0.1:8081`.
+The full run needs the helm4dev cluster with the Strimzi operator (`scripts/platform/bootstrap.sh`). It reaches the services on the published NodePorts `127.0.0.1:30080` and `127.0.0.1:30081`.
 
 ## Verification status
 

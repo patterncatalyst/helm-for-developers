@@ -55,19 +55,27 @@ It fails if `helm version --short` is not `v4.*`. The global Helm 3.18.3 at `~/.
 
 ### Host access
 
-NodePort plus `scripts/tunnel.sh`. No `kubectl port-forward`.
+NodePorts published to the host when the minikube profile is created (`minikube start --ports=<nodePort>:<nodePort>,...`, docker driver). Host port = NodePort, so `http://127.0.0.1:<nodePort>` reaches the service directly. No SSH tunnels, no `kubectl port-forward`, no `minikube tunnel`: tunnels disconnect. `scripts/forbidden-syntax.sh` fails on them. <!-- forbidden-ok -->
 
-| Service | NodePort | Host port |
-|---|---|---|
-| shipping | 30080 | 8080 |
-| notification | 30081 | 8081 |
-| grafana | 30300 | 3000 |
-| argocd | 30443 | 8443 |
+The list is the `HFD_NODE_PORTS` array in `scripts/platform/lib.sh`. Ports are fixed at profile creation; adding one means recreating the profile with `scripts/platform/setup-profile.sh --replace --confirm=helm4dev`. `setup-profile.sh` refuses to reuse a profile whose published ports differ.
+
+| Service | NodePort = host port |
+|---|---|
+| registry addon | 5000 |
+| shipping | 30080 |
+| notification | 30081 |
+| argocd HTTP | 30082 |
+| ch25 Git Application (shipping-git) | 30090 |
+| ch25 Helm repository Application (shipping, notification) | 30190, 30191 |
+| grafana | 30300 |
+| argocd HTTPS | 30443 |
+
+The first request after an install uses `curl --retry 10 --retry-all-errors --retry-delay 1`, because pods may not be Ready yet. CRC (chapter 27) uses Routes.
 
 ### Images
 
 - `scripts/build-images.sh` builds `shipping-service:0.1.0` and `notification-service:0.1.0` into the profile (`minikube -p helm4dev image build`, or `podman build` plus `minikube image load`).
-- `push` mode also pushes to the registry addon as `localhost:5000/<name>:0.1.0`.
+- `push` mode also pushes to the registry addon as `127.0.0.1:5000/<name>:0.1.0` (published port).
 - Chart defaults: `image.repository: shipping-service`, tag defaults to `.Chart.AppVersion`, `pullPolicy: IfNotPresent`.
 
 ### Chart versions in snapshots

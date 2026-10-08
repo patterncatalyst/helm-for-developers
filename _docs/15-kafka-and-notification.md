@@ -99,7 +99,7 @@ cd examples/15-kafka-notification && ./demo.sh
 
 The script runs the offline checks, builds both images, then installs three releases into `hfd-15`: `kafka` first, then a `kubectl wait --for=condition=Ready kafka/shipping-kafka` (the chart is custom resources only, so Helm has nothing it can watch), then `notification` and `shipping` with `--wait --rollback-on-failure`. Those flags follow Helm 4 semantics: `--wait` uses the kstatus watcher and `--rollback-on-failure` replaces the Helm 3 rollback flag ([helm upgrade reference](https://helm.sh/docs/helm/helm_upgrade/), [Helm 4 announcement](https://helm.sh/blog/helm-4-released/)).
 
-It then dispatches a shipment through `127.0.0.1:8080` and reads `127.0.0.1:8081/api/notifications`. A notification with the same `shipmentId` shows the event crossed the topic. Without a cluster, `./demo.sh offline` runs lint, 33 unit tests and kubeconform:
+It then dispatches a shipment through `127.0.0.1:30080` and reads `127.0.0.1:30081/api/notifications`. A notification with the same `shipmentId` shows the event crossed the topic. Without a cluster, `./demo.sh offline` runs lint, 33 unit tests and kubeconform:
 
 ```text
 Summary: 3 resources found parsing stdin - Valid: 3, Invalid: 0, Errors: 0, Skipped: 0

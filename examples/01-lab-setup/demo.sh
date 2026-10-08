@@ -4,7 +4,7 @@
 #
 #   ./demo.sh            # full run: install tools, bootstrap the cluster, build images, report status
 #   ./demo.sh offline    # preflight only: tools present, pinned versions, plugins, bash -n on the scripts
-#   ./demo.sh clean      # stop the host tunnels (the cluster stays; see the README to delete it)
+#   ./demo.sh clean      # nothing to stop: host access is published NodePorts (the cluster stays; see the README to delete it)
 #
 # The full run is idempotent. It changes nothing outside .tools/ on the host and
 # nothing outside the helm4dev minikube profile.
@@ -73,7 +73,6 @@ case "${1:-}" in
         preflight
         ;;
     clean)
-        "$REPO_ROOT/scripts/tunnel.sh" stop
         ;;
     "")
         step "1/5 Install project-local tools"

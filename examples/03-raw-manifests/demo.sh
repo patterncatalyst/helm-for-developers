@@ -22,8 +22,7 @@ live() {
   kubectl -n "$NS" apply -f manifests/
   kubectl -n "$NS" rollout status deployment/shipping-service --timeout=120s
   kubectl -n "$NS" get deploy,svc,cm
-  "$REPO_ROOT/scripts/tunnel.sh" start shipping
-  curl -s --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:8080/api/info; echo
+  curl -s --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:30080/api/info; echo
 }
 
 clean() {

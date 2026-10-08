@@ -68,7 +68,7 @@ Each flag has a job.
 - `--wait` makes Helm block until the resources are ready. In Helm 4 the wait is driven by a [kstatus-based watcher](https://helm.sh/docs/overview/); `helm install --help` lists three strategies, `watcher`, `hookOnly` and `legacy`, and `--wait` alone selects `watcher`.
 - `--rollback-on-failure` is the Helm 4 name for what Helm 3 called `--atomic`. <!-- helm3-reference --> A failed install is removed instead of left in a `failed` state. `--timeout 3m` bounds the wait.
 
-After the install the script runs `helm list`, `helm status`, `kubectl get secret -l owner=helm` and `helm get values`, then probes the application with `podcli check http localhost:9898/healthz` inside the pod, and finishes with `helm uninstall --wait`. The probe uses the in-pod `podcli` binary so the chapter needs no tunnel. `./demo.sh clean` runs `helm uninstall --ignore-not-found` and deletes the namespace.
+After the install the script runs `helm list`, `helm status`, `kubectl get secret -l owner=helm` and `helm get values`, then probes the application with `podcli check http localhost:9898/healthz` inside the pod, and finishes with `helm uninstall --wait`. The probe uses the in-pod `podcli` binary so the chapter needs no host access. `./demo.sh clean` runs `helm uninstall --ignore-not-found` and deletes the namespace.
 
 Server-side apply is the other change visible here. For a new release Helm 4 now applies objects with [server-side apply by default](https://helm.sh/docs/overview/); `helm install --help` shows `--server-side` defaulting to true.
 

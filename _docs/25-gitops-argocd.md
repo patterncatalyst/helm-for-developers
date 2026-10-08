@@ -39,7 +39,7 @@ server:
     nodePortHttp: 30082
 ```
 
-`dex` and `notifications` are off to keep the footprint small; the lab logs in as `admin` with the password in `argocd-initial-admin-secret`. The Service becomes a NodePort so `scripts/tunnel.sh argocd` can map `127.0.0.1:8443` to node port 30443. `nodePortHttp: 30082` avoids a collision. The chart's default HTTP node port is 30080, which is shipping's port in this book, and Kubernetes rejects two Services on one node port. The chart ships its CRDs as templates; under Helm 4's server-side apply default, the large `Application` CRD applies without the annotation-size error that client-side apply can hit.
+`dex` and `notifications` are off to keep the footprint small; the lab logs in as `admin` with the password in `argocd-initial-admin-secret`. The Service becomes a NodePort so the profile can publish node port 30443 to the host and `https://127.0.0.1:30443` reaches it directly. `nodePortHttp: 30082` avoids a collision. The chart's default HTTP node port is 30080, which is shipping's port in this book, and Kubernetes rejects two Services on one node port. The chart ships its CRDs as templates; under Helm 4's server-side apply default, the large `Application` CRD applies without the annotation-size error that client-side apply can hit.
 
 The install in `demo.sh` is `helm upgrade --install argocd argo/argo-cd --version 10.10.1 -n argocd --create-namespace -f argocd-values.yaml --wait --timeout 10m --rollback-on-failure`. `--rollback-on-failure` rolls a failed install back and defaults `--wait` to the watcher; see the [Helm 4 announcement](https://helm.sh/blog/helm-4-released/).
 
@@ -59,7 +59,7 @@ stringData:
   insecureOCIForceHttp: "true"
 ```
 
-The label makes Argo CD read the Secret as a repository definition. `type: helm` with `enableOCI: "true"` says the URL is an OCI registry, and the URL has no `oci://` prefix; that is Argo CD's convention. `insecureOCIForceHttp` is the equivalent of Helm's `--plain-http`. The demo pushes the chart first with `helm push shipping-platform-1.0.0.tgz oci://127.0.0.1:5000/charts --plain-http`, reaching the same registry through the tunnel.
+The label makes Argo CD read the Secret as a repository definition. `type: helm` with `enableOCI: "true"` says the URL is an OCI registry, and the URL has no `oci://` prefix; that is Argo CD's convention. `insecureOCIForceHttp` is the equivalent of Helm's `--plain-http`. The demo pushes the chart first with `helm push shipping-platform-1.0.0.tgz oci://127.0.0.1:5000/charts --plain-http`, reaching the same registry on the published port.
 
 The `Application` then names the chart:
 
@@ -155,7 +155,7 @@ Within a phase, order comes from weights and waves. Helm's `helm.sh/hook-weight`
 [host]$ cd examples/25-gitops-argocd && ./demo.sh offline
 ```
 
-Offline mode renders Argo CD's chart under Helm 4 through kubeconform, renders the umbrella the way Argo CD would (`values-dev.yaml`, then the `valuesObject` extracted from the manifest), confirms the override reached the output, lists the hook annotations that become sync hooks, and parses the manifests. The full run, `./demo.sh`, installs Argo CD, pushes the chart, applies the Secret and the Application, waits for `Synced` and `Healthy`, then repeats the exercise with the Git-sourced Application and with the Helm repository Application. Open `https://127.0.0.1:8443` after `scripts/tunnel.sh argocd`, accept the self-signed certificate, and log in as `admin`.
+Offline mode renders Argo CD's chart under Helm 4 through kubeconform, renders the umbrella the way Argo CD would (`values-dev.yaml`, then the `valuesObject` extracted from the manifest), confirms the override reached the output, lists the hook annotations that become sync hooks, and parses the manifests. The full run, `./demo.sh`, installs Argo CD, pushes the chart, applies the Secret and the Application, waits for `Synced` and `Healthy`, then repeats the exercise with the Git-sourced Application and with the Helm repository Application. Open `https://127.0.0.1:30443` (published NodePort), accept the self-signed certificate, and log in as `admin`.
 
 ## Cross-check
 

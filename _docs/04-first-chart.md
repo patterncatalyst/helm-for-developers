@@ -57,7 +57,7 @@ The fragile bits: the resource name is built inline in four places (`{% raw %}{{
 cd examples/04-first-chart && ./demo.sh
 ```
 
-The live part of the script runs these commands, plus `--set` flags that make the Service a NodePort for the tunnel.
+The live part of the script runs these commands, plus `--set` flags that make the Service a NodePort on 30080, a port the profile publishes to the host.
 
 ```bash
 [host]$ helm lint examples/04-first-chart/shipping-service

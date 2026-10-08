@@ -57,7 +57,7 @@ releases:
 
 One limit matters. For a chart given as a local path, Helmfile does not compare `version:` with the chart on disk. Changing it to `1.0.1` renders the same chart. The pin becomes an enforced constraint only when the chart comes from a repository or registry, as in `chart: oci://registry.example.com/charts/shipping-platform` with `version: 1.0.0`. The example uses a path so that it renders offline; the OCI form is what you run once chapter 20's registry is part of your pipeline. Run against a chapter 20 registry with `version: 9.9.9`, Helmfile 1.8.1 fails with `failed to perform "FetchReference" on source: ...shipping-platform:9.9.9: not found`, while `1.0.0` renders. The lab registry speaks plain HTTP, and Helmfile does not pass `--plain-http` to `helm pull`; a TLS registry avoids that.
 
-`pins/dev.yaml` sets `shipping.image.tag` and `notification.image.tag` to `0.1.0`. `./demo.sh pin stage` replaces `pins/stage.yaml` with a digest it reads from the registry addon: it pushes the images, reads the `Docker-Content-Digest` header for `shipping-service:0.1.0`, and writes `tag: "0.1.0@sha256:..."` together with `global.imageRegistry: localhost:5000`. Only `shipping-service` is pinned this way; extend the script for the second image. The push runs on the host through the registry tunnel, so `build-images.sh push` prefers Podman when it is installed (`BUILD_ENGINE` overrides). A Docker engine that runs in a VM (Docker Desktop) cannot reach the tunnel: its daemon cannot reach the host's `localhost:5000` and the push fails with `dial tcp [::1]:5000: i/o timeout`. A dev release installed with the pinned file ran the pod as `localhost:5000/shipping-service:0.1.0@sha256:...`.
+`pins/dev.yaml` sets `shipping.image.tag` and `notification.image.tag` to `0.1.0`. `./demo.sh pin stage` replaces `pins/stage.yaml` with a digest it reads from the registry addon: it pushes the images, reads the `Docker-Content-Digest` header for `shipping-service:0.1.0`, and writes `tag: "0.1.0@sha256:..."` together with `global.imageRegistry: localhost:5000`. Only `shipping-service` is pinned this way; extend the script for the second image. The push runs on the host against the published registry port `127.0.0.1:5000`, so `build-images.sh push` prefers Podman when it is installed (`BUILD_ENGINE` overrides). A Docker engine that runs in a VM (Docker Desktop) cannot reach the published port: its daemon cannot reach the host's `127.0.0.1:5000` and the push fails with `dial tcp [::1]:5000: i/o timeout`. A dev release installed with the pinned file ran the pod as `localhost:5000/shipping-service:0.1.0@sha256:...`.
 
 The offline mode checks four things beyond a clean render. It lints each environment with `helm lint --strict`. It pipes `helmfile template --skip-deps` output through kubeconform for all three environments. It extracts the shipping Deployment's `replicas` from the rendered output and expects 3 for prod and 1 for dev, which proves the layering. It renders prod with a synthetic digest and expects `image: "shipping-service:0.1.0@sha256:..."` in the pod spec. The digest there is derived from a fixed string; it checks syntax only.
 
@@ -83,10 +83,10 @@ Platform teams often wrap this in an internal developer platform that owns the e
 [host]$ cd examples/24-environments && ./demo.sh offline
 ```
 
-Expect three kubeconform summaries with zero invalid resources and `offline: OK`. The full run builds the images, runs `helmfile -l env=dev sync --skip-deps` and then `helm test platform -n hfd-24-dev`. After `scripts/tunnel.sh shipping`:
+Expect three kubeconform summaries with zero invalid resources and `offline: OK`. The full run builds the images, runs `helmfile -l env=dev sync --skip-deps` and then `helm test platform -n hfd-24-dev`. Once the release is Ready:
 
 ```
-[host]$ curl -s http://127.0.0.1:8080/api/info
+[host]$ curl -s http://127.0.0.1:30080/api/info
 ```
 
 The response reports `"environment":"dev"`. Dev claims NodePorts 30080 and 30081, so only one release using them can run at a time.

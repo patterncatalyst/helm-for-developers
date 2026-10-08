@@ -8,7 +8,7 @@ The same `shipping-service` 1.0.0 package pushed to and pulled from OCI registri
 ./demo.sh offline          # lint, template + kubeconform, unittest, package (no registry, no cluster)
 ./demo.sh                  # starts hfd-registry and hfd-registry-auth containers, push/show/pull, login, OCI dependency, install by digest into hfd-20
 ENGINE=podman ./demo.sh    # use podman instead of docker
-REGISTRY_ADDON=1 ./demo.sh # also push to the registry addon through scripts/tunnel.sh start registry
+REGISTRY_ADDON=1 ./demo.sh # also push to the registry addon at the published registry port 127.0.0.1:5000
 ./demo.sh clean            # uninstall, remove both containers, delete .work/
 ```
 
@@ -24,4 +24,4 @@ The registries use plain HTTP, so every command that talks to them carries `--pl
 
 ## Verification status
 
-`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/20-oci.txt`. `REGISTRY_ADDON=1 ./demo.sh` exits 0: push, pull by tag and digest, authenticated registry, OCI dependency, install by digest, and the push to the minikube registry addon through `scripts/tunnel.sh start registry`. The registry containers were removed afterwards.
+`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/20-oci.txt`. `REGISTRY_ADDON=1 ./demo.sh` exits 0: push, pull by tag and digest, authenticated registry, OCI dependency, install by digest, and the push to the minikube registry addon through the published registry port. The registry containers were removed afterwards.

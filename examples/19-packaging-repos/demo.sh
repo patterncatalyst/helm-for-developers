@@ -54,7 +54,7 @@ serve_and_use() {
     helm upgrade --install "$REL" "$REPO_NAME/shipping-service" --version 1.0.0 -n "$NS" --create-namespace \
         --set service.type=NodePort --set service.nodePort=30080 --wait --rollback-on-failure
     helm list -n "$NS"
-    echo "Reach it: scripts/tunnel.sh start shipping, then curl http://127.0.0.1:8080/api/info"
+    echo "Reach it: curl http://127.0.0.1:30080/api/info"
 }
 
 clean() {

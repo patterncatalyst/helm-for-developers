@@ -51,8 +51,7 @@ full() {
     echo "--- upgrade with the post-upgrade warm hook; the migration Job runs first (weight 0 before 10)"
     helm upgrade "$REL" "$CHART" -n "$NS" -f values-postgres.yaml --set warm.enabled=true --wait --timeout 5m
     kubectl -n "$NS" get events --field-selector "involvedObject.kind=Job" --sort-by=.lastTimestamp
-    "$REPO_ROOT/scripts/tunnel.sh" start shipping
-    curl -s --retry 10 --retry-all-errors --retry-delay 1 -X POST http://127.0.0.1:8080/api/shipments -H 'Content-Type: application/json' \
+    curl -s --retry 10 --retry-all-errors --retry-delay 1 -X POST http://127.0.0.1:30080/api/shipments -H 'Content-Type: application/json' \
         -d '{"orderId": 1001, "address": "1 Main St, Springfield"}'; echo
     echo "clean up with: ./demo.sh clean"
 }

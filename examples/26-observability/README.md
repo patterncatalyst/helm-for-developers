@@ -10,7 +10,7 @@ The final umbrella chart (release `platform`, namespace `hfd-26`) with telemetry
 [host]$ ./demo.sh clean
 ```
 
-The full run needs the LGTM stack from `scripts/platform/setup-lgtm.sh`. It upgrades the Grafana release with `sidecar.dashboards.searchNamespace=ALL`, installs the umbrella, dispatches a shipment and queries Tempo and the Grafana dashboard search through `scripts/tunnel.sh`. Grafana login is `admin` / `admin`.
+The full run needs the LGTM stack from `scripts/platform/setup-lgtm.sh`. It upgrades the Grafana release with `sidecar.dashboards.searchNamespace=ALL`, installs the umbrella, dispatches a shipment and queries Tempo and the Grafana dashboard search on the published NodePort. Grafana login is `admin` / `admin`.
 
 ## Verification status
 

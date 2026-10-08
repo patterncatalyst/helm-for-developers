@@ -27,8 +27,7 @@ live() {
   helm upgrade --install shipping "$CHART" -n "$NS" --create-namespace --wait --timeout 3m --set service.type=NodePort --set service.nodePort=30080
   helm list -n "$NS"
   kubectl -n "$NS" get deploy,svc,cm
-  "$REPO_ROOT/scripts/tunnel.sh" start shipping
-  curl -s --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:8080/api/info; echo
+  curl -s --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:30080/api/info; echo
   helm upgrade shipping "$CHART" -n "$NS" --reuse-values --set replicaCount=2 --wait
   helm history shipping -n "$NS"
   helm rollback shipping 1 -n "$NS" --wait

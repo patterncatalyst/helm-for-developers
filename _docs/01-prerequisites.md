@@ -12,7 +12,7 @@ The code is in `examples/01-lab-setup/`. `./demo.sh offline` checks the toolchai
 
 {% include excalidraw.html
    file="01-lab-topology"
-   alt="Diagram of the lab: a host checkout with scripts/env.sh, project-local tools and Helm state under .tools, a separate untouched Helm 3, and tunnels; and the helm4dev minikube profile with the API server, registry addon, release records, operator namespaces and one hfd namespace per example"
+   alt="Diagram of the lab: a host checkout with scripts/env.sh, project-local tools and Helm state under .tools, a separate untouched Helm 3, and loopback ports published from the node; and the helm4dev minikube profile with the API server, registry addon, release records, operator namespaces and one hfd namespace per example"
    caption="Figure 1.1 — The lab: project-local tools on the host, one minikube profile, one namespace per example" %}
 
 ## What you need on the host
@@ -60,7 +60,7 @@ The plugins come last, because `helm plugin install` needs the new Helm. `helm p
 
 The bootstrap runs four tiers and gates each on the health of the one before:
 
-1. `setup-profile.sh` creates or starts the `helm4dev` minikube profile and enables the registry addon. It refuses to act on any other profile name, checks `fs.inotify.max_user_instances`, and warns when other minikube profiles are running and competing for RAM.
+1. `setup-profile.sh` creates or starts the `helm4dev` minikube profile with every host port published (`--ports`) and enables the registry addon. It refuses to act on any other profile name, checks `fs.inotify.max_user_instances`, and warns when other minikube profiles are running and competing for RAM.
 2. `setup-postgres-operator.sh` runs `helm upgrade --install cnpg cnpg/cloudnative-pg` into `cnpg-system`.
 3. `setup-kafka-operator.sh` installs Strimzi into `strimzi` with `watchAnyNamespace=true`, so one operator serves every `hfd-NN` namespace.
 4. `setup-lgtm.sh` installs Loki, Grafana, Tempo and Mimir into `observability`. Its Grafana only loads dashboard ConfigMaps from its own namespace; chapter 26 upgrades the shared Grafana with `sidecar.dashboards.searchNamespace=ALL` so the umbrella's dashboard in `hfd-26` appears.
@@ -69,11 +69,28 @@ The bootstrap installs operators only: the machinery that understands a `Cluster
 
 ### `scripts/build-images.sh`
 
-The script builds `shipping-service:0.1.0` and `notification-service:0.1.0` from one `services/Containerfile`, selecting the service with `--build-arg SERVICE=<name>`. With Docker or Podman it builds on the host and runs `minikube -p helm4dev image load`; with `BUILD_ENGINE=minikube` it builds inside the node. The charts default to `image.repository: shipping-service` and a tag taken from `.Chart.AppVersion`, so the same image serves every chapter and only charts and values change. `build-images.sh push` additionally pushes to the registry addon at `localhost:5000` through an SSH tunnel. Push mode prefers Podman when it is installed, because a Docker daemon that runs in a VM (Docker Desktop) cannot reach a tunnel bound on the host's `127.0.0.1`; set `BUILD_ENGINE=docker` to force Docker, for example with Docker Engine on Linux.
+The script builds `shipping-service:0.1.0` and `notification-service:0.1.0` from one `services/Containerfile`, selecting the service with `--build-arg SERVICE=<name>`. With Docker or Podman it builds on the host and runs `minikube -p helm4dev image load`; with `BUILD_ENGINE=minikube` it builds inside the node. The charts default to `image.repository: shipping-service` and a tag taken from `.Chart.AppVersion`, so the same image serves every chapter and only charts and values change. `build-images.sh push` additionally pushes to the registry addon at `127.0.0.1:5000`, a node port published when the profile was created. Push mode prefers Podman when it is installed, because a Docker daemon that runs in a VM (Docker Desktop) cannot reach a port published on the host's `127.0.0.1`; set `BUILD_ENGINE=docker` to force Docker, for example with Docker Engine on Linux.
 
-### `scripts/tunnel.sh`
+### Host access: published NodePorts
 
-Host access uses NodePort Services plus SSH tunnels instead of `kubectl port-forward`. A NodePort survives pod restarts, and `tunnel.sh` keeps its tunnels alive with `ServerAliveInterval` and fails loudly when a local port is busy. The fixed map is shipping 8080 to 30080, notification 8081 to 30081, Grafana 3000 to 30300 and Argo CD 8443 to 30443. Chapter 02 needs none of them.
+Services that the host must reach are `NodePort` Services with fixed ports, and `setup-profile.sh` publishes each of those ports when it creates the profile: `minikube start --ports=30080:30080,...` with the docker driver. The host port equals the NodePort, so `http://127.0.0.1:30080` reaches shipping directly. There is no SSH tunnel, no `kubectl port-forward` and no `minikube tunnel`. Those are separate processes that drop their connection when idle or when a pod restarts, and the failure looks like an application bug. A published port is part of the node container and stays up as long as the cluster does. <!-- forbidden-ok -->
+
+The list lives in one place, the `HFD_NODE_PORTS` array in `scripts/platform/lib.sh`:
+
+| Port | Owner |
+|---|---|
+| 5000 | Registry addon (`build-images.sh push`, chapters 20, 24 and 25) |
+| 30080 | shipping-service (chapters 03 to 12, 15 to 17, 19 to 21, 24 to 26) |
+| 30081 | notification-service (chapters 15 to 17, 24 to 26) |
+| 30082 | Argo CD server, HTTP (chapter 25) |
+| 30090 | Git-sourced Application `shipping-git` (chapter 25) |
+| 30190, 30191 | Helm repository Application `platform-repo`: shipping and notification (chapter 25) |
+| 30300 | Grafana (chapter 26) |
+| 30443 | Argo CD server, HTTPS (chapter 25) |
+
+Published ports are fixed when the profile is created. To add one, add it to `HFD_NODE_PORTS` and recreate the profile with `scripts/platform/setup-profile.sh --replace --confirm=helm4dev`, then rerun `scripts/platform/bootstrap.sh`. When an existing profile does not publish every port in the array, `setup-profile.sh` stops and prints that command instead of starting a cluster that would fail later. Chapter 02 needs none of these ports.
+
+On the first request after an install, pods may not be Ready yet, so the demos call `curl --retry 10 --retry-all-errors --retry-delay 1`.
 
 ## Build, run, observe
 

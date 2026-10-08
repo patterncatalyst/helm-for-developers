@@ -44,11 +44,10 @@ live() {
   helm upgrade --install shipping "$CHART" -n "$NS" --create-namespace --wait --timeout 3m --set service.type=NodePort --set service.nodePort=30080 -f values-dev.yaml
   helm list -n "$NS"
   kubectl -n "$NS" get deploy,svc,cm
-  "$REPO_ROOT/scripts/tunnel.sh" start shipping
-  curl -s --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:8080/api/info; echo
+  curl -s --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:30080/api/info; echo
   # Writes need the dev token; reads do not.
-  curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:8080/api/shipments -H 'Content-Type: application/json' -d '{"orderId":1,"address":"1 Main St"}'
-  curl -s -X POST http://127.0.0.1:8080/api/shipments -H 'Authorization: Bearer dev-token' -H 'Content-Type: application/json' -d '{"orderId":1,"address":"1 Main St"}'; echo
+  curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:30080/api/shipments -H 'Content-Type: application/json' -d '{"orderId":1,"address":"1 Main St"}'
+  curl -s -X POST http://127.0.0.1:30080/api/shipments -H 'Authorization: Bearer dev-token' -H 'Content-Type: application/json' -d '{"orderId":1,"address":"1 Main St"}'; echo
   # A ConfigMap change rolls the pods through checksum/config.
   kubectl -n "$NS" get pods -l app.kubernetes.io/instance=shipping -o name
   helm upgrade shipping "$CHART" -n "$NS" -f values-dev.yaml --set config.defaultCarrier=Globex --wait
@@ -115,12 +114,11 @@ sops_demo() {
   live_tok="$(kubectl -n "$NS" get secret shipping-shipping-service -o jsonpath='{.data.api-token}' | base64 -d)"
   echo "Secret api-token in the cluster: $live_tok"
   [ "$live_tok" = "sops-dev-token" ]
-  "$REPO_ROOT/scripts/tunnel.sh" start shipping
-  curl -s -o /dev/null --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:8080/api/info
+  curl -s -o /dev/null --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:30080/api/info
   echo "POST with the SOPS-delivered token:"
-  curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:8080/api/shipments -H 'Authorization: Bearer sops-dev-token' -H 'Content-Type: application/json' -d '{"orderId":8,"address":"1 Main St"}'
+  curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:30080/api/shipments -H 'Authorization: Bearer sops-dev-token' -H 'Content-Type: application/json' -d '{"orderId":8,"address":"1 Main St"}'
   echo "POST with the old dev token:"
-  curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:8080/api/shipments -H 'Authorization: Bearer dev-token' -H 'Content-Type: application/json' -d '{"orderId":8,"address":"1 Main St"}'
+  curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:30080/api/shipments -H 'Authorization: Bearer dev-token' -H 'Content-Type: application/json' -d '{"orderId":8,"address":"1 Main St"}'
   echo "--- helm get values shows the decrypted value (it lands in the release record):"
   helm get values shipping -n "$NS" | grep token
   export HELM_PLUGINS="$shared"

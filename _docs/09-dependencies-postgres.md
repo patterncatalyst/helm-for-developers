@@ -82,7 +82,7 @@ The offline run builds the dependency, lints both value sets, renders memory mod
 [host]$ ./demo.sh
 ```
 
-The live run installs release `shipping` into `hfd-09` with `--wait`, so Helm blocks until the Deployment is ready. It then runs `python -m app.migrate` inside the app container by hand, opens the tunnel, and creates a shipment through `http://127.0.0.1:8080/api/shipments`. The manual migration is a stand-in that chapter 11 replaces.
+The live run installs release `shipping` into `hfd-09` with `--wait`, so Helm blocks until the Deployment is ready. It then runs `python -m app.migrate` inside the app container by hand, and creates a shipment through `http://127.0.0.1:30080/api/shipments`. The manual migration is a stand-in that chapter 11 replaces.
 
 Each dependency also carries a `version` constraint. The constraint accepts ranges such as `~0.4.0` or `>=0.4.0 <0.5.0`, and `helm dependency update` resolves it to the newest matching version that the repository offers. With a `file://` repository there is exactly one candidate, the chart in that directory, so the constraint is a check: if the sibling's own `Chart.yaml` declares a version outside the range, `update` and `build` fail instead of packing a mismatch. Pin an exact version for charts you release together and use a range for third-party charts where you want patch updates, then rely on `Chart.lock` to make the choice repeatable.
 

@@ -21,4 +21,4 @@ The umbrella chart from chapter 16 deployed to three environments with Helmfile 
 
 ## Verification status
 
-`verified` on 2026-10-08 (`_plans/evidence/24-environments.txt`): dev installed and passed `helm test`, and a pinned digest was pulled and ran. Stage and prod are offline only. `./demo.sh pin` pushes with Podman when it is installed (push mode prefers it, since a Docker daemon in a VM such as Docker Desktop cannot reach the registry tunnel); `BUILD_ENGINE` overrides.
+`verified` on 2026-10-08 (`_plans/evidence/24-environments.txt`): dev installed and passed `helm test`, and a pinned digest was pulled and ran. Stage and prod are offline only. `./demo.sh pin` pushes with Podman when it is installed (push mode prefers it, since a Docker daemon in a VM such as Docker Desktop cannot reach the published registry port); `BUILD_ENGINE` overrides.

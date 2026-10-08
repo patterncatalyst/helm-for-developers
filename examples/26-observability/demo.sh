@@ -7,7 +7,7 @@
 #   ./demo.sh clean     uninstall release platform from hfd-26
 #
 # Namespace hfd-26, release platform (the final umbrella). Needs the LGTM stack from
-# scripts/platform/setup-lgtm.sh. Grafana: http://127.0.0.1:3000 (admin/admin) via scripts/tunnel.sh.
+# scripts/platform/setup-lgtm.sh. Grafana: http://127.0.0.1:30300 (admin/admin) (published NodePort).
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)" && cd "$SCRIPT_DIR"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
@@ -48,19 +48,18 @@ print('   ', d['metadata']['name'], '->', j['title'], '(%d panels)' % len(j['pan
     echo "offline: OK"
 }
 
-# Create and dispatch one shipment through the tunnel; prints its id.
+# Create and dispatch one shipment on the published NodePort; prints its id.
 shipment() {
     local id
-    id="$(curl -s --retry 10 --retry-all-errors --retry-delay 1 -X POST 127.0.0.1:8080/api/shipments -H 'Authorization: Bearer dev-token' -H 'content-type: application/json' \
+    id="$(curl -s --retry 10 --retry-all-errors --retry-delay 1 -X POST 127.0.0.1:30080/api/shipments -H 'Authorization: Bearer dev-token' -H 'content-type: application/json' \
         -d "{\"orderId\":$((10000 + RANDOM)),\"address\":\"26 Trace Ave, Springfield\"}" | python3 -I -c 'import sys,json; print(json.load(sys.stdin)["id"])')"
-    curl -s -X POST "127.0.0.1:8080/api/shipments/$id/dispatch" -H 'Authorization: Bearer dev-token' >/dev/null
+    curl -s -X POST "127.0.0.1:30080/api/shipments/$id/dispatch" -H 'Authorization: Bearer dev-token' >/dev/null
     echo "$id"
 }
 
 live() {
     deps
     "$REPO_ROOT/scripts/build-images.sh"
-    "$REPO_ROOT/scripts/tunnel.sh" shipping notification grafana
     echo "==> let the Grafana sidecar watch every namespace (default: its own)"
     helm upgrade grafana grafana/grafana --version 8.5.0 -n observability --reuse-values \
         --set sidecar.dashboards.searchNamespace=ALL --wait --timeout 5m
@@ -74,7 +73,7 @@ live() {
     echo "==> the trace holds spans from both services"
     local tid="" start=$SECONDS
     while :; do
-        tid="$(curl -s -u admin:admin -G 127.0.0.1:3000/api/datasources/proxy/uid/tempo/api/search \
+        tid="$(curl -s -u admin:admin -G 127.0.0.1:30300/api/datasources/proxy/uid/tempo/api/search \
             --data-urlencode "q={ span.http.target =~ \".*shipments/$id/dispatch\" }" \
             | python3 -I -c 'import sys,json; t=json.load(sys.stdin).get("traces") or []; print(t[0]["traceID"] if t else "")' 2>/dev/null || true)"
         [ -n "$tid" ] && break
@@ -82,20 +81,20 @@ live() {
         sleep 10
     done
     echo "   trace found after $((SECONDS - start)) s"
-    curl -s -u admin:admin "127.0.0.1:3000/api/datasources/proxy/uid/tempo/api/traces/$tid" | python3 -I -c "
+    curl -s -u admin:admin "127.0.0.1:30300/api/datasources/proxy/uid/tempo/api/traces/$tid" | python3 -I -c "
 import sys, json
 names = {a['value']['stringValue'] for b in json.load(sys.stdin)['batches'] for a in b['resource']['attributes'] if a['key'] == 'service.name'}
 print('   trace $tid services:', sorted(names))
 assert names >= {'platform-shipping', 'platform-notification'}"
     echo "==> TraceQL through Grafana: dispatch spans of platform-shipping"
-    curl -s -u admin:admin -G 127.0.0.1:3000/api/datasources/proxy/uid/tempo/api/search \
+    curl -s -u admin:admin -G 127.0.0.1:30300/api/datasources/proxy/uid/tempo/api/search \
         --data-urlencode 'q={ resource.service.name = "platform-shipping" && span.http.target =~ ".*dispatch.*" }' \
         | python3 -I -c 'import sys,json; [print("   trace", t["traceID"], t["rootTraceName"]) for t in json.load(sys.stdin)["traces"]]'
     echo "==> request-rate panel query returns series in Mimir (polls up to 180 s)"
     local out="" n=0
     start=$SECONDS
     while :; do
-        out="$(curl -s -u admin:admin -G 127.0.0.1:3000/api/datasources/proxy/uid/mimir/api/v1/query \
+        out="$(curl -s -u admin:admin -G 127.0.0.1:30300/api/datasources/proxy/uid/mimir/api/v1/query \
             --data-urlencode 'query=sum by (job) (rate(http_server_duration_milliseconds_count{job=~".*/platform-.*"}[5m]))' \
             | python3 -I -c 'import sys,json; [print("   ", x["metric"]) for x in json.load(sys.stdin)["data"]["result"]]' 2>/dev/null || true)"
         [ -n "$out" ] && break
@@ -106,7 +105,7 @@ assert names >= {'platform-shipping', 'platform-notification'}"
     echo "$out"
     echo "   series found after $((SECONDS - start)) s ($n retries)"
     echo "==> dashboard loaded by the sidecar"
-    curl -s -u admin:admin -G 127.0.0.1:3000/api/search --data-urlencode 'query=Shipping platform' \
+    curl -s -u admin:admin -G 127.0.0.1:30300/api/search --data-urlencode 'query=Shipping platform' \
         | python3 -I -c 'import sys,json; [print("   ", d["title"], "folder:", d.get("folderTitle")) for d in json.load(sys.stdin)]'
 }
 

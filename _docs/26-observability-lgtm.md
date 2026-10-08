@@ -94,7 +94,7 @@ platform-shipping | SELECT
 platform-shipping | UPDATE
 ```
 
-One trace holds spans from both services, which proves the context crossed Kafka. Open Grafana at `http://127.0.0.1:3000` (user `admin`, password `admin`) after `scripts/tunnel.sh grafana` and look for "Shipping platform (platform)" in the Shipping folder.
+One trace holds spans from both services, which proves the context crossed Kafka. Open Grafana at `http://127.0.0.1:30300` (user `admin`, password `admin`) (published NodePort 30300) and look for "Shipping platform (platform)" in the Shipping folder.
 
 ## Cross-check
 

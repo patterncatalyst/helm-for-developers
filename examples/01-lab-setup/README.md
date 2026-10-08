@@ -8,7 +8,7 @@ This example drives the repository's shared lab scripts. It has no chart; the la
 |---|---|
 | `./demo.sh` | Installs the project-local toolchain, creates the `helm4dev` minikube profile, installs operators only, builds both service images, prints a status report. |
 | `./demo.sh offline` | Preflight only. Checks pinned tool versions, plugin versions, that `helm` resolves to `.tools/bin`, and runs `bash -n` on every script under `scripts/`. Needs no cluster. |
-| `./demo.sh clean` | Stops the host tunnels started by `scripts/tunnel.sh`. |
+| `./demo.sh clean` | No-op. Host access uses published NodePorts, so there is nothing to stop. |
 
 The full run is idempotent. To delete the cluster entirely: `scripts/platform/teardown.sh`, which only ever deletes the `helm4dev` profile.
 

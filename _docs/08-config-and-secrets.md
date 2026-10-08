@@ -101,7 +101,7 @@ offline render of generate=true differs per run (lookup needs a live cluster)
 The live half drives the API. A write without the token returns 401; with `Authorization: Bearer dev-token` it returns the created shipment. Then it upgrades with a different carrier and lists the pods before and after, so you see them replaced, and upgrades twice with `auth.generate=true` to compare the stored token.
 
 ```bash
-[host]$ curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:8080/api/shipments -H 'Content-Type: application/json' -d '{"orderId":1,"address":"1 Main St"}'
+[host]$ curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:30080/api/shipments -H 'Content-Type: application/json' -d '{"orderId":1,"address":"1 Main St"}'
 [host]$ helm upgrade shipping examples/08-config-secrets/shipping-service -n hfd-08 -f examples/08-config-secrets/values-dev.yaml --set config.defaultCarrier=Globex --wait
 [host]$ kubectl -n hfd-08 get pods -l app.kubernetes.io/instance=shipping
 ```

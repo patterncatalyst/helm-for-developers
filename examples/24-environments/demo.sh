@@ -56,7 +56,6 @@ offline() {
 pin() {
     local env="${1:?usage: ./demo.sh pin <dev|stage|prod>}" accept digest
     "$REPO_ROOT/scripts/build-images.sh" push
-    "$REPO_ROOT/scripts/tunnel.sh" registry
     accept='application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json'
     digest="$(curl -sI -H "Accept: $accept" http://127.0.0.1:5000/v2/shipping-service/manifests/0.1.0 \
         | tr -d '\r' | awk 'tolower($1)=="docker-content-digest:" {print $2}')"
@@ -81,7 +80,7 @@ live() {
     helm test platform -n hfd-24-dev
     echo "==> releases"
     helm list -A --filter '^platform$'
-    echo "Next: scripts/tunnel.sh shipping, then curl -s http://127.0.0.1:8080/api/info"
+    echo "Next: curl -s http://127.0.0.1:30080/api/info"
 }
 
 case "${1:-all}" in

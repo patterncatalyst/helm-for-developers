@@ -7,7 +7,7 @@
 #   ./demo.sh clean     # uninstall the release, remove the registry containers, log out, delete .work/
 #
 #   ENGINE=podman ./demo.sh     # container engine for the local registries (default: docker)
-#   REGISTRY_ADDON=1 ./demo.sh  # also push to the minikube registry addon through scripts/tunnel.sh
+#   REGISTRY_ADDON=1 ./demo.sh  # also push to the minikube registry addon at the published node port 127.0.0.1:5000
 #
 # Registries: 127.0.0.1:5001 (anonymous) and 127.0.0.1:5002 (htpasswd, user hfd). Both plain HTTP.
 # Namespace hfd-20, release shipping.
@@ -103,8 +103,7 @@ install_by_digest() {
 }
 
 addon() {
-    step "minikube registry addon (tunnel 127.0.0.1:5000)"
-    "$REPO_ROOT/scripts/tunnel.sh" start registry
+    step "minikube registry addon (published port 127.0.0.1:5000)"
     helm push "$WORK/pkg/shipping-service-1.0.0.tgz" "oci://127.0.0.1:5000/charts" --plain-http
     curl -s http://127.0.0.1:5000/v2/_catalog; echo
 }

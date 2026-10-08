@@ -27,4 +27,4 @@ demo.sh
 
 ## Verification status
 
-`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/19-packaging-repos.txt`. The full demo exits 0, the release installs from the local repository, and `/api/info` answers through `scripts/tunnel.sh`.
+`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/19-packaging-repos.txt`. The full demo exits 0, the release installs from the local repository, and `/api/info` answers on the published NodePort.

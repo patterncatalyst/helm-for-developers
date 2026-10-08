@@ -13,7 +13,7 @@ Version 0.8.0 adds the `API_TOKEN` Secret (`auth.token`, `auth.generate`, `auth.
 ./demo.sh clean     # remove the release and namespace, and delete .work/
 ```
 
-The live run builds `shipping-service:0.1.0` with `scripts/build-images.sh` and reaches the service through `scripts/tunnel.sh` at http://127.0.0.1:8080. Source `scripts/env.sh` first if you run commands by hand; it selects the project-local Helm 4.3.0.
+The live run builds `shipping-service:0.1.0` with `scripts/build-images.sh` and reaches the service on the published NodePort at http://127.0.0.1:30080. Source `scripts/env.sh` first if you run commands by hand; it selects the project-local Helm 4.3.0.
 
 ## Verification status
 

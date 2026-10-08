@@ -509,7 +509,7 @@ global:
 diagramSlide("DELIVERY", "Telemetry path to LGTM", "h201-telemetry-path",
   "Figure: services export OTLP to the collector; Tempo, Loki and Mimir feed Grafana.",
   N("The path a request's telemetry takes. Both services export OTLP to the OpenTelemetry Collector in the observability namespace, which fans out traces to Tempo, logs to Loki and metrics to Mimir. Grafana reads all three and loads the chart's dashboard from a labeled ConfigMap. A trace crosses Kafka: the dispatch span in shipping links to the consume span in notification. A TraceQL query on `resource.service.name = \"platform-shipping\"` finds it.",
-    "Grafana at 127.0.0.1:3000 after `scripts/tunnel.sh`; run the TraceQL query from chapter 26 and open the dispatch trace.",
+    "Grafana at 127.0.0.1:30300 (published NodePort); run the TraceQL query from chapter 26 and open the dispatch trace.",
     "chapter 26 transcript lists the spans of one dispatch trace."));
 
 // ===== SECTION: OPENSHIFT ===================================================
