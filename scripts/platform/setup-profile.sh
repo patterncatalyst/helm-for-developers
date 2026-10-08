@@ -87,9 +87,12 @@ sys.exit(0 if any(p["Name"] == "helm4dev" for p in d.get("valid", []) + d.get("i
 }
 
 PORTS_ARG=""
-for _p in "${HFD_NODE_PORTS[@]}"; do PORTS_ARG+="${PORTS_ARG:+,}${_p}:${_p}"; done
+# Bind to loopback only: 0.0.0.0 would expose Grafana, the registry and the
+# app endpoints to the local network.
+for _p in "${HFD_NODE_PORTS[@]}"; do PORTS_ARG+="${PORTS_ARG:+,}127.0.0.1:${_p}:${_p}"; done
 
-# Host ports currently published by the node container, one per line, sorted.
+# Host ports the node container publishes on 127.0.0.1, one per line, sorted.
+# A port bound to 0.0.0.0 does not count, so such a profile gets recreated.
 published_ports() {
     "$DRIVER" inspect -f '{{json .HostConfig.PortBindings}}' "$PROFILE" 2>/dev/null | python3 -c '
 import json, sys
@@ -100,7 +103,7 @@ except Exception:
 ports = set()
 for binds in d.values():
     for b in binds or []:
-        if b.get("HostPort"):
+        if b.get("HostPort") and b.get("HostIp") == "127.0.0.1":
             ports.add(int(b["HostPort"]))
 print("\n".join(str(p) for p in sorted(ports)))
 ' 2>/dev/null
@@ -113,7 +116,7 @@ check_published_ports() {
     want="$(printf '%s\n' "${HFD_NODE_PORTS[@]}" | sort -n | tr '\n' ' ')"
     missing="$(comm -13 <(published_ports | sort) <(printf '%s\n' "${HFD_NODE_PORTS[@]}" | sort) | tr '\n' ' ')"
     if [[ -n "$missing" ]]; then
-        printf 'ERROR: profile %s does not publish these host ports: %s\n' "$PROFILE" "$missing" >&2
+        printf 'ERROR: profile %s does not publish these ports on 127.0.0.1: %s\n' "$PROFILE" "$missing" >&2
         printf '  published: %s\n  required:  %s\n' "${have:-none}" "$want" >&2
         printf '  Ports are fixed at profile creation. Recreate the profile:\n' >&2
         printf '  scripts/platform/setup-profile.sh --replace --confirm=helm4dev\n' >&2
