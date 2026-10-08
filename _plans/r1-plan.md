@@ -677,7 +677,7 @@ Sources consulted for version facts:
 ## Step status
 | Step | Status |
 |---|---|
-| S1 | pending |
+| S1 | done |
 | S2 | pending |
 | S3 | pending |
 | S4 | pending |
