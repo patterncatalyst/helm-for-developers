@@ -185,7 +185,7 @@ function addStatusTable(slide, rows, opts = {}) {
       text: r.code,
       options: {
         bold: true, color: r.codeColor || COLOR.red,
-        fontFace: FONT.mono, fontSize: 15,
+        fontFace: FONT.mono, fontSize: 16,
         align: "left", valign: "middle",
       },
     },
@@ -193,7 +193,7 @@ function addStatusTable(slide, rows, opts = {}) {
       text: r.name,
       options: {
         bold: true, color: COLOR.ink,
-        fontFace: FONT.body, fontSize: 14,
+        fontFace: FONT.body, fontSize: 16,
         align: "left", valign: "middle",
       },
     },
@@ -201,7 +201,7 @@ function addStatusTable(slide, rows, opts = {}) {
       text: r.purpose,
       options: {
         color: COLOR.body,
-        fontFace: FONT.body, fontSize: 13,
+        fontFace: FONT.body, fontSize: 15,
         align: "left", valign: "middle",
       },
     },
@@ -221,9 +221,9 @@ function addStatusTable(slide, rows, opts = {}) {
   });
 }
 
-function addCaption(slide, text, y) {
+function addCaption(slide, text, y, w) {
   slide.addText(text, {
-    x: 0.62, y: y ?? 6.50, w: 12.09, h: 0.34,
+    x: 0.62, y: y ?? 6.50, w: w ?? 12.09, h: 0.34,
     fontFace: FONT.body, fontSize: 13, italic: true, color: COLOR.caption,
     align: "center", valign: "middle",
   });
@@ -326,7 +326,7 @@ function addCodeSlide(slide, eyebrow, title, lang, codeLines, caption, opts = {}
     // When the code box is taller than default, push the caption below it.
     const codeBottom = y + h;
     const captionY = codeBottom > 6.50 ? codeBottom + 0.06 : 6.50;
-    addCaption(slide, caption, captionY);
+    addCaption(slide, caption, captionY, opts.captionW);
   }
 }
 
