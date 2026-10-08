@@ -1,0 +1,52 @@
+{{- if and .Values.migration.enabled (eq .Values.config.storage "postgres") }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "shipping-service.fullname" . }}-migrate
+  labels:
+    {{- include "shipping-service.labels" . | nindent 4 }}
+    app.kubernetes.io/component: migration
+  annotations:
+    "helm.sh/hook": {{ .Values.migration.hooks | quote }}
+    "helm.sh/hook-weight": {{ .Values.migration.weight | quote }}
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: {{ .Values.migration.backoffLimit }}
+  activeDeadlineSeconds: {{ .Values.migration.activeDeadlineSeconds }}
+  template:
+    metadata:
+      labels:
+        {{- include "shipping-service.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: migration
+    spec:
+      restartPolicy: Never
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- include "shipping-service.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: migrate
+          image: {{ include "shipping-service.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["python", "-m", "app.migrate"]
+          securityContext:
+            {{- include "shipping-service.containerSecurityContext" . | nindent 12 }}
+          env:
+            - name: SHIPPING_STORAGE
+              value: "postgres"
+            {{- include "shipping-service.pgEnv" . | nindent 12 }}
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+{{- end }}

@@ -1,0 +1,14 @@
+# chart-testing configuration used by .github/workflows/charts-ci.yml.
+# ct runs from the repository root, so these paths are relative to it.
+chart-dirs:
+  - charts
+chart-yaml-schema: .tools/ct/chart_schema.yaml
+lint-conf: .tools/ct/lintconf.yaml
+# CI has no stable target branch (pushes to feature branches, forks), so the
+# version-increment and maintainer (GitHub user lookup) checks are off.
+check-version-increment: false
+validate-maintainers: false
+# Library charts cannot be installed; ct install skips them.
+excluded-charts:
+  - pc-lib
+helm-extra-args: --timeout 5m

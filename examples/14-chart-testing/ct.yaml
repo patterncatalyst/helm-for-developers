@@ -1,0 +1,9 @@
+# chart-testing configuration for this snapshot. Paths are relative to the directory ct runs in.
+chart-dirs:
+  - charts
+chart-yaml-schema: ../../.tools/ct/chart_schema.yaml
+lint-conf: ../../.tools/ct/lintconf.yaml
+# No git remote or target branch in the lab, so skip the checks that read them.
+check-version-increment: false
+validate-maintainers: false
+helm-extra-args: --timeout 3m
