@@ -1,0 +1,6 @@
+dependencies:
+- name: shipping-postgres
+  repository: file://../shipping-postgres
+  version: 0.11.0
+digest: sha256:7879d57dc2425928f3e705427da4ed49d5ce9a233797f9653d473f6a191c84eb
+generated: "2026-10-08T10:23:20.562854331-04:00"

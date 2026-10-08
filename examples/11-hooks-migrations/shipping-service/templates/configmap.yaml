@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "shipping-service.fullname" . }}
+  labels:
+    {{- include "shipping-service.labels" . | nindent 4 }}
+data:
+  SERVICE_NAME: {{ include "shipping-service.fullname" . | quote }}
+  SERVICE_VERSION: {{ .Chart.AppVersion | quote }}
+  DEPLOY_ENV: {{ include "shipping-service.environment" . | quote }}
+  LOG_LEVEL: {{ .Values.config.logLevel | quote }}
+  SHIPPING_DEFAULT_CARRIER: {{ .Values.config.defaultCarrier | quote }}
+  SHIPPING_STORAGE: {{ .Values.config.storage | quote }}

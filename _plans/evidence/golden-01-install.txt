@@ -1,0 +1,21 @@
+$ helm dependency build charts/shipping-platform
+$ helm upgrade --install platform charts/shipping-platform -n hfd-26 -f charts/shipping-platform/values-dev.yaml --wait --rollback-on-failure --timeout 8m
+Release "platform" does not exist. Installing it now.
+NAME: platform
+LAST DEPLOYED: Thu Oct  8 10:03:15 2026
+NAMESPACE: hfd-26
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+shipping-platform 1.0.0 installed as release "platform" in namespace hfd-26 (environment dev).
+
+Components: shipping, notification, kafka, db
+Reach the services:
+  [host]$ kubectl -n hfd-26 get svc
+
+Run the release tests:
+  [host]$ helm test platform -n hfd-26
+helm upgrade --install platform charts/shipping-platform -n hfd-26 -f  --wait  0.50s user 0.06s system 1% cpu 48.693 total
+rc=0

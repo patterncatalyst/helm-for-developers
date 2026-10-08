@@ -1,0 +1,18 @@
+suite: shipping-service extra ConfigMap
+templates:
+  - templates/extra-configmap.yaml
+tests:
+  - it: renders nothing by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders the extra ConfigMap on request
+    set:
+      extras.configMap: true
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-shipping-service-extra

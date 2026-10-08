@@ -1,0 +1,41 @@
+suite: shipping-platform dashboard
+templates:
+  - templates/dashboard.yaml
+release:
+  name: platform
+  namespace: hfd-26
+tests:
+  - it: ships a ConfigMap with the Grafana sidecar label
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: metadata.labels.grafana_dashboard
+          value: "1"
+      - equal:
+          path: metadata.annotations.grafana_folder
+          value: Shipping
+
+  - it: renders the release name into the queries and keeps valid JSON
+    asserts:
+      - matchRegex:
+          path: data["shipping-dashboard.json"]
+          pattern: 'resource.service.name = \\"platform-shipping\\"'
+      - matchRegex:
+          path: data["shipping-dashboard.json"]
+          pattern: 'Shipping platform \(platform\)'
+
+  - it: can target another namespace
+    set:
+      dashboards.namespace: observability
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: observability
+
+  - it: renders nothing when disabled
+    set:
+      dashboards.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0

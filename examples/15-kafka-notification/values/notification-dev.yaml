@@ -1,0 +1,6 @@
+# Chapter 15: notification-service consumes shipment.dispatched from the same cluster.
+service:
+  type: NodePort
+  nodePort: 30081
+kafka:
+  bootstrap: shipping-kafka-kafka-bootstrap:9092

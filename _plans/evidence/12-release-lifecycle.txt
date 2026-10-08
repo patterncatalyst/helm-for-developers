@@ -1,0 +1,273 @@
+$ ./demo.sh
+==> engine=docker mode=build tag=0.1.0
+==> shipping-service:0.1.0
+==> notification-service:0.1.0
+==> images in the profile:
+docker.io/library/shipping-service:0.1.0
+docker.io/library/notification-service:0.1.0
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "open-telemetry" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "grafana" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Deleting outdated charts
+=== 1. install: revision 1, --wait uses the kstatus watcher
+Release "shipping" does not exist. Installing it now.
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 11:07:50 2026
+NAMESPACE: hfd-12
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+shipping-shipping-service 0.1.0 installed as release "shipping" in namespace hfd-12.
+Storage: memory
+Reach the service:
+  [host]$ kubectl -n hfd-12 get svc shipping-shipping-service
+=== 2. a good upgrade: revision 2
+Release "shipping" has been upgraded. Happy Helming!
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 11:07:53 2026
+NAMESPACE: hfd-12
+STATUS: deployed
+REVISION: 2
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+NOTES:
+shipping-shipping-service 0.1.0 installed as release "shipping" in namespace hfd-12.
+Storage: memory
+Reach the service:
+  [host]$ kubectl -n hfd-12 get svc shipping-shipping-service
+=== 3. a bad upgrade with --rollback-on-failure (new ReplicaSet cannot pull the image)
+level=WARN msg="upgrade failed" name=shipping error="resource Deployment/hfd-12/shipping-shipping-service not ready. status: InProgress, message: Pending termination: 1\ncontext deadline exceeded"
+Error: UPGRADE FAILED: release shipping failed, and has been rolled back due to rollback-on-failure being set: resource Deployment/hfd-12/shipping-shipping-service not ready. status: InProgress, message: Pending termination: 1
+context deadline exceeded
+upgrade failed as expected (rc=1)
+REVISION	UPDATED                 	STATUS    	CHART                  	APP VERSION	DESCRIPTION                                                                                                                                   
+1       	Thu Oct  8 11:07:50 2026	superseded	shipping-service-0.12.0	0.1.0      	Install complete                                                                                                                              
+2       	Thu Oct  8 11:07:53 2026	superseded	shipping-service-0.12.0	0.1.0      	Upgrade complete                                                                                                                              
+3       	Thu Oct  8 11:07:56 2026	failed    	shipping-service-0.12.0	0.1.0      	Upgrade "shipping" failed: resource Deployment/hfd-12/shipping-shipping-service not ready. status: InProgress, message: Pending termination...
+4       	Thu Oct  8 11:08:57 2026	deployed  	shipping-service-0.12.0	0.1.0      	Rollback to 2                                                                                                                                 
+=== 4. a bad upgrade that also adds a resource, with --cleanup-on-fail
+level=WARN msg="upgrade failed" name=shipping error="resource Deployment/hfd-12/shipping-shipping-service not ready. status: InProgress, message: Pending termination: 1\ncontext deadline exceeded"
+Error: UPGRADE FAILED: resource Deployment/hfd-12/shipping-shipping-service not ready. status: InProgress, message: Pending termination: 1
+context deadline exceeded
+upgrade failed as expected (rc=1)
+Error from server (NotFound): configmaps "shipping-shipping-service-extra" not found
+the new ConfigMap was cleaned up
+REVISION	UPDATED                 	STATUS    	CHART                  	APP VERSION	DESCRIPTION                                                                                                                                   
+1       	Thu Oct  8 11:07:50 2026	superseded	shipping-service-0.12.0	0.1.0      	Install complete                                                                                                                              
+2       	Thu Oct  8 11:07:53 2026	superseded	shipping-service-0.12.0	0.1.0      	Upgrade complete                                                                                                                              
+3       	Thu Oct  8 11:07:56 2026	failed    	shipping-service-0.12.0	0.1.0      	Upgrade "shipping" failed: resource Deployment/hfd-12/shipping-shipping-service not ready. status: InProgress, message: Pending termination...
+4       	Thu Oct  8 11:08:57 2026	deployed  	shipping-service-0.12.0	0.1.0      	Rollback to 2                                                                                                                                 
+5       	Thu Oct  8 11:08:57 2026	failed    	shipping-service-0.12.0	0.1.0      	Upgrade "shipping" failed: resource Deployment/hfd-12/shipping-shipping-service not ready. status: InProgress, message: Pending termination...
+=== 5. roll back to the last good revision
+Rollback was a success! Happy Helming!
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 11:09:57 2026
+NAMESPACE: hfd-12
+STATUS: deployed
+REVISION: 6
+DESCRIPTION: Rollback to 2
+RESOURCES:
+==> v1/Service
+NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+shipping-shipping-service   ClusterIP   10.109.37.145   <none>        8080/TCP   2m8s
+==> v1/Deployment
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+shipping-shipping-service   1/1     1            1           2m8s
+==> v1/Pod(related)
+NAME                                         READY   STATUS        RESTARTS   AGE
+shipping-shipping-service-7dbd4b4767-hcg49   0/1     Terminating   0          61s
+shipping-shipping-service-d5c485dd-9l4v2     1/1     Running       0          2m5s
+==> v1/ConfigMap
+NAME                        DATA   AGE
+shipping-shipping-service   6      2m8s
+TEST SUITE: None
+NOTES:
+shipping-shipping-service 0.1.0 installed as release "shipping" in namespace hfd-12.
+Storage: memory
+Reach the service:
+  [host]$ kubectl -n hfd-12 get svc shipping-shipping-service
+=== 6. inspect what Helm stored
+USER-SUPPLIED VALUES:
+config:
+  defaultCarrier: FastShip
+COMPUTED VALUES:
+auth:
+  existingSecret: ""
+  existingSecretKey: api-token
+  token: ""
+config:
+  defaultCarrier: FastShip
+  environment: dev
+  logLevel: INFO
+  storage: memory
+containerPort: 8080
+extras:
+  configMap: false
+fullnameOverride: ""
+global: {}
+image:
+  pullPolicy: IfNotPresent
+  repository: shipping-service
+  tag: ""
+imagePullSecrets: []
+---
+# Source: shipping-service/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shipping-shipping-service
+  labels:
+    helm.sh/chart: shipping-service-0.12.0
+    app.kubernetes.io/name: shipping-service
+    app.kubernetes.io/instance: shipping
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+data:
+  SERVICE_NAME: "shipping-shipping-service"
+  SERVICE_VERSION: "0.1.0"
+  DEPLOY_ENV: "dev"
+  LOG_LEVEL: "INFO"
+  SHIPPING_DEFAULT_CARRIER: "FastShip"
+  SHIPPING_STORAGE: "memory"
+---
+# Source: shipping-service/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: shipping-shipping-service
+  labels:
+    helm.sh/chart: shipping-service-0.12.0
+    app.kubernetes.io/name: shipping-service
+    app.kubernetes.io/instance: shipping
+NOTES:
+shipping-shipping-service 0.1.0 installed as release "shipping" in namespace hfd-12.
+Storage: memory
+Reach the service:
+  [host]$ kubectl -n hfd-12 get svc shipping-shipping-service
+NAME: shipping
+CHART: shipping-service
+VERSION: 0.12.0
+APP_VERSION: 0.1.0
+ANNOTATIONS: 
+LABELS: modifiedAt=1791472197,name=shipping,owner=helm,status=deployed,version=6
+DEPENDENCIES: 
+NAMESPACE: hfd-12
+REVISION: 6
+STATUS: deployed
+DEPLOYED_AT: 2026-10-08T11:09:57-04:00
+APPLY_METHOD: server-side apply
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 11:09:57 2026
+NAMESPACE: hfd-12
+STATUS: deployed
+REVISION: 6
+CHART: shipping-service
+VERSION: 0.12.0
+APP_VERSION: 0.1.0
+DESCRIPTION: Rollback to 2
+TEST SUITE: None
+USER-SUPPLIED VALUES:
+config:
+  defaultCarrier: FastShip
+COMPUTED VALUES:
+auth:
+  existingSecret: ""
+  existingSecretKey: api-token
+  token: ""
+config:
+=== 7. decode the release Secret by hand
+NAME                             TYPE                 DATA   AGE
+sh.helm.release.v1.shipping.v1   helm.sh/release.v1   1      2m8s
+sh.helm.release.v1.shipping.v2   helm.sh/release.v1   1      2m5s
+sh.helm.release.v1.shipping.v3   helm.sh/release.v1   1      2m2s
+sh.helm.release.v1.shipping.v4   helm.sh/release.v1   1      61s
+sh.helm.release.v1.shipping.v5   helm.sh/release.v1   1      61s
+sh.helm.release.v1.shipping.v6   helm.sh/release.v1   1      1s
+deployed 6 shipping-service 0.12.0
+=== 8. server-side apply: another field manager owns replicas
+deployment.apps/shipping-shipping-service patched
+level=WARN msg="upgrade failed" name=shipping error="conflict occurred while applying object hfd-12/shipping-shipping-service apps/v1, Kind=Deployment: Apply failed with 1 conflict: conflict with \"hfd-demo\" using apps/v1: .spec.replicas"
+Error: UPGRADE FAILED: conflict occurred while applying object hfd-12/shipping-shipping-service apps/v1, Kind=Deployment: Apply failed with 1 conflict: conflict with "hfd-demo" using apps/v1: .spec.replicas
+upgrade stopped on a field-manager conflict (rc=1)
+Release "shipping" has been upgraded. Happy Helming!
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 11:09:58 2026
+NAMESPACE: hfd-12
+STATUS: deployed
+REVISION: 8
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+NOTES:
+shipping-shipping-service 0.1.0 installed as release "shipping" in namespace hfd-12.
+Storage: memory
+Reach the service:
+  [host]$ kubectl -n hfd-12 get svc shipping-shipping-service
+1
+helm Apply
+kube-controller-manager Update
+=== 9. adopt an object Helm did not create with --take-ownership
+configmap/shipping-shipping-service-extra created
+Error: UPGRADE FAILED: unable to continue with update: ConfigMap "shipping-shipping-service-extra" in namespace "hfd-12" exists and cannot be imported into the current release: invalid ownership metadata; label validation error: missing key
+upgrade refused to adopt (rc=1)
+level=WARN msg="upgrade failed" name=shipping error="conflict occurred while applying object hfd-12/shipping-shipping-service-extra /v1, Kind=ConfigMap: Apply failed with 1 conflict: conflict with \"kubectl-create\" using v1: .data.purpose"
+Error: UPGRADE FAILED: conflict occurred while applying object hfd-12/shipping-shipping-service-extra /v1, Kind=ConfigMap: Apply failed with 1 conflict: conflict with "kubectl-create" using v1: .data.purpose
+take-ownership alone stopped on a field conflict (rc=1)
+Release "shipping" has been upgraded. Happy Helming!
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 11:09:59 2026
+NAMESPACE: hfd-12
+STATUS: deployed
+REVISION: 10
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+NOTES:
+shipping-shipping-service 0.1.0 installed as release "shipping" in namespace hfd-12.
+Storage: memory
+Reach the service:
+  [host]$ kubectl -n hfd-12 get svc shipping-shipping-service
+{"meta.helm.sh/release-name":"shipping","meta.helm.sh/release-namespace":"hfd-12"}
+=== 10. --force-replace updates objects by replacement instead of patching them
+level=WARN msg="upgrade failed" name=shipping error="invalid operation: cannot use server-side apply and force replace together"
+Error: UPGRADE FAILED: invalid operation: cannot use server-side apply and force replace together
+force-replace with server-side apply is rejected (rc=1)
+Release "shipping" has been upgraded. Happy Helming!
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 11:10:02 2026
+NAMESPACE: hfd-12
+STATUS: deployed
+REVISION: 12
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+NOTES:
+shipping-shipping-service 0.1.0 installed as release "shipping" in namespace hfd-12.
+Storage: memory
+Reach the service:
+  [host]$ kubectl -n hfd-12 get svc shipping-shipping-service
+APPLY_METHOD: client-side apply
+ConfigMap uid before fff3930b-95f5-4301-910e-f2b5474f3f9a, after fff3930b-95f5-4301-910e-f2b5474f3f9a
+=== 11. --history-max keeps the revision list short
+REVISION	UPDATED                 	STATUS    	CHART                  	APP VERSION	DESCRIPTION                                                                                                                                                    
+3       	Thu Oct  8 11:07:56 2026	failed    	shipping-service-0.12.0	0.1.0      	Upgrade "shipping" failed: resource Deployment/hfd-12/shipping-shipping-service not ready. status: InProgress, message: Pending termination: 1                 
+        	                        	          	                       	           	context deadline exceeded                                                                                                                                      
+4       	Thu Oct  8 11:08:57 2026	superseded	shipping-service-0.12.0	0.1.0      	Rollback to 2                                                                                                                                                  
+5       	Thu Oct  8 11:08:57 2026	failed    	shipping-service-0.12.0	0.1.0      	Upgrade "shipping" failed: resource Deployment/hfd-12/shipping-shipping-service not ready. status: InProgress, message: Pending termination: 1                 
+        	                        	          	                       	           	context deadline exceeded                                                                                                                                      
+6       	Thu Oct  8 11:09:57 2026	superseded	shipping-service-0.12.0	0.1.0      	Rollback to 2                                                                                                                                                  
+7       	Thu Oct  8 11:09:58 2026	failed    	shipping-service-0.12.0	0.1.0      	Upgrade "shipping" failed: conflict occurred while applying object hfd-12/shipping-shipping-service apps/v1, Kind=Deployment: Apply failed with 1 conflict: con
+8       	Thu Oct  8 11:09:58 2026	superseded	shipping-service-0.12.0	0.1.0      	Upgrade complete                                                                                                                                               
+9       	Thu Oct  8 11:09:59 2026	failed    	shipping-service-0.12.0	0.1.0      	Upgrade "shipping" failed: conflict occurred while applying object hfd-12/shipping-shipping-service-extra /v1, Kind=ConfigMap: Apply failed with 1 conflict: co
+10      	Thu Oct  8 11:09:59 2026	superseded	shipping-service-0.12.0	0.1.0      	Upgrade complete                                                                                                                                               
+11      	Thu Oct  8 11:10:02 2026	failed    	shipping-service-0.12.0	0.1.0      	Upgrade "shipping" failed: invalid operation: cannot use server-side apply and force replace together                                                          
+12      	Thu Oct  8 11:10:02 2026	deployed  	shipping-service-0.12.0	0.1.0      	Upgrade complete                                                                                                                                               
+clean up with: ./demo.sh clean
+exit=0
+--- release secret labels
+NAME                              TYPE                 DATA   AGE     LABELS
+sh.helm.release.v1.shipping.v10   helm.sh/release.v1   1      15s     modifiedAt=1791472197,name=shipping,owner=helm,status=superseded,version=10
+sh.helm.release.v1.shipping.v11   helm.sh/release.v1   1      12s     modifiedAt=1791472197,name=shipping,owner=helm,status=failed,version=11

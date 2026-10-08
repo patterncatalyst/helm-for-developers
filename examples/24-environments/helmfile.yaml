@@ -1,0 +1,48 @@
+# One release per environment. The `version:` line is the chart pin: promoting a chart
+# build is a one-line change per environment, reviewed as a diff.
+#
+#   helmfile -l env=dev template --skip-deps
+#   helmfile -l env=prod template --skip-deps
+#
+# --skip-deps stops Helmfile from running `helm repo update`; the charts' dependencies
+# are file:// paths built by `helm dependency build` (demo.sh does this).
+#
+# Helmfile checks `version:` only for charts that come from a repository or an OCI
+# registry. With a local path, as here, it is documentation. See the chapter for the
+# oci:// form that enforces it.
+helmDefaults:
+  wait: true
+  timeout: 600
+  createNamespace: true
+  rollbackOnFailure: true      # Helm 4 flag, needs Helm 4 (Helmfile refuses it on Helm 3)
+
+releases:
+  - name: platform
+    namespace: hfd-24-dev
+    chart: ./charts/shipping-platform
+    version: 1.0.0
+    labels:
+      env: dev
+    values:
+      - charts/shipping-platform/values-dev.yaml
+      - pins/dev.yaml
+
+  - name: platform
+    namespace: hfd-24-stage
+    chart: ./charts/shipping-platform
+    version: 1.0.0
+    labels:
+      env: stage
+    values:
+      - charts/shipping-platform/values-stage.yaml
+      - pins/stage.yaml
+
+  - name: platform
+    namespace: hfd-24-prod
+    chart: ./charts/shipping-platform
+    version: 1.0.0
+    labels:
+      env: prod
+    values:
+      - charts/shipping-platform/values-prod.yaml
+      - pins/prod.yaml

@@ -1,0 +1,11 @@
+# Production-like: more replicas, quieter logs, larger limits.
+replicaCount: 3
+config:
+  environment: prod
+  logLevel: WARNING
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    memory: 768Mi

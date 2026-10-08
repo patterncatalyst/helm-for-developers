@@ -1,0 +1,59 @@
+{{- $configSum := include (print $.Template.BasePath "/configmap.yaml") . | sha256sum -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "notification-service.fullname" . }}
+  labels:
+    {{- include "notification-service.labels" . | nindent 4 }}
+  {{- with (include "notification-service.metadataAnnotations" . | trim) }}
+  annotations:
+    {{- . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "notification-service.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "notification-service.labels" . | nindent 8 }}
+      annotations:
+        {{- with (include "notification-service.metadataAnnotations" . | trim) }}
+        {{- . | nindent 8 }}
+        {{- end }}
+        "checksum/config": {{ $configSum | quote }}
+        {{- range $k, $v := (default (dict) .Values.podAnnotations) }}
+        {{ $k | quote }}: {{ $v | quote }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- include "notification-service.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: {{ include "notification-service.name" . }}
+          image: {{ include "notification-service.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- include "notification-service.containerSecurityContext" . | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPort }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "notification-service.fullname" . }}
+          env:
+            {{- include "notification-service.env" . | nindent 12 }}
+          {{- include "notification-service.probes" . | nindent 10 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

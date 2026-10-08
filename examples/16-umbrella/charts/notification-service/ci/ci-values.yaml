@@ -1,0 +1,8 @@
+# chart-testing install values: a bootstrap address is required. The consumer
+# retries until a broker exists, so the pod stays Live but not Ready; ct installs
+# without --wait readiness of the consumer by relying on /health only.
+kafka:
+  bootstrap: kafka.invalid:9092
+probes:
+  readiness:
+    path: /health

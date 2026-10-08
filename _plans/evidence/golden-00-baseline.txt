@@ -1,0 +1,29 @@
+$ scripts/platform/teardown.sh --yes && setup-profile.sh && bootstrap.sh  (rc=0, from scratch)
+$ scripts/platform/cluster-status.sh
+
+==> minikube profile helm4dev
+    ok: running
+
+==> Control plane
+    ok: API server /readyz
+    ok: control-plane pods Running
+
+==> Registry addon
+    ok: registry addon enabled
+
+==> Operators
+    ok: CloudNativePG operator (cnpg-system): pods Running
+    ok: Strimzi operator (strimzi): pods Running
+    ok: CRD clusters.postgresql.cnpg.io
+    ok: CRD kafkas.kafka.strimzi.io
+
+==> Observability
+    ok: LGTM (observability): pods Running
+
+==> Examples (hfd-* namespaces)
+
+==> Verdict
+    ok: platform healthy
+
+$ kubectl api-resources --api-group=kafka.strimzi.io (CRD versions)
+v1

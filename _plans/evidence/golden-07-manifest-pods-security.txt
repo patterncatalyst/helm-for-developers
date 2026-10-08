@@ -1,0 +1,123 @@
+$ helm get manifest platform -n hfd-26 | head -120 (excerpt: shipping Deployment)
+# Source: shipping-platform/charts/shipping/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: platform-shipping
+  labels:
+    helm.sh/chart: shipping-1.0.0
+    app.kubernetes.io/name: shipping
+    app.kubernetes.io/instance: platform
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: shipping-platform
+  annotations:
+    patterncatalyst.io/domain: "shipping"
+    patterncatalyst.io/owner: "team-shipping"
+    patterncatalyst.io/data-product: "shipments"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: shipping
+      app.kubernetes.io/instance: platform
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: shipping-1.0.0
+        app.kubernetes.io/name: shipping
+        app.kubernetes.io/instance: platform
+        app.kubernetes.io/version: "0.1.0"
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: shipping-platform
+      annotations:
+        patterncatalyst.io/domain: "shipping"
+        patterncatalyst.io/owner: "team-shipping"
+        patterncatalyst.io/data-product: "shipments"
+        "checksum/config": "99fb0b2c84ed413935f86e0005ea260606010f2140e6623e8d1b4bfd769531a1"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: shipping
+          image: "shipping-service:0.1.0"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: platform-shipping
+          env:
+            
+            - name: PG_HOST
+              value: "shipping-postgres-rw"
+            - name: PG_PORT
+              value: "5432"
+            - name: PG_SCHEMA
+              value: "shipping"
+            - name: PG_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: shipping-postgres-app
+                  key: dbname
+            - name: PG_USER
+              valueFrom:
+                secretKeyRef:
+                  name: shipping-postgres-app
+                  key: username
+            - name: PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shipping-postgres-app
+                  key: password
+            - name: KAFKA_BOOTSTRAP
+              value: "shipping-kafka-kafka-bootstrap:9092"
+            - name: API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: platform-shipping
+
+$ kubectl -n hfd-26 get pods
+NAME                                              READY   STATUS    RESTARTS      AGE
+platform-notification-688949d676-fpkr2            1/1     Running   0             10m
+platform-shipping-987c9b68-7qc2g                  1/1     Running   3 (10m ago)   10m
+shipping-kafka-dual-0                             1/1     Running   0             10m
+shipping-kafka-entity-operator-7d498f5f75-v4qn5   2/2     Running   0             10m
+shipping-postgres-1                               1/1     Running   0             10m
+
+$ pod securityContext / runAsUser
+-- platform-shipping
+{"runAsNonRoot":true,"seccompProfile":{"type":"RuntimeDefault"}}
+{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsNonRoot":true,"seccompProfile":{"type":"RuntimeDefault"}}
+-- platform-notification
+{"runAsNonRoot":true,"seccompProfile":{"type":"RuntimeDefault"}}
+{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsNonRoot":true,"seccompProfile":{"type":"RuntimeDefault"}}
+runAsUser occurrences in live pod specs: 2
+-- effective uid in pod:
+uid=1001 gid=0(root) groups=0(root)
+
+$ helm status/history
+REVISION	UPDATED                 	STATUS    	CHART                  	APP VERSION	DESCRIPTION     
+1       	Thu Oct  8 10:03:15 2026	superseded	shipping-platform-1.0.0	0.1.0      	Install complete
+2       	Thu Oct  8 10:05:25 2026	superseded	shipping-platform-1.0.0	0.1.0      	Upgrade complete
+3       	Thu Oct  8 10:11:35 2026	deployed  	shipping-platform-1.0.0	0.1.0      	Upgrade complete
+$ which pods carry runAsUser (operator-managed, not our charts):
+pod/platform-notification-688949d676-fpkr2 0
+pod/platform-shipping-987c9b68-7qc2g 0
+pod/shipping-kafka-dual-0 0
+pod/shipping-kafka-entity-operator-7d498f5f75-v4qn5 0
+pod/shipping-postgres-1 2
+our workloads (platform-*): 0 runAsUser, uid 1001 comes from image USER

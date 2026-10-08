@@ -1,0 +1,7 @@
+apiVersion: v2
+name: shipping-postgres
+description: CloudNativePG Cluster for the shipping data product. Requires the CloudNativePG operator.
+type: application
+version: 0.9.0
+appVersion: "0.1.0"
+keywords: [postgres, cloudnativepg]

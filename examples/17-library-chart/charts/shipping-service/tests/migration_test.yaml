@@ -1,0 +1,52 @@
+suite: shipping-service migration hook
+templates:
+  - templates/migration-job.yaml
+tests:
+  - it: renders no Job in memory mode
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders a pre-install and pre-upgrade hook Job in postgres mode
+    set:
+      config.storage: postgres
+      postgres.host: db-rw
+      postgres.existingSecret: db-app
+    asserts:
+      - isKind:
+          of: Job
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: pre-install,pre-upgrade
+      - equal:
+          path: metadata.annotations["helm.sh/hook-delete-policy"]
+          value: before-hook-creation,hook-succeeded
+      - equal:
+          path: spec.template.spec.containers[0].command
+          value: [python, -m, app.migrate]
+      - notExists:
+          path: spec.template.spec.containers[0].securityContext.runAsUser
+
+  - it: honours migration.hooks and migration.weight
+    set:
+      config.storage: postgres
+      postgres.host: db-rw
+      postgres.existingSecret: db-app
+      migration.hooks: post-install,post-upgrade
+      migration.weight: 5
+    asserts:
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: post-install,post-upgrade
+      - equal:
+          path: metadata.annotations["helm.sh/hook-weight"]
+          value: "5"
+
+  - it: renders no Job when migration.enabled is false
+    set:
+      config.storage: postgres
+      postgres.host: db-rw
+      migration.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 395" font-family="'Red Hat Text', system-ui, sans-serif" role="img">
+<defs><marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker><marker id="am" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b8650a"/></marker></defs>
+<rect x="20" y="20" width="940" height="150" rx="12" fill="#fafafa" stroke="#ddd"/>
+<text x="32" y="40" font-size="12" font-weight="700" fill="#888">event path (namespace hfd-15)</text>
+<rect x="20" y="200" width="940" height="150" rx="12" fill="#fafafa" stroke="#ddd"/>
+<text x="32" y="220" font-size="12" font-weight="700" fill="#888">shipping-kafka chart (kafka.strimzi.io/v1)</text>
+<rect x="50" y="70" width="220" height="70" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="160.0" y="103.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">shipping-service</text>
+<text x="160.0" y="120.0" font-size="11.5" fill="#555555" text-anchor="middle">POST /api/shipments/{id}/dispatch</text>
+<rect x="380" y="70" width="200" height="70" rx="9" fill="#eef4fb" stroke="#2f6db5" stroke-width="2"/>
+<text x="480.0" y="103.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">topic shipment.dispatched</text>
+<text x="480.0" y="120.0" font-size="11.5" fill="#555555" text-anchor="middle">ShipmentDispatched JSON</text>
+<rect x="690" y="70" width="240" height="70" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="810.0" y="103.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">notification-service</text>
+<text x="810.0" y="120.0" font-size="11.5" fill="#555555" text-anchor="middle">consumer group notification-service</text>
+<rect x="50" y="250" width="220" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="160.0" y="283.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Kafka shipping-kafka</text>
+<text x="160.0" y="300.0" font-size="11.5" fill="#555555" text-anchor="middle">KRaft, plain listener 9092</text>
+<rect x="380" y="250" width="200" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="480.0" y="283.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">KafkaNodePool dual</text>
+<text x="480.0" y="300.0" font-size="11.5" fill="#555555" text-anchor="middle">roles: controller, broker</text>
+<rect x="690" y="250" width="240" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="810.0" y="283.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">KafkaTopic</text>
+<text x="810.0" y="300.0" font-size="11.5" fill="#555555" text-anchor="middle">created by the entity operator</text>
+<path d="M270,105 L380,105" fill="none" stroke="#b8650a" stroke-width="2" marker-end="url(#am)"/>
+<text x="331.0" y="99.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">produce</text>
+<text x="331.0" y="99.0" font-size="11" fill="#b8650a" text-anchor="middle">produce</text>
+<path d="M580,105 L690,105" fill="none" stroke="#b8650a" stroke-width="2" marker-end="url(#am)"/>
+<text x="641.0" y="99.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">consume</text>
+<text x="641.0" y="99.0" font-size="11" fill="#b8650a" text-anchor="middle">consume</text>
+<path d="M270,285 L380,285" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="331.0" y="279.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">members</text>
+<text x="331.0" y="279.0" font-size="11" fill="#555" text-anchor="middle">members</text>
+<path d="M580,285 L690,285" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="641.0" y="279.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">declares</text>
+<text x="641.0" y="279.0" font-size="11" fill="#555" text-anchor="middle">declares</text>
+<path d="M810,250 L480,140" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
+<text x="685.0" y="189.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">topic exists once reconciled</text>
+<text x="685.0" y="189.0" font-size="11" fill="#555" text-anchor="middle">topic exists once reconciled</text>
+<text x="490" y="375" font-size="12" fill="#888888" text-anchor="middle">The Strimzi operator (namespace strimzi) reconciles these three resources into broker pods.</text>
+</svg>

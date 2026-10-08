@@ -1,0 +1,7 @@
+apiVersion: v2
+name: shipping-kafka
+description: Strimzi Kafka (KRaft) cluster, node pool and the shipment.dispatched topic. Requires the Strimzi operator.
+type: application
+version: 0.17.0
+appVersion: "0.1.0"
+keywords: [kafka, strimzi, kraft]

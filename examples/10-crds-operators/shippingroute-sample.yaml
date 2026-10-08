@@ -1,0 +1,8 @@
+apiVersion: shipping.patterncatalyst.io/v1alpha1
+kind: ShippingRoute
+metadata:
+  name: springfield-express
+spec:
+  carrier: ACME-Post
+  origin: Capital City
+  destination: Springfield

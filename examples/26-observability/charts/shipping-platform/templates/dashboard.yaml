@@ -1,0 +1,16 @@
+{{- if .Values.dashboards.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-dashboard
+  namespace: {{ default .Release.Namespace .Values.dashboards.namespace }}
+  labels:
+    {{ .Values.dashboards.label }}: {{ .Values.dashboards.labelValue | quote }}
+    app.kubernetes.io/part-of: {{ .Values.global.partOf }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    grafana_folder: {{ .Values.dashboards.folder | quote }}
+data:
+  shipping-dashboard.json: |-
+    {{- tpl (.Files.Get "files/shipping-dashboard.json") . | nindent 4 }}
+{{- end }}

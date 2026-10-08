@@ -1,0 +1,11 @@
+$ curl -s -X POST 127.0.0.1:8080/api/shipments -H "Authorization: Bearer dev-token" -H content-type:application/json -d {"orderId":1001,"address":"1 Main St, Springfield"}
+{"id":1,"orderId":1001,"address":"1 Main St, Springfield","status":"PENDING","createdAt":"2026-10-08T14:04:37.901078Z"}
+ID=1
+$ curl -s -X POST 127.0.0.1:8080/api/shipments/1/dispatch
+{"id":1,"orderId":1001,"address":"1 Main St, Springfield","status":"DISPATCHED","createdAt":"2026-10-08T14:04:37.901078Z"}
+$ no-token POST (expect 401)
+401
+$ curl -s 127.0.0.1:8081/api/notifications
+[{"receivedAt":"2026-10-08T14:04:37.997322+00:00","topic":"shipment.dispatched","partition":0,"offset":0,"event":{"orderId":1001,"shipmentId":1,"address":"1 Main St, Springfield","status":"DISPATCHED","occurredAt":"2026-10-08T14:04:37.977769+00:00"}}]
+$ notifications containing shipmentId 1:
+"shipmentId":1

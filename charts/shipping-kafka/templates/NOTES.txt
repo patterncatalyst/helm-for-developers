@@ -1,0 +1,4 @@
+Strimzi Kafka {{ .Values.clusterName }} ({{ .Values.strimzi.apiVersion }}, KRaft, {{ .Values.replicas }} node) requested in namespace {{ .Release.Namespace }}.
+  [host]$ kubectl -n {{ .Release.Namespace }} get kafka,kafkanodepool,kafkatopic
+Bootstrap address: {{ .Values.clusterName }}-kafka-bootstrap.{{ .Release.Namespace }}.svc:9092
+Topic: {{ .Values.kafkaTopic.name }}

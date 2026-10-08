@@ -1,0 +1,44 @@
+suite: pc-fastapi starter
+templates:
+  - templates/deployment.yaml
+  - templates/service.yaml
+  - templates/tests/test-connection.yaml
+release:
+  name: demo
+tests:
+  - it: renders a Deployment named after the release and chart
+    template: templates/deployment.yaml
+    asserts:
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.name
+          value: demo-inventory-service
+
+  - it: exposes the Service on the chart port
+    template: templates/service.yaml
+    asserts:
+      - isKind:
+          of: Service
+
+  - it: probes from the chart's own image by default
+    template: templates/tests/test-connection.yaml
+    asserts:
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: test
+      - matchRegex:
+          path: spec.containers[0].image
+          pattern: "inventory-service|pc-fastapi|:"
+      - equal:
+          path: spec.containers[0].command[0]
+          value: python
+
+  - it: honors tests.image
+    template: templates/tests/test-connection.yaml
+    set:
+      tests.image: registry.example.com/probe:1
+    asserts:
+      - equal:
+          path: spec.containers[0].image
+          value: registry.example.com/probe:1

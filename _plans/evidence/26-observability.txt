@@ -1,0 +1,40 @@
+# 26 observability, 2026-10-08, Helm 4.3.0, Grafana chart 8.5.0
+# before searchNamespace=ALL (platform installed in hfd-26, dashboard ConfigMap platform-dashboard present)
+## default sidecar env
+grafana-sc-dashboard: METHOD=WATCH LABEL=grafana_dashboard LABEL_VALUE=1 FOLDER=/tmp/dashboards RESOURCE=both FOLDER_ANNOTATION=grafana_folder REQ_USERNAME= REQ_PASSWORD= REQ_URL=http://localhost:3000
+grafana-sc-datasources: METHOD=WATCH LABEL=grafana_datasource LABEL_VALUE=1 FOLDER=/etc/grafana/provisioning/datasources RESOURCE=both REQ_USERNAME= REQ_PASSWORD= REQ_URL=http://localhost:3000/api/adm
+grafana: POD_IP= GF_SECURITY_ADMIN_USER= GF_SECURITY_ADMIN_PASSWORD= GF_PATHS_DATA=/var/lib/grafana/ GF_PATHS_LOGS=/var/log/grafana GF_PATHS_PLUGINS=/var/lib/grafana/plugins GF_PATHS_PROVISIONING=/etc/grafana/provisioning 
+NAME                 DATA   AGE
+platform-dashboard   1      50s
+    ok: grafana       127.0.0.1:3000 -> node:30300
+    stop with: scripts/tunnel.sh stop
+## search BEFORE searchNamespace=ALL
+[]
+# demo.sh first run (rc=0) tail
+==> create and dispatch a shipment
+==> TraceQL through Grafana: dispatch spans of platform-shipping
+   trace cec24ef2a72170e9dde7bbb392b2ec74 POST /api/shipments/{shipment_id}/dispatch
+==> dashboard loaded by the sidecar
+    Shipping platform (platform) folder: Shipping
+./demo.sh  5.61s user 1.58s system 22% cpu 32.196 total
+
+# trace with both services (dispatch with bearer token; the demo's first version omitted the header, got 401, so the 'trace' it found had only shipping spans)
+trace 3371ca4df584085be655212bd76d03ab: platform-notification process shipment.dispatched; platform-shipping POST .../dispatch (1), http send (2), SELECT (3), UPDATE (1); notification log: shipment 2 for order 2602 dispatched trace_id 3371ca4d...
+# metrics in Mimir: http_server_duration_milliseconds_{count,sum,bucket} exist; series labels: http_method, http_target, http_status_code, job='shipping/platform-shipping' (no service_name label). Dashboard fixed to sum by (job) ... {job=~".*/platform-.*"}
+# Loki: labels deployment_environment, service_instance_id, service_name, service_namespace; service_name values platform-notification, platform-shipping
+# final demo.sh run (rc=0)
+==> the trace holds spans from both services
+   trace c9c4224ba771cdc27068cb46abe2cf7f services: ['platform-notification', 'platform-shipping']
+==> TraceQL through Grafana: dispatch spans of platform-shipping
+   trace c9c4224ba771cdc27068cb46abe2cf7f POST /api/shipments/{shipment_id}/dispatch
+   trace 3371ca4df584085be655212bd76d03ab POST /api/shipments/{shipment_id}/dispatch
+   trace 1bf2421de455fdf6c13a43c05f78720a POST /api/shipments/{shipment_id}/dispatch
+   trace cec24ef2a72170e9dde7bbb392b2ec74 POST /api/shipments/{shipment_id}/dispatch
+==> request-rate panel query returns series in Mimir
+    {'job': 'notification/platform-notification'}
+    {'job': 'shipping/platform-shipping'}
+==> dashboard loaded by the sidecar
+    Shipping platform (platform) folder: Shipping
+./demo.sh  5.51s user 1.55s system 20% cpu 34.831 total
+# grafana sidecar after upgrade: grafana-sc-dashboard NAMESPACE=ALL; dashboard API: folder Shipping, panel 1 expr sum by (job) (...)
+# helm test platform -n hfd-26: 3 x Phase: Succeeded; helm unittest charts/shipping-platform and the example copy: 23 tests passed

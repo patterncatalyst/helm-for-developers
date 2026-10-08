@@ -1,0 +1,11 @@
+{{ include "shipping-service.fullname" . }} {{ .Chart.AppVersion }} installed as release "{{ .Release.Name }}" in namespace {{ .Release.Namespace }}.
+Storage: {{ .Values.config.storage }}
+
+Reach the service:
+{{- if eq .Values.service.type "NodePort" }}
+  [host]$ minikube -p helm4dev service {{ include "shipping-service.fullname" . }} -n {{ .Release.Namespace }} --url
+{{- else }}
+  [host]$ kubectl -n {{ .Release.Namespace }} get svc {{ include "shipping-service.fullname" . }}
+{{- end }}
+
+{{ .Files.Get "files/support.txt" -}}

@@ -1,0 +1,16 @@
+{{ include "shipping-service.fullname" . }} {{ .Chart.AppVersion }} installed as release "{{ .Release.Name }}" in namespace {{ .Release.Namespace }}.
+Storage: {{ .Values.config.storage }}{{ if .Values.kafka.enabled }}, Kafka topic {{ .Values.kafka.topic }}{{ end }}
+
+Reach the service:
+{{- if eq .Values.service.type "NodePort" }}
+  [host]$ minikube -p helm4dev service {{ include "shipping-service.fullname" . }} -n {{ .Release.Namespace }} --url
+{{- else }}
+  [host]$ kubectl -n {{ .Release.Namespace }} get svc {{ include "shipping-service.fullname" . }}
+{{- end }}
+
+Run the chart test:
+  [host]$ helm test {{ .Release.Name }} -n {{ .Release.Namespace }}
+{{- if and (eq .Values.config.storage "postgres") .Values.migration.enabled }}
+
+Schema migration runs as a Job hook ({{ .Values.migration.hooks }}): {{ include "shipping-service.fullname" . }}-migrate
+{{- end }}

@@ -1,0 +1,13 @@
+# Development: one replica, debug logging, NodePort for the host tunnel.
+config:
+  logLevel: DEBUG
+service:
+  type: NodePort
+  nodePort: 30080
+podAnnotations:
+  shipping.example.com/release: "{{ .Release.Name }}/{{ .Release.Namespace }}"
+extraEnv:
+  - name: TZ
+    value: UTC
+auth:
+  token: dev-token

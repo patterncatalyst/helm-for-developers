@@ -1,0 +1,4 @@
+# Rendering only: ct cannot install this chart without the CloudNativePG operator.
+cluster:
+  storage:
+    size: 1Gi

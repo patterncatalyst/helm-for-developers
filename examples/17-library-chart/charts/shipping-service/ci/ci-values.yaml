@@ -1,0 +1,5 @@
+# chart-testing install values: no database, no Kafka, in-memory storage.
+config:
+  storage: memory
+auth:
+  token: ci-token

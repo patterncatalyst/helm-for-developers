@@ -1,0 +1,165 @@
+name: charts-ci
+
+# Chart checks that need no cluster: helm lint --strict, helm-unittest, kubeconform,
+# chart-testing lint, and every example's `demo.sh offline`.
+# `ct install` needs a cluster, so it runs only from the manual `ct-install` job.
+
+on:
+  pull_request:
+    paths:
+      - "charts/**"
+      - "examples/**"
+      - "scripts/**"
+      - ".github/ct.yaml"
+      - ".github/workflows/charts-ci.yml"
+  push:
+    branches: [main, "feature/**"]
+    paths:
+      - "charts/**"
+      - "examples/**"
+      - "scripts/**"
+      - ".github/ct.yaml"
+      - ".github/workflows/charts-ci.yml"
+  workflow_dispatch:
+    inputs:
+      run_ct_install:
+        description: "Also run ct install against a kind cluster"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: charts-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Pinned 2026-10-08. scripts/install-tools.sh downloads each release and verifies
+  # its upstream SHA-256 checksum file before installing into .tools/.
+  HELM_VERSION: "4.3.0"
+  KUBECONFORM_VERSION: "0.8.0"
+  CT_VERSION: "3.15.0"
+  UNITTEST_VERSION: "1.2.1"
+  HELM_DIFF_VERSION: "3.15.15"
+  K8S_VERSION: "1.34.0"
+  CRD_CATALOG: "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json"
+
+jobs:
+  lint-test:
+    name: lint, unittest, kubeconform, examples
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Cache the project-local toolchain
+        uses: actions/cache@v4
+        with:
+          path: .tools
+          key: tools-${{ runner.os }}-${{ hashFiles('scripts/install-tools.sh') }}
+
+      - name: Install Helm, plugins, kubeconform, ct (checksum-verified)
+        run: scripts/install-tools.sh
+
+      - name: Confirm the pinned versions
+        run: |
+          source scripts/env.sh
+          [[ "$(helm version --short)" == "v${HELM_VERSION}"* ]]
+          [[ "$(kubeconform -v)" == "v${KUBECONFORM_VERSION}" ]]
+          ct version | grep -q "${CT_VERSION}"
+          helm plugin list | awk 'NR>1{print $1" "$2}' | grep -qx "unittest ${UNITTEST_VERSION}"
+          helm plugin list | awk 'NR>1{print $1" "$2}' | grep -qx "diff ${HELM_DIFF_VERSION}"
+          helm version --short
+
+      - name: Build chart dependencies
+        run: |
+          source scripts/env.sh
+          # Leaf application charts depend on pc-lib; the umbrella depends on the leaves.
+          for c in shipping-service notification-service shipping-platform; do
+            helm dependency build "charts/$c"
+          done
+
+      - name: helm lint --strict
+        run: |
+          source scripts/env.sh
+          for f in charts/*/Chart.yaml; do
+            c="$(dirname "$f")"
+            vals=()
+            [[ -f "$c/ci/ci-values.yaml" ]] && vals=(-f "$c/ci/ci-values.yaml")
+            helm lint --strict "$c" "${vals[@]}"
+          done
+
+      - name: helm unittest
+        run: |
+          source scripts/env.sh
+          for f in charts/*/Chart.yaml; do
+            c="$(dirname "$f")"
+            [[ -d "$c/tests" ]] || continue
+            helm unittest "$c"
+          done
+
+      - name: kubeconform (Kubernetes ${{ env.K8S_VERSION }} plus the datree CRDs-catalog)
+        run: |
+          source scripts/env.sh
+          for f in charts/*/Chart.yaml; do
+            c="$(dirname "$f")"
+            [[ "$(awk '/^type:/{print $2}' "$f")" == "library" ]] && continue
+            vals=()
+            [[ -f "$c/ci/ci-values.yaml" ]] && vals=(-f "$c/ci/ci-values.yaml")
+            echo "==> $c"
+            helm template "ci-$(basename "$c")" "$c" "${vals[@]}" | kubeconform -strict -summary \
+              -kubernetes-version "$K8S_VERSION" -cache "$RUNNER_TEMP" \
+              -schema-location default -schema-location "$CRD_CATALOG"
+          done
+
+      - name: ct lint
+        run: |
+          source scripts/env.sh
+          ct lint --config .github/ct.yaml --all
+
+      - name: Examples, offline mode
+        run: |
+          source scripts/env.sh
+          shopt -s nullglob
+          for d in examples/*/; do
+            [[ -x "$d/demo.sh" ]] || continue
+            echo "==> $d"
+            (cd "$d" && ./demo.sh offline)
+          done
+
+  ct-install:
+    name: ct install on kind (manual)
+    if: github.event_name == 'workflow_dispatch' && inputs.run_ct_install
+    needs: lint-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Cache the project-local toolchain
+        uses: actions/cache@v4
+        with:
+          path: .tools
+          key: tools-${{ runner.os }}-${{ hashFiles('scripts/install-tools.sh') }}
+
+      - name: Install Helm, plugins, kubeconform, ct (checksum-verified)
+        run: scripts/install-tools.sh
+
+      - name: Create a kind cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: charts-ci
+
+      - name: Build the shipping-service image and load it into kind
+        run: |
+          docker build -f services/Containerfile --build-arg SERVICE=shipping-service -t shipping-service:0.1.0 services
+          kind load docker-image shipping-service:0.1.0 --name charts-ci
+
+      - name: ct install
+        run: |
+          source scripts/env.sh
+          helm dependency build charts/shipping-service
+          ct install --config .github/ct.yaml --charts charts/shipping-service

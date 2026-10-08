@@ -1,0 +1,333 @@
+
+==> helm dependency build (file:// subcharts are packed into charts/*.tgz) and list
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "open-telemetry" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "grafana" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 4 charts
+Deleting outdated charts
+NAME                	VERSION	REPOSITORY                    	STATUS
+shipping-service    	0.16.0 	file://../shipping-service    	ok    
+notification-service	0.16.0 	file://../notification-service	ok    
+shipping-postgres   	0.16.0 	file://../shipping-postgres   	ok    
+shipping-kafka      	0.16.0 	file://../shipping-kafka      	ok    
+
+
+==> helm lint --strict and helm unittest
+==> Linting charts/shipping-platform
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+
+### Chart [ shipping-platform ] charts/shipping-platform
+
+ PASS  shipping-platform umbrella	charts/shipping-platform/tests/platform_test.yaml
+ PASS  shipping-platform toggles	charts/shipping-platform/tests/toggles_test.yaml
+ PASS  shipping-platform connection test pod	charts/shipping-platform/tests/toggles_test.yaml
+
+Charts:      1 passed, 1 total
+Test Suites: 3 passed, 3 total
+Tests:       15 passed, 15 total
+Snapshot:    0 passed, 0 total
+Time:        73.154715ms
+
+
+==> helm template | kubeconform
+Summary: 15 resources found parsing stdin - Valid: 15, Invalid: 0, Errors: 0, Skipped: 0
+
+==> Alias names are the release object names: platform-shipping, platform-notification
+  name: platform-notification
+  name: platform-notification-test-connection
+  name: platform-platform-test
+  name: platform-shipping
+  name: platform-shipping-migrate
+  name: platform-shipping-test-connection
+
+==> The migration hook runs after install because the database is created by this release
+    "helm.sh/hook": "post-install,post-upgrade"
+
+==> Readiness is /health in the umbrella; the standalone default /healthz would wait on the hook
+          readinessProbe:
+            httpGet:
+              path: /health
+
+==> import-values trap: a default in the subchart wins over the imported value
+            - name: KAFKA_BOOTSTRAP
+              value: "stale:9092"
+
+==> tags trap: tags.messaging=false alone leaves shipping pointing at a Kafka that is gone
+Error: execution error at (shipping-platform/charts/shipping/templates/deployment.yaml:50:16): kafka.bootstrap is required when kafka.enabled=true
+
+==> ... the pair renders and drops notification and kafka
+Kafka resources rendered: 0
+
+==> Preflight
+==> engine=docker mode=build tag=0.1.0
+
+==> shipping-service:0.1.0
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Containerfile
+#1 transferring dockerfile: 2.17kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
+#2 ...
+
+#3 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#3 DONE 0.3s
+
+#2 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
+#2 DONE 0.3s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
+#5 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.0s done
+#5 DONE 0.0s
+
+#6 [builder 1/6] FROM registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
+#6 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.0s done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 28.25kB done
+#7 DONE 0.0s
+
+#8 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+#8 CACHED
+
+#9 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+#9 CACHED
+
+#10 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+#10 CACHED
+
+#11 [runtime 2/6] WORKDIR /app
+#11 CACHED
+
+#12 [builder 5/6] COPY shipping-service/pyproject.toml /src/service/pyproject.toml
+#12 CACHED
+
+#13 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+#13 CACHED
+
+#14 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+#14 CACHED
+
+#15 [runtime 5/6] COPY shipping-service/ /app/
+#15 CACHED
+
+#16 [builder 4/6] COPY common /src/common
+#16 CACHED
+
+#17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
+#17 CACHED
+
+#18 exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:ac2cd575e5eb17d6172e2a77a94099ac903d80c1770bd98aeb3eb10d2f70f3ec done
+#18 exporting config sha256:d7577a9165c2732d167d639f1ad0b130db9a6ed6dab6eddc2c9002561802d5a3 done
+#18 exporting attestation manifest sha256:dcd5cb861299ceb8e6808599077f7489f86818a9076fc690ef2c3e29f521be49 0.0s done
+#18 exporting manifest list sha256:0d7af5df39c6cff9e79b5f9bba93b38bceef592b79bfbc76f84ada2a033bf92d 0.0s done
+#18 naming to docker.io/library/shipping-service:0.1.0 done
+#18 unpacking to docker.io/library/shipping-service:0.1.0 done
+#18 DONE 0.1s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/lp2i7zn3yq03uana59mz4vgl4
+
+==> notification-service:0.1.0
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Containerfile
+#1 transferring dockerfile: 2.17kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#2 DONE 0.1s
+
+#3 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
+#3 DONE 0.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [builder 1/6] FROM registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
+#5 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.0s done
+#5 DONE 0.0s
+
+#6 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
+#6 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.0s done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 10.71kB done
+#7 DONE 0.0s
+
+#8 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+#8 CACHED
+
+#9 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+#9 CACHED
+
+#10 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+#10 CACHED
+
+#11 [runtime 5/6] COPY notification-service/ /app/
+#11 CACHED
+
+#12 [runtime 2/6] WORKDIR /app
+#12 CACHED
+
+#13 [builder 4/6] COPY common /src/common
+#13 CACHED
+
+#14 [builder 5/6] COPY notification-service/pyproject.toml /src/service/pyproject.toml
+#14 CACHED
+
+#15 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+#15 CACHED
+
+#16 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+#16 CACHED
+
+#17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
+#17 CACHED
+
+#18 exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:9b7868487b929dac4e2855b558a0ed0c5dc4fa7d84c567df9ea5c3e725ad8a7a done
+#18 exporting config sha256:729ca706dc57d9db1ea09c441e64c81ccb956e853287c5c6b94bd53dac842f0b done
+#18 exporting attestation manifest sha256:38103bbc0c902d6de33e12793c5ced793fccd533691f76bbc4c772e6156f74f1
+#18 exporting attestation manifest sha256:38103bbc0c902d6de33e12793c5ced793fccd533691f76bbc4c772e6156f74f1 0.0s done
+#18 exporting manifest list sha256:14ae76e28d62417cd083b8b05b4acfd3eb2fec025076ffdb2c2c86c3198855e5 0.0s done
+#18 naming to docker.io/library/notification-service:0.1.0 done
+#18 unpacking to docker.io/library/notification-service:0.1.0 done
+#18 DONE 0.1s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/ri7uh9ozb4659cira9ueiy75e
+
+==> images in the profile:
+docker.io/library/shipping-service:0.1.0
+docker.io/library/notification-service:0.1.0
+
+==> Install the umbrella as one release
+Release "platform" does not exist. Installing it now.
+NAME: platform
+LAST DEPLOYED: Thu Oct  8 11:21:33 2026
+NAMESPACE: hfd-16
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+NOTES:
+shipping-platform 0.16.0 installed as release "platform" in namespace hfd-16 (environment dev).
+
+Components: shipping, notification, kafka, db
+Reach the services:
+  [host]$ kubectl -n hfd-16 get svc
+
+Run the release tests:
+  [host]$ helm test platform -n hfd-16
+NAME                                                  READY   STATUS    RESTARTS      AGE
+pod/platform-notification-5f8b6885ff-cm6bj            1/1     Running   0             52s
+pod/platform-shipping-7968b4575d-td8l7                1/1     Running   3 (32s ago)   52s
+pod/shipping-kafka-dual-0                             1/1     Running   0             50s
+pod/shipping-kafka-entity-operator-5444958fb9-m6cql   2/2     Running   0             27s
+pod/shipping-postgres-1                               1/1     Running   0             46s
+
+NAME                                    READY   WARNINGS   KAFKA VERSION   METADATA VERSION
+kafka.kafka.strimzi.io/shipping-kafka   True    True       4.3.1           4.3-IV0
+
+NAME                                           AGE   INSTANCES   READY   STATUS                     PRIMARY
+cluster.postgresql.cnpg.io/shipping-postgres   52s   1           1       Cluster in healthy state   shipping-postgres-1
+---
+# Source: shipping-platform/charts/notification/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+
+==> Dispatch a shipment and read the notification
+    ok: shipping      127.0.0.1:8080 -> node:30080
+    ok: notification  127.0.0.1:8081 -> node:30081
+    stop with: scripts/tunnel.sh stop
+{"id":1,"orderId":1601,"address":"1 Main St, Springfield","status":"DISPATCHED","createdAt":"2026-10-08T15:22:26.098580Z"}
+[{"receivedAt":"2026-10-08T15:22:26.177048+00:00","topic":"shipment.dispatched","partition":0,"offset":0,"event":{"orderId":1601,"shipmentId":1,"address":"1 Main St, Springfield","status":"DISPATCHED","occurredAt":"2026-10-08T15:22:26.157432+00:00"}}]
+NAME: platform
+LAST DEPLOYED: Thu Oct  8 11:21:33 2026
+NAMESPACE: hfd-16
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE:     platform-notification-test-connection
+Last Started:   Thu Oct  8 11:22:29 2026
+Last Completed: Thu Oct  8 11:22:32 2026
+Phase:          Succeeded
+TEST SUITE:     platform-shipping-test-connection
+Last Started:   Thu Oct  8 11:22:35 2026
+Last Completed: Thu Oct  8 11:22:37 2026
+Phase:          Succeeded
+TEST SUITE:     platform-platform-test
+Last Started:   Thu Oct  8 11:22:32 2026
+Last Completed: Thu Oct  8 11:22:35 2026
+Phase:          Succeeded
+
+## S7 extra: hooks
+kind: Pod
+  name: platform-notification-test-connection
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+kind: Pod
+  name: platform-shipping-test-connection
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+kind: Pod
+  name: platform-platform-test
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+kind: Job
+  name: platform-shipping-migrate
+    "helm.sh/hook": "post-install,post-upgrade"
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+## kind order in manifest
+kind: Secret kind: ConfigMap kind: Service kind: Deployment kind: Cluster kind: Kafka kind: KafkaNodePool kind: KafkaTopic 
+## install order via template
+kind: Secret kind: ConfigMap kind: Service kind: Deployment kind: Cluster kind: Kafka kind: KafkaNodePool kind: KafkaTopic kind: Pod kind: Job 
+70s         Normal    SuccessfulCreate              job/shipping-postgres-1-initdb                         Created pod: shipping-postgres-1-initdb-vs8t9
+64s         Normal    Completed                     job/shipping-postgres-1-initdb                         Job completed
+21s         Normal    Started                       pod/platform-shipping-migrate-lmr9m                    Container started
+21s         Normal    Created                       pod/platform-shipping-migrate-lmr9m                    Container created
+21s         Normal    Scheduled                     pod/platform-shipping-migrate-lmr9m                    Successfully assigned hfd-16/platform-shipping-migrate-lmr9m to helm4dev
+21s         Normal    Pulled                        pod/platform-shipping-migrate-lmr9m                    Container image "shipping-service:0.1.0" already present on machine and can be accessed by the pod
+
+## S7 extra: /healthz readiness, --timeout 3m, rollback-on-failure
+11:22:57
+Release "platform" does not exist. Installing it now.
+Error: release platform failed, and has been uninstalled due to rollback-on-failure being set: resource Deployment/hfd-16/platform-shipping not ready. status: InProgress, message: Available: 0/1
+context deadline exceeded
+11:25:58
+NAME	NAMESPACE	REVISION	UPDATED	STATUS	CHART	APP VERSION
+NAME                                             READY   STATUS        RESTARTS        AGE
+platform-notification-5f8b6885ff-tst26           1/1     Terminating   0               3m
+platform-shipping-6d86576fcb-l4rt4               0/1     Terminating   3 (2m43s ago)   3m
+shipping-kafka-dual-0                            1/1     Running       0               2m59s
+shipping-kafka-entity-operator-dccc69dcb-bbdmq   2/2     Running       0               2m35s
+shipping-postgres-1                              1/1     Terminating   0               2m53s
+No resources found in hfd-16 namespace.
+
+## S7 extra: tags off
+STATUS: deployed
+NAME                                     READY   STATUS    RESTARTS   AGE
+pod/platform-shipping-68c694f696-nnst5   1/1     Running   0          21s
+pod/shipping-postgres-1                  1/1     Running   0          14s
+NAME                READY   UP-TO-DATE   AVAILABLE   AGE
+platform-shipping   1/1     1            1           21s
+
+## S7 extra: condition vs tags (db has condition db.enabled and tag messaging; tags.messaging=false)
+db.enabled=true: Cluster objects: 1
+db.enabled=false: Cluster objects: 0

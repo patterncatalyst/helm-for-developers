@@ -677,15 +677,18 @@ Sources consulted for version facts:
 ## Step status
 | Step | Status |
 |---|---|
-| S1 | pending |
-| S2 | pending |
-| S3 | pending |
-| S4 | pending |
-| S5 | pending |
-| S6.0–S6.8 | pending |
-| S7 | pending |
-| S8a/S8b | pending |
-| S9 | pending |
-| S10 | pending |
+| S1 | done |
+| S2 | done |
+| S3 | done (F1: Python 3.14) |
+| S4 | done |
+| S5 | done (7/7 met) |
+| S6.0–S6.8 | done (+ repair pass) |
+| S7 | done (minikube; ch27 verified on CRC, see _plans/claims/s7-d.md) |
+| S8a/S8b | done |
+| S9 | done (hub branch, not pushed) |
+| S10 | done |
 | S11 | pending |
 | S12 | gated |
+
+## Plan change (2026-10-08): CRC available on the authoring machine
+OpenShift Local 2.64.0 (OpenShift 4.22.14) and `oc` 4.22.17 installed in `~/.local/bin`; `crc config`: preset openshift, memory 20480, cpus 6, disk 80, pull secret from ~/Downloads. User runs `crc setup` (sudo). Ch27 is now verified live in the **last phase**: after S7b/S7c finish, stop minikube `helm4dev` (no delete) to free memory, `crc start`, run `examples/27-openshift-crc/verify-crc.sh`, promote ch27 with evidence, drop the "untested on the authoring machine" banners in ch27, its README, and the 201 deck.

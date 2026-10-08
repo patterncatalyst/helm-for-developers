@@ -1,0 +1,20 @@
+# OpenShift / CRC: Routes instead of NodePorts, images from the internal registry.
+# No runAsUser anywhere: restricted-v2 assigns the UID range.
+global:
+  environment: openshift
+  imageRegistry: image-registry.openshift-image-registry.svc:5000/hfd-openshift
+  otlpEndpoint: ""
+route:
+  enabled: true
+shipping:
+  service:
+    type: ClusterIP
+  auth:
+    token: openshift-token
+notification:
+  service:
+    type: ClusterIP
+db:
+  cluster:
+    inheritedMetadata:
+      annotations: {}

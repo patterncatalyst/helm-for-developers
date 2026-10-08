@@ -1,0 +1,19 @@
+apiVersion: v1
+type: cli/v1
+name: shipping-env
+version: 0.1.0
+runtime: subprocess
+config:
+  usage: "shipping-env (RELEASE [-n NAMESPACE] | --chart DIR [-f VALUES]...)"
+  shortHelp: "print the effective container env of every Deployment in a release"
+  longHelp: |-
+    Prints NAME=VALUE for every container env entry of each Deployment, grouped by
+    Deployment. Secret references print as <secret NAME/KEY>.
+
+    helm shipping-env platform -n hfd-20       reads the deployed release manifest
+    helm shipping-env --chart charts/shipping-platform -f values-dev.yaml
+                                               renders locally, no cluster needed
+  ignoreFlags: false
+runtimeConfig:
+  platformCommand:
+    - command: "${HELM_PLUGIN_DIR}/shipping-env.sh"

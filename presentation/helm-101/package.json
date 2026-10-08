@@ -1,0 +1,8 @@
+{
+  "name": "helm-101",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Helm for Developers 101 deck (lgtm-presentation)",
+  "scripts": { "build": "node deck.js", "diagrams": ".venv/bin/python build_diagrams.py" },
+  "dependencies": { "pptxgenjs": "^4.0.1" }
+}

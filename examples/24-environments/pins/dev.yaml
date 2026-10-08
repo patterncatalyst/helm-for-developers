@@ -1,0 +1,8 @@
+# Promotion record for dev: the image tags this environment runs. Dev follows a tag;
+# stage and prod follow tag@digest so a re-pushed tag cannot change what they run.
+shipping:
+  image:
+    tag: "0.1.0"
+notification:
+  image:
+    tag: "0.1.0"

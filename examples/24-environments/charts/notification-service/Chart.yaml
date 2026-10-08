@@ -1,0 +1,14 @@
+apiVersion: v2
+name: notification-service
+description: Notification service. Consumes ShipmentDispatched events from Kafka and keeps the last 50 notifications.
+type: application
+version: 1.0.0
+appVersion: "0.1.0"
+keywords: [notification, fastapi, kafka-consumer]
+maintainers:
+  - name: PatternCatalyst
+    email: rsedor@patterncatalyst.io
+dependencies:
+  - name: pc-lib
+    version: 1.0.0
+    repository: file://../pc-lib

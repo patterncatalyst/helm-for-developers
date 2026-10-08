@@ -1,0 +1,65 @@
+# notification-service values. The umbrella chart (shipping-platform) overrides these
+# under the `notification:` key and supplies `global.*`.
+
+replicaCount: 1
+
+image:
+  repository: notification-service
+  tag: ""            # defaults to .Chart.AppVersion
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+containerPort: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  nodePort: null
+
+config:
+  environment: dev          # DEPLOY_ENV (global.environment wins when set)
+  logLevel: INFO
+
+kafka:
+  # bootstrap: ""          # required; the umbrella imports it from the kafka chart
+  topic: shipment.dispatched
+  groupId: notification-service
+
+otel:
+  endpoint: ""              # falls back to global.otlpEndpoint
+  serviceName: ""
+
+dataProduct:
+  domain: notification
+  owner: team-notifications
+  name: notifications
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 192Mi
+  limits:
+    memory: 512Mi
+
+probes:
+  startup:
+    path: /health
+    failureThreshold: 30
+    periodSeconds: 2
+  liveness:
+    path: /health
+    periodSeconds: 10
+  readiness:
+    path: /healthz
+    periodSeconds: 5
+
+podAnnotations: {}
+
+tests:
+  # Empty: probe from the chart's own image (numeric USER 1001, so runAsNonRoot verifies).
+  image: ""
+
+global: {}

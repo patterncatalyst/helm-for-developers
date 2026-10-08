@@ -1,0 +1,6 @@
+apiVersion: v2
+name: pc-lib
+description: Pattern Catalyst library chart. Shared Deployment, Service, labels, probes, security context and OTel helpers.
+type: library
+version: 0.18.0
+appVersion: "0.1.0"

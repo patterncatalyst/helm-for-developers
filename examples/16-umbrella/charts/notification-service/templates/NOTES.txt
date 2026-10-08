@@ -1,0 +1,13 @@
+{{ include "notification-service.fullname" . }} {{ .Chart.AppVersion }} installed as release "{{ .Release.Name }}" in namespace {{ .Release.Namespace }}.
+Consuming topic {{ .Values.kafka.topic }} from {{ .Values.kafka.bootstrap }} as group {{ .Values.kafka.groupId }}.
+
+Reach the service:
+{{- if eq .Values.service.type "NodePort" }}
+  [host]$ minikube -p helm4dev service {{ include "notification-service.fullname" . }} -n {{ .Release.Namespace }} --url
+{{- else }}
+  [host]$ kubectl -n {{ .Release.Namespace }} get svc {{ include "notification-service.fullname" . }}
+{{- end }}
+  GET /api/notifications lists the last 50 notifications received.
+
+Run the chart test:
+  [host]$ helm test {{ .Release.Name }} -n {{ .Release.Namespace }}

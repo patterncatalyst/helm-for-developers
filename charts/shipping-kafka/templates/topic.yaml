@@ -1,0 +1,10 @@
+apiVersion: {{ .Values.strimzi.apiVersion }}
+kind: KafkaTopic
+metadata:
+  name: {{ .Values.kafkaTopic.name }}
+  labels:
+    {{- include "shipping-kafka.labels" . | nindent 4 }}
+    strimzi.io/cluster: {{ .Values.clusterName }}
+spec:
+  partitions: {{ .Values.kafkaTopic.partitions }}
+  replicas: {{ .Values.kafkaTopic.replicas }}

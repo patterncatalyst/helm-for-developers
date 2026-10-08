@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "global": {
+      "type": "object",
+      "properties": {
+        "environment": {"enum": ["dev", "stage", "prod", "openshift"]},
+        "otlpEndpoint": {"type": "string", "pattern": "^(https?://.+)?$"},
+        "imageRegistry": {"type": "string"},
+        "partOf": {"type": "string"}
+      }
+    },
+    "tags": {"type": "object", "properties": {"messaging": {"type": "boolean"}}},
+    "shipping": {"type": "object"},
+    "notification": {"type": "object"},
+    "db": {"type": "object"},
+    "kafka": {"type": "object"},
+    "route": {
+      "type": "object",
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "tls": {
+          "type": "object",
+          "properties": {
+            "termination": {"enum": ["edge", "passthrough", "reencrypt"]},
+            "insecureEdgeTerminationPolicy": {"enum": ["Allow", "Disable", "Redirect", "None"]}
+          }
+        },
+        "hosts": {"type": "object"}
+      }
+    },
+    "dashboards": {
+      "type": "object",
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "label": {"type": "string", "minLength": 1},
+        "labelValue": {"type": "string"},
+        "folder": {"type": "string"},
+        "namespace": {"type": "string"}
+      }
+    },
+    "tests": {"type": "object"}
+  }
+}

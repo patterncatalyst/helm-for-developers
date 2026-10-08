@@ -1,0 +1,36 @@
+global:
+  environment: prod
+  otlpEndpoint: http://otel-collector.observability.svc.cluster.local:4318
+shipping:
+  replicaCount: 3
+  image:
+    pullPolicy: IfNotPresent
+  config:
+    logLevel: WARNING
+  auth:
+    existingSecret: shipping-api-token
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+notification:
+  replicaCount: 2
+  config:
+    logLevel: WARNING
+db:
+  cluster:
+    instances: 3
+    storage:
+      size: 20Gi
+kafka:
+  replicas: 3
+  replicationFactor: 3
+  minInsyncReplicas: 2
+  kafkaTopic:
+    partitions: 6
+    replicas: 3
+  storage:
+    type: persistent-claim
+    size: 50Gi

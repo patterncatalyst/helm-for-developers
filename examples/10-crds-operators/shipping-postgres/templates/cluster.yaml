@@ -1,0 +1,35 @@
+{{- if and .Values.requireOperator (not (.Capabilities.APIVersions.Has "postgresql.cnpg.io/v1")) }}
+{{- fail "shipping-postgres needs the CloudNativePG operator: the API postgresql.cnpg.io/v1 is not served by this cluster. Install the operator (scripts/platform/bootstrap.sh), set requireOperator=false to skip this check, or pass --api-versions postgresql.cnpg.io/v1 to helm template." }}
+{{- end }}
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ .Values.cluster.name }}
+  labels:
+    app.kubernetes.io/name: shipping-postgres
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/part-of: shipping-platform
+    app.kubernetes.io/component: database
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+spec:
+  instances: {{ .Values.cluster.instances }}
+  {{- if .Values.cluster.imageName }}
+  imageName: {{ .Values.cluster.imageName | quote }}
+  {{- end }}
+  {{- with .Values.cluster.inheritedMetadata }}
+  inheritedMetadata:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  bootstrap:
+    initdb:
+      database: {{ .Values.cluster.database }}
+      owner: {{ .Values.cluster.owner }}
+  storage:
+    size: {{ .Values.cluster.storage.size }}
+    {{- if .Values.cluster.storage.storageClass }}
+    storageClass: {{ .Values.cluster.storage.storageClass }}
+    {{- end }}
+  resources:
+    {{- toYaml .Values.cluster.resources | nindent 4 }}

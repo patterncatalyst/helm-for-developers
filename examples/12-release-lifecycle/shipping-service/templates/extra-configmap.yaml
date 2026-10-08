@@ -1,0 +1,10 @@
+{{- if .Values.extras.configMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "shipping-service.fullname" . }}-extra
+  labels:
+    {{- include "shipping-service.labels" . | nindent 4 }}
+data:
+  purpose: "A resource that exists only in some revisions, used to demonstrate --cleanup-on-fail and --take-ownership."
+{{- end }}

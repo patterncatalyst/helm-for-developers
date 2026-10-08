@@ -1,0 +1,157 @@
+
+==> Put the starter where helm create looks for it: $HELM_DATA_HOME/starters
+pc-fastapi
+
+==> helm create --starter pc-fastapi (by name), next to a copy of pc-lib
+Creating /tmp/tmp.NgEBbf1rJ7/charts/inventory-service
+
+==> helm create rewrote Chart.yaml: no dependencies block, and the file the starter ships is a sibling
+apiVersion: v2
+appVersion: 0.1.0
+description: A Helm chart for Kubernetes
+name: inventory-service
+type: application
+version: 0.1.0
+--- pc-lib-dependency.yaml
+dependencies:
+  - name: pc-lib
+    version: 0.18.0
+    repository: file://../pc-lib
+--- placeholders left in the chart: 1
+
+==> Without the dependency the chart cannot render: pc-lib is not declared
+Error: inventory-service/templates/tests/test-connection.yaml:4:11
+  executing "inventory-service/templates/tests/test-connection.yaml" at <include "pc-lib.fullname" .>:
+    error calling include:
+
+==> Append the dependency block, then build
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "open-telemetry" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "grafana" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Deleting outdated charts
+NAME  	VERSION	REPOSITORY      	STATUS
+pc-lib	0.18.0 	file://../pc-lib	ok    
+
+
+==> helm lint --strict, helm template, kubeconform
+==> Linting /tmp/tmp.NgEBbf1rJ7/charts/inventory-service
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+Summary: 3 resources found parsing stdin - Valid: 3, Invalid: 0, Errors: 0, Skipped: 0
+kind: Service
+  name: shipping-inventory-service
+kind: Deployment
+  name: shipping-inventory-service
+          image: "inventory-service:0.1.0"
+      image: "inventory-service:0.1.0"
+        patterncatalyst.io/domain: "example"
+    patterncatalyst.io/domain: "example"
+
+==> Install the scaffolded chart (the image is the shipping image under another name, so only the chart wiring is exercised)
+==> engine=docker mode=build tag=0.1.0
+
+==> shipping-service:0.1.0
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Containerfile
+#1 transferring dockerfile: 2.17kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#2 DONE 0.3s
+
+#3 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
+#3 DONE 0.4s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [builder 1/6] FROM registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
+#5 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.0s done
+#5 DONE 0.0s
+
+#6 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
+#6 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.0s done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 28.25kB done
+#7 DONE 0.0s
+
+#8 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+#8 CACHED
+
+#9 [runtime 2/6] WORKDIR /app
+#9 CACHED
+
+#10 [runtime 5/6] COPY shipping-service/ /app/
+#10 CACHED
+
+#11 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+#11 CACHED
+
+#12 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+#12 CACHED
+
+#13 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+#13 CACHED
+
+#14 [builder 5/6] COPY shipping-service/pyproject.toml /src/service/pyproject.toml
+#14 CACHED
+
+#15 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+#15 CACHED
+
+#16 [builder 4/6] COPY common /src/common
+#16 CACHED
+
+#17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
+#17 CACHED
+
+#18 exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:ac2cd575e5eb17d6172e2a77a94099ac903d80c1770bd98aeb3eb10d2f70f3ec done
+#18 exporting config sha256:d7577a9165c2732d167d639f1ad0b130db9a6ed6dab6eddc2c9002561802d5a3 done
+#18 exporting attestation manifest sha256:bb4ec51158df6c5b0312f753f35caaee8b62072f6b8870c343aa67fe3a4d7b3b 0.0s done
+#18 exporting manifest list sha256:50a30182845a1432d0d8f215bda31ea26270729f2c4dfc83fedbf341e6944344 0.0s done
+#18 naming to docker.io/library/shipping-service:0.1.0 done
+#18 unpacking to docker.io/library/shipping-service:0.1.0 done
+#18 DONE 0.1s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/xn1qn9fp6w1w3ehcdt22b1il2
+
+==> images in the profile:
+docker.io/library/shipping-service:0.1.0
+docker.io/library/notification-service:0.1.0
+Release "shipping" does not exist. Installing it now.
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 11:29:54 2026
+NAMESPACE: hfd-18
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+NOTES:
+shipping-inventory-service 0.1.0 installed in namespace hfd-18.
+  [host]$ kubectl -n hfd-18 get svc shipping-inventory-service
+  [host]$ helm test shipping -n hfd-18
+NAME                                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/shipping-inventory-service   1/1     1            1           2s
+
+NAME                                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/shipping-inventory-service   ClusterIP   10.105.197.90   <none>        8080/TCP   2s
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 11:29:54 2026
+NAMESPACE: hfd-18
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE:     shipping-inventory-service-test-connection
+Last Started:   Thu Oct  8 11:29:56 2026
+Last Completed: Thu Oct  8 11:29:58 2026
+Phase:          Succeeded

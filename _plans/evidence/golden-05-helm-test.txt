@@ -1,0 +1,33 @@
+# Fixes before this run: .helmignore "tests/" -> "/tests/"; test pods use the app image (numeric USER) with python urllib instead of ubi-minimal+curl (runAsNonRoot failed: image runs as root).
+$ helm upgrade --install platform charts/shipping-platform -n hfd-26 -f values-dev.yaml --wait --rollback-on-failure --timeout 8m
+Release "platform" has been upgraded. Happy Helming!
+NAME: platform
+LAST DEPLOYED: Thu Oct  8 10:11:35 2026
+NAMESPACE: hfd-26
+STATUS: deployed
+REVISION: 3
+DESCRIPTION: Upgrade complete
+NOTES:
+shipping-platform 1.0.0 installed as release "platform" in namespace hfd-26 (environment dev).
+rc=0
+
+$ helm test platform -n hfd-26 --timeout 3m
+NAME: platform
+LAST DEPLOYED: Thu Oct  8 10:11:35 2026
+NAMESPACE: hfd-26
+STATUS: deployed
+REVISION: 3
+DESCRIPTION: Upgrade complete
+TEST SUITE:     platform-notification-test-connection
+Last Started:   Thu Oct  8 10:11:39 2026
+Last Completed: Thu Oct  8 10:11:41 2026
+Phase:          Succeeded
+TEST SUITE:     platform-shipping-test-connection
+Last Started:   Thu Oct  8 10:11:43 2026
+Last Completed: Thu Oct  8 10:11:45 2026
+Phase:          Succeeded
+TEST SUITE:     platform-platform-test
+Last Started:   Thu Oct  8 10:11:41 2026
+Last Completed: Thu Oct  8 10:11:43 2026
+Phase:          Succeeded
+rc=0

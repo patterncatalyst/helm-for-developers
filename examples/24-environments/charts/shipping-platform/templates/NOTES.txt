@@ -1,0 +1,13 @@
+shipping-platform {{ .Chart.Version }} installed as release "{{ .Release.Name }}" in namespace {{ .Release.Namespace }} (environment {{ .Values.global.environment }}).
+
+Components: shipping{{ if .Values.tags.messaging }}, notification, kafka{{ end }}{{ if .Values.db.enabled }}, db{{ end }}
+{{- if .Capabilities.APIVersions.Has "route.openshift.io/v1" }}
+Routes:
+  [host]$ oc -n {{ .Release.Namespace }} get routes
+{{- else }}
+Reach the services:
+  [host]$ kubectl -n {{ .Release.Namespace }} get svc
+{{- end }}
+
+Run the release tests:
+  [host]$ helm test {{ .Release.Name }} -n {{ .Release.Namespace }}

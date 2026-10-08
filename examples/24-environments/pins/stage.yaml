@@ -1,0 +1,8 @@
+# Promotion record for stage. After ./demo.sh pin stage this holds tag@sha256:<digest>;
+# the committed form is tag only so the file works before an image is pushed.
+shipping:
+  image:
+    tag: "0.1.0"
+notification:
+  image:
+    tag: "0.1.0"

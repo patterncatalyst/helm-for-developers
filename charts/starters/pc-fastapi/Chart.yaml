@@ -1,0 +1,10 @@
+apiVersion: v2
+name: <CHARTNAME>
+description: A FastAPI service on the pc-lib library chart.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+dependencies:
+  - name: pc-lib
+    version: 1.0.0
+    repository: file://../pc-lib

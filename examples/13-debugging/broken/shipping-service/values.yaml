@@ -1,0 +1,97 @@
+# shipping-service values. The umbrella chart (shipping-platform) overrides these
+# under the `shipping:` key and supplies `global.*`.
+
+replicaCount: "1"
+
+image:
+  repository: shipping-service
+  tag: ""            # defaults to .Chart.AppVersion
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+containerPort: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  nodePort: null
+
+# Non-secret application settings. Rendered into a ConfigMap; a change rolls the pods
+# through the checksum/config annotation.
+config:
+  environment: dev          # DEPLOY_ENV (global.environment wins when set)
+  logLevel: INFO
+  defaultCarrier: ACME-Post
+  storage: memory           # memory | postgres
+
+postgres:
+  # host and existingSecret have no default on purpose: the umbrella imports them
+  # (import-values cannot override a key the subchart already defaults).
+  port: 5432
+  database: shipping
+  user: shipping_app
+  schema: shipping
+  # Credentials. Prefer an existing Secret (the CloudNativePG "<cluster>-app" Secret
+  # has the keys dbname, username, password).
+  # existingSecret: ""
+  existingSecretKeys:
+    database: dbname
+    user: username
+    password: password
+  password: ""              # dev only; stored in a chart-created Secret
+
+kafka:
+  enabled: false
+  # bootstrap: ""              # required when enabled; imported by the umbrella
+  topic: shipment.dispatched
+
+auth:
+  token: ""                 # dev only; stored in a chart-created Secret
+  existingSecret: ""
+  existingSecretKey: api-token
+
+# Schema migration Job (python -m app.migrate). Runs only when storage=postgres.
+migration:
+  enabled: true
+  # Helm hook phases. Use post-install,post-upgrade when the database is created by
+  # the same release (the umbrella does this); the Secret does not exist before then.
+  hooks: pre-install,pre-upgrade
+  weight: 0
+  backoffLimit: 3
+  activeDeadlineSeconds: 600
+
+otel:
+  endpoint: ""              # falls back to global.otlpEndpoint
+  serviceName: ""
+
+dataProduct:
+  domain: shipping
+  owner: team-shipping
+  name: shipments
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 192Mi
+  limits:
+    memory: 512Mi
+
+probes:
+  startup:
+    path: /health
+    failureThreshold: 30
+    periodSeconds: 2
+  liveness:
+    path: /health
+    periodSeconds: 10
+  readiness:
+    path: /healthz
+    periodSeconds: 5
+
+podAnnotations: {}
+
+
+global: {}

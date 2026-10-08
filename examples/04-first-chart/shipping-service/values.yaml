@@ -1,0 +1,12 @@
+# Chapter 04: only the values the templates need so far.
+replicaCount: 1
+
+image:
+  repository: shipping-service
+  tag: ""            # empty means .Chart.AppVersion
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+  nodePort: null

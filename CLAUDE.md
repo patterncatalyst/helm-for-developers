@@ -4,7 +4,7 @@ Guidance for AI assistants working in this repository. Project conventions are i
 
 ## What this is
 
-A Jekyll/GitHub Pages tutorial, "Helm for Developers", in the lgtm-jekyll house style. Content: `_docs/NN-*.md` (chapters 00 to 30), `_parts/*.md` (nine parts), `examples/NN-slug/` (runnable snapshots), `charts/` (golden chart set), `services/` (Python 3.15 FastAPI services), `plugins/`, `presentation/` (Helm 101 and 201 decks), `scripts/`.
+A Jekyll/GitHub Pages tutorial, "Helm for Developers", in the lgtm-jekyll house style. Content: `_docs/NN-*.md` (chapters 00 to 30), `_parts/*.md` (nine parts), `examples/NN-slug/` (runnable snapshots), `charts/` (golden chart set), `services/` (Python 3.14 FastAPI services, 3.15-ready), `plugins/`, `presentation/` (Helm 101 and 201 decks), `scripts/`.
 
 ## Rules
 

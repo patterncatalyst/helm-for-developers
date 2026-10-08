@@ -1,0 +1,37 @@
+{{- if .Values.warm.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "shipping-service.fullname" . }}-warm
+  labels:
+    {{- include "shipping-service.labels" . | nindent 4 }}
+    app.kubernetes.io/component: warm
+  annotations:
+    "helm.sh/hook": post-upgrade
+    "helm.sh/hook-weight": "10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      labels:
+        {{- include "shipping-service.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: warm
+    spec:
+      restartPolicy: Never
+      securityContext:
+        {{- include "shipping-service.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: warm
+          image: {{ include "shipping-service.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - python
+            - -c
+            - >-
+              import urllib.request as u;
+              u.urlopen("http://{{ include "shipping-service.fullname" . }}:{{ .Values.service.port }}/api/info", timeout=10).read()
+          securityContext:
+            {{- include "shipping-service.containerSecurityContext" . | nindent 12 }}
+{{- end }}

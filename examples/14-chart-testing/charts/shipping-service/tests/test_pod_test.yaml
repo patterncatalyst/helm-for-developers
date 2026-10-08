@@ -1,0 +1,33 @@
+suite: shipping-service helm test pod
+templates:
+  - templates/tests/test-connection.yaml
+tests:
+  - it: is a test hook that cleans up after success
+    asserts:
+      - isKind:
+          of: Pod
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: test
+      - equal:
+          path: metadata.annotations["helm.sh/hook-delete-policy"]
+          value: before-hook-creation,hook-succeeded
+
+  - it: probes the Service on the configured port with the app image
+    set:
+      service.port: 9090
+    asserts:
+      - equal:
+          path: spec.containers[0].image
+          value: shipping-service:0.1.0
+      - matchRegex:
+          path: spec.containers[0].command[2]
+          pattern: "RELEASE-NAME-shipping-service:9090/healthz"
+
+  - it: uses tests.image when set
+    set:
+      tests.image: registry.example.com/probe:1
+    asserts:
+      - equal:
+          path: spec.containers[0].image
+          value: registry.example.com/probe:1

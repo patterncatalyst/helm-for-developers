@@ -1,0 +1,103 @@
+suite: shipping-platform umbrella
+templates:
+  - charts/shipping/templates/deployment.yaml
+  - charts/notification/templates/deployment.yaml
+  - charts/shipping/templates/configmap.yaml
+  - charts/notification/templates/configmap.yaml
+  - charts/shipping/templates/migration-job.yaml
+  - charts/db/templates/cluster.yaml
+  - charts/kafka/templates/kafka.yaml
+  - charts/kafka/templates/nodepool.yaml
+  - charts/kafka/templates/topic.yaml
+tests:
+  - it: imports the database host and Secret from the db chart
+    template: charts/shipping/templates/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: PG_HOST
+            value: shipping-postgres-rw
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: PG_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: shipping-postgres-app
+                key: password
+
+  - it: imports the Kafka bootstrap address into both apps
+    template: charts/notification/templates/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: KAFKA_BOOTSTRAP
+            value: shipping-kafka-kafka-bootstrap:9092
+
+  - it: runs the migration as a post-install hook inside the umbrella
+    template: charts/shipping/templates/migration-job.yaml
+    asserts:
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: post-install,post-upgrade
+
+  - it: propagates global.imageRegistry to both apps
+    set:
+      global.imageRegistry: localhost:5000
+    template: charts/notification/templates/deployment.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: localhost:5000/notification-service:0.1.0
+
+  - it: propagates global.environment to the pods through the ConfigMap
+    set:
+      global.environment: stage
+    template: charts/shipping/templates/configmap.yaml
+    asserts:
+      - equal:
+          path: data.DEPLOY_ENV
+          value: stage
+
+  - it: renders a CloudNativePG Cluster on postgresql.cnpg.io/v1
+    template: charts/db/templates/cluster.yaml
+    asserts:
+      - isAPIVersion:
+          of: postgresql.cnpg.io/v1
+      - equal:
+          path: spec.bootstrap.initdb.database
+          value: shipping
+
+  - it: renders Strimzi resources on kafka.strimzi.io/v1 with the shipment.dispatched topic
+    template: charts/kafka/templates/topic.yaml
+    asserts:
+      - isAPIVersion:
+          of: kafka.strimzi.io/v1
+      - equal:
+          path: metadata.name
+          value: shipment.dispatched
+
+  - it: uses a dual-role KRaft node pool
+    template: charts/kafka/templates/nodepool.yaml
+    asserts:
+      - equal:
+          path: spec.roles
+          value: [controller, broker]
+
+  - it: rejects an unknown global.environment
+    set:
+      global.environment: qa
+    template: charts/shipping/templates/deployment.yaml
+    asserts:
+      - failedTemplate:
+          errorPattern: environment
+
+  - it: rejects a malformed OTLP endpoint
+    set:
+      global.otlpEndpoint: not-a-url
+    template: charts/shipping/templates/deployment.yaml
+    asserts:
+      - failedTemplate:
+          errorPattern: otlpEndpoint

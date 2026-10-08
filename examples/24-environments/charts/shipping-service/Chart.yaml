@@ -1,0 +1,14 @@
+apiVersion: v2
+name: shipping-service
+description: Shipping data product. FastAPI service that creates and dispatches shipments and publishes ShipmentDispatched events.
+type: application
+version: 1.0.0
+appVersion: "0.1.0"
+keywords: [shipping, fastapi, data-product]
+maintainers:
+  - name: PatternCatalyst
+    email: rsedor@patterncatalyst.io
+dependencies:
+  - name: pc-lib
+    version: 1.0.0
+    repository: file://../pc-lib

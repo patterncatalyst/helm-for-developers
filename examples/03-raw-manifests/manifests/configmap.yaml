@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shipping-config
+  labels:
+    app.kubernetes.io/name: shipping-service
+data:
+  SERVICE_NAME: "shipping-service"
+  SERVICE_VERSION: "0.1.0"
+  DEPLOY_ENV: "dev"
+  LOG_LEVEL: "INFO"
+  SHIPPING_DEFAULT_CARRIER: "ACME-Post"
+  SHIPPING_STORAGE: "memory"

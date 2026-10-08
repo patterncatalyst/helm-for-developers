@@ -1,0 +1,11 @@
+# Minimal profile: no operators. In-memory storage, no Kafka, no notification service.
+# Apply AFTER values-openshift.yaml:  -f values-openshift.yaml -f values-openshift-minimal.yaml
+db:
+  enabled: false
+tags:
+  messaging: false
+shipping:
+  config:
+    storage: memory
+  kafka:
+    enabled: false

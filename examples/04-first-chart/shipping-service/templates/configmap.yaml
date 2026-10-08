@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  SERVICE_NAME: "{{ .Release.Name }}-{{ .Chart.Name }}"
+  SERVICE_VERSION: "{{ .Chart.AppVersion }}"
+  DEPLOY_ENV: "dev"
+  LOG_LEVEL: "INFO"
+  SHIPPING_DEFAULT_CARRIER: "ACME-Post"
+  SHIPPING_STORAGE: "memory"

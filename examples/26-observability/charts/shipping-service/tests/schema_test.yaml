@@ -1,0 +1,35 @@
+suite: shipping-service values schema
+templates:
+  - templates/deployment.yaml
+  - templates/configmap.yaml
+tests:
+  - it: rejects an unknown storage backend
+    template: templates/deployment.yaml
+    set:
+      config.storage: sqlite
+    asserts:
+      - failedTemplate:
+          errorPattern: storage
+
+  - it: rejects a non-integer service port
+    template: templates/deployment.yaml
+    set:
+      service.port: "http"
+    asserts:
+      - failedTemplate:
+          errorPattern: port
+
+  - it: rejects postgres storage without a host
+    template: templates/deployment.yaml
+    set:
+      config.storage: postgres
+    asserts:
+      - failedTemplate: {}
+
+  - it: rejects an unknown top-level key
+    template: templates/deployment.yaml
+    set:
+      replicas: 2
+    asserts:
+      - failedTemplate:
+          errorPattern: additional properties

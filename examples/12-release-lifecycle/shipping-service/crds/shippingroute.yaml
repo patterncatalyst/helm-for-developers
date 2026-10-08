@@ -1,0 +1,37 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: shippingroutes.shipping.patterncatalyst.io
+spec:
+  group: shipping.patterncatalyst.io
+  scope: Namespaced
+  names:
+    kind: ShippingRoute
+    plural: shippingroutes
+    singular: shippingroute
+    shortNames: [sroute]
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [carrier, origin, destination]
+              properties:
+                carrier:
+                  type: string
+                origin:
+                  type: string
+                destination:
+                  type: string
+      additionalPrinterColumns:
+        - name: Carrier
+          type: string
+          jsonPath: .spec.carrier
+        - name: Destination
+          type: string
+          jsonPath: .spec.destination

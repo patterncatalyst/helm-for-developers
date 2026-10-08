@@ -1,0 +1,2 @@
+# Rendering only: ct cannot install this chart without the Strimzi operator.
+replicas: 1

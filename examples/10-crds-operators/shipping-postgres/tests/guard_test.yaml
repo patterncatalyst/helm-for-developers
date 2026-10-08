@@ -1,0 +1,26 @@
+suite: shipping-postgres operator guard
+templates:
+  - templates/cluster.yaml
+tests:
+  - it: fails when the CloudNativePG API is not served
+    asserts:
+      - failedTemplate:
+          errorPattern: needs the CloudNativePG operator
+
+  - it: renders the Cluster when the API is served
+    capabilities:
+      apiVersions:
+        - postgresql.cnpg.io/v1
+    asserts:
+      - isKind:
+          of: Cluster
+      - equal:
+          path: spec.instances
+          value: 1
+
+  - it: skips the check when requireOperator is false
+    set:
+      requireOperator: false
+    asserts:
+      - isKind:
+          of: Cluster
