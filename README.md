@@ -45,7 +45,7 @@ Open <http://127.0.0.1:4000/>.
 The application and several chart patterns are adapted from other Pattern Catalyst projects:
 
 - [datamesh-reference-arch-python](https://github.com/patterncatalyst/datamesh-reference-arch-python): the Python shipping service, the CloudNativePG and Strimzi resources, the probe block and the ownership annotations.
-- [observability-python-otel-lgtm](https://github.com/patterncatalyst/observability-python-otel-lgtm): the OpenTelemetry, Kafka trace-propagation and logging modules.
+- [otel-observability-tutorial](https://github.com/patterncatalyst/otel-observability-tutorial): the OpenTelemetry, Kafka trace-propagation and logging modules.
 - [modernizing-enterprise-applications](https://github.com/patterncatalyst/modernizing-enterprise-applications): the shipment domain model, the `ShipmentDispatched` event, the migration and the OpenShift layout.
 
 ## Status

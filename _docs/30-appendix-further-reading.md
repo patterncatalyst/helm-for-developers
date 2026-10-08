@@ -50,7 +50,7 @@ OpenShift:
 The application and several chart patterns are adapted from other Pattern Catalyst projects:
 
 - [datamesh-reference-arch-python](https://github.com/patterncatalyst/datamesh-reference-arch-python): the Python shipping service, its `Settings` and health endpoints, the CloudNativePG and Strimzi resources, the probe block and the `patterncatalyst.io` ownership annotations.
-- [observability-python-otel-lgtm](https://github.com/patterncatalyst/observability-python-otel-lgtm): the OpenTelemetry, Kafka trace-propagation and logging modules in `services/common/pcobs`, and the Containerfile layout.
+- [otel-observability-tutorial](https://github.com/patterncatalyst/otel-observability-tutorial): the OpenTelemetry, Kafka trace-propagation and logging modules in `services/common/pcobs`, and the Containerfile layout.
 - [modernizing-enterprise-applications](https://github.com/patterncatalyst/modernizing-enterprise-applications): the shipment domain model, the `ShipmentDispatched` event, the unique-order migration and the OpenShift deployment layout.
 
 ## Where each topic is taught
