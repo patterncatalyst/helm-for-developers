@@ -88,6 +88,10 @@ case "${1:-all}" in
     offline) offline ;;
     pin) pin "${2:-}" ;;
     clean)
+        # Delete the KafkaTopics while the entity operators still run (finalizer, see chapter 15).
+        for ns in hfd-24-dev hfd-24-stage hfd-24-prod; do
+            kubectl delete kafkatopic --all -n "$ns" --wait --timeout=120s 2>/dev/null || true
+        done
         helmfile destroy --skip-deps || true
         kubectl delete ns hfd-24-dev hfd-24-stage hfd-24-prod --ignore-not-found ;;
     all|"") offline; live ;;

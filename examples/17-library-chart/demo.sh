@@ -86,6 +86,9 @@ full() {
 }
 
 clean() {
+    # Delete the KafkaTopic(s) while the entity operator still runs, so the topic operator can
+    # remove its finalizer; otherwise the namespace sticks in Terminating.
+    kubectl delete kafkatopic --all -n "$NS" --wait --timeout=120s 2>/dev/null || true
     helm uninstall "$REL" -n "$NS" 2>/dev/null || true
     kubectl delete namespace "$NS" --ignore-not-found --wait=false
 }

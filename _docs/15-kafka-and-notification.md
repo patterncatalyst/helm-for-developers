@@ -116,6 +116,8 @@ helm get manifest kafka -n hfd-15 | grep -E '^kind:'
 
 The kinds match, and `kafkatopic` shows `READY True` once the entity operator reconciles it. With the `topicOperator` line removed from the `Kafka` resource, the same `KafkaTopic` exists but has an empty `READY` column and no `status`: nothing reconciles it. For the consumer, `kubectl -n hfd-15 logs deploy/notification-notification-service` should show the `shipment ... dispatched` log line for the shipment you created, which confirms the same fact from the pod's side.
 
+**Uninstall order.** The topic operator puts a finalizer on every `KafkaTopic` and removes it only while the entity operator is running. If `helm uninstall` removes the `Kafka` resource first, the topic keeps its finalizer with nothing left to clear it, and the namespace stays in `Terminating`. Delete the topics first with `kubectl delete kafkatopic --all -n hfd-15 --wait`, then uninstall. The `clean` target of every demo that installs a `KafkaTopic` (chapters 15, 16, 17, 24, 25 and 26) does this.
+
 ## What you learned
 
 - A chart can ship custom resources for an operator without shipping the operator.

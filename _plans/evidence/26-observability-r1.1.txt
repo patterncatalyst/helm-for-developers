@@ -1,0 +1,232 @@
+# ex26 r1.1 live run, Helm v4.3.0+gbec5b06, 2026-10-08T21:35:54Z
+$ demo.sh clean
+kafkatopic.kafka.strimzi.io "shipment.dispatched" deleted
+release "platform" uninstalled
+clean exit: 0
+$ demo.sh (full)
+==> lint --strict and unit tests
+Tests:       23 passed, 23 total
+Snapshot:    0 passed, 0 total
+Time:        113.316578ms
+
+==> template with values-dev and kubeconform
+Summary: 16 resources found parsing stdin - Valid: 12, Invalid: 0, Errors: 0, Skipped: 4
+==> OTel environment injected by pc-lib.otelEnv (telemetry on in dev)
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT	              value: "http://otel-collector.observability.svc.cluster.local:4318"
+            - name: OTEL_SDK_DISABLED	              value: "false"
+            - name: OTEL_SERVICE_NAME	              value: "platform-notification"
+            - name: OTEL_SERVICE_NAME	              value: "platform-shipping"
+==> telemetry stays off with no endpoint (default values)
+==> dashboard ConfigMap carries the sidecar label and parses as JSON
+    platform-dashboard -> Shipping platform (platform) (3 panels)
+offline: OK
+==> engine=docker mode=build tag=0.1.0
+
+==> shipping-service:0.1.0
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Containerfile
+#1 transferring dockerfile: 2.17kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#2 ...
+
+#3 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
+#3 DONE 0.3s
+
+#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#2 DONE 0.3s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [builder 1/6] FROM registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
+#5 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.0s done
+#5 DONE 0.0s
+
+#6 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
+#6 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.0s done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 28.25kB done
+#7 DONE 0.0s
+
+#8 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+#8 CACHED
+
+#9 [runtime 5/6] COPY shipping-service/ /app/
+#9 CACHED
+
+#10 [runtime 2/6] WORKDIR /app
+#10 CACHED
+
+#11 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+#11 CACHED
+
+#12 [builder 5/6] COPY shipping-service/pyproject.toml /src/service/pyproject.toml
+#12 CACHED
+
+#13 [builder 4/6] COPY common /src/common
+#13 CACHED
+
+#14 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+#14 CACHED
+
+#15 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+#15 CACHED
+
+#16 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+#16 CACHED
+
+#17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
+#17 CACHED
+
+#18 exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:ac2cd575e5eb17d6172e2a77a94099ac903d80c1770bd98aeb3eb10d2f70f3ec done
+#18 exporting config sha256:d7577a9165c2732d167d639f1ad0b130db9a6ed6dab6eddc2c9002561802d5a3 done
+#18 exporting attestation manifest sha256:46570f9f3f2efdbfb72ddbe6179bc9a034e836b0fe5da25e7eb7055fe1407226 0.0s done
+#18 exporting manifest list sha256:1a4415f38720ea752e0b845b82087059be6092824380bd5eeb1184c1fe21f939
+#18 exporting manifest list sha256:1a4415f38720ea752e0b845b82087059be6092824380bd5eeb1184c1fe21f939 0.0s done
+#18 naming to docker.io/library/shipping-service:0.1.0 done
+#18 unpacking to docker.io/library/shipping-service:0.1.0 done
+#18 DONE 0.1s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/ghosvrwgz1g52mji02upkkv44
+
+==> notification-service:0.1.0
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Containerfile
+#1 transferring dockerfile: 2.17kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#2 DONE 0.1s
+
+#3 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
+#3 DONE 0.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [builder 1/6] FROM registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
+#5 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.0s done
+#5 DONE 0.0s
+
+#6 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
+#6 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.0s done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 10.71kB done
+#7 DONE 0.0s
+
+#8 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+#8 CACHED
+
+#9 [runtime 5/6] COPY notification-service/ /app/
+#9 CACHED
+
+#10 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+#10 CACHED
+
+#11 [builder 5/6] COPY notification-service/pyproject.toml /src/service/pyproject.toml
+#11 CACHED
+
+#12 [builder 4/6] COPY common /src/common
+#12 CACHED
+
+#13 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+#13 CACHED
+
+#14 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+#14 CACHED
+
+#15 [runtime 2/6] WORKDIR /app
+#15 CACHED
+
+#16 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+#16 CACHED
+
+#17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
+#17 CACHED
+
+#18 exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:9b7868487b929dac4e2855b558a0ed0c5dc4fa7d84c567df9ea5c3e725ad8a7a done
+#18 exporting config sha256:729ca706dc57d9db1ea09c441e64c81ccb956e853287c5c6b94bd53dac842f0b done
+#18 exporting attestation manifest sha256:abc78b3ca1ad60246cb7293e8c5a2fc19c66d381ca7d41282aeff49ff24b21b7 0.0s done
+#18 exporting manifest list sha256:d6c8ca667d2fd3e401e685d756fbf19502f6d250bc8aa1340c1a3932da236280 0.0s done
+#18 naming to docker.io/library/notification-service:0.1.0
+#18 naming to docker.io/library/notification-service:0.1.0 done
+#18 unpacking to docker.io/library/notification-service:0.1.0 0.0s done
+#18 DONE 0.1s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/wn2qxhmkyjo0p47x2aaoinmer
+
+==> images in the profile:
+docker.io/library/shipping-service:0.1.0
+docker.io/library/notification-service:0.1.0
+    ok: shipping      127.0.0.1:8080 -> node:30080
+    ok: notification  127.0.0.1:8081 -> node:30081
+    ok: grafana       127.0.0.1:3000 -> node:30300
+    stop with: scripts/tunnel.sh stop
+==> let the Grafana sidecar watch every namespace (default: its own)
+Release "grafana" has been upgraded. Happy Helming!
+NAME: grafana
+LAST DEPLOYED: Thu Oct  8 17:36:29 2026
+NAMESPACE: observability
+STATUS: deployed
+REVISION: 4
+DESCRIPTION: Upgrade complete
+NOTES:
+1. Get your 'admin' user password by running:
+
+   kubectl get secret --namespace observability grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+
+2. The Grafana server can be accessed via port 80 on the following DNS name from within your cluster:
+
+   grafana.observability.svc.cluster.local
+
+   Get the Grafana URL to visit by running these commands in the same shell:
+     export NODE_PORT=$(kubectl get --namespace observability -o jsonpath="{.spec.ports[0].nodePort}" services grafana)
+     export NODE_IP=$(kubectl get nodes --namespace observability -o jsonpath="{.items[0].status.addresses[0].address}")
+     echo http://$NODE_IP:$NODE_PORT
+
+3. Login with the password from step 1 and the username: admin
+==> install the umbrella with telemetry on
+Release "platform" does not exist. Installing it now.
+NAME: platform
+LAST DEPLOYED: Thu Oct  8 17:36:30 2026
+NAMESPACE: hfd-26
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+NOTES:
+shipping-platform 1.0.0 installed as release "platform" in namespace hfd-26 (environment dev).
+
+Components: shipping, notification, kafka, db
+Reach the services:
+  [host]$ kubectl -n hfd-26 get svc
+
+Run the release tests:
+  [host]$ helm test platform -n hfd-26
+==> create and dispatch a shipment
+==> the trace holds spans from both services
+   trace found after 0 s
+   trace 262b01f25ee7aeead0c4f2882e05cda5 services: ['platform-notification', 'platform-shipping']
+==> TraceQL through Grafana: dispatch spans of platform-shipping
+   trace 262b01f25ee7aeead0c4f2882e05cda5 POST /api/shipments/{shipment_id}/dispatch
+   trace 7ded1507f7b398c4d4ecfbde05a917c3 POST /api/shipments/{shipment_id}/dispatch
+==> request-rate panel query returns series in Mimir (polls up to 180 s)
+    {'job': 'notification/platform-notification'}
+   series found after 0 s (0 retries)
+==> dashboard loaded by the sidecar
+    Shipping platform (platform) folder: Shipping
+exit: 0

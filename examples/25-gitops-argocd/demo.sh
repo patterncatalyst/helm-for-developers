@@ -157,6 +157,14 @@ helmrepo_app() {
 case "${1:-all}" in
     offline) offline ;;
     clean)
+        # Stop auto-sync so self-heal does not recreate the topics, then delete the KafkaTopics
+        # while the entity operators still run (finalizer, see chapter 15).
+        for app in $(kubectl -n argocd get application -o name 2>/dev/null); do
+            kubectl -n argocd patch "$app" --type merge -p '{"spec":{"syncPolicy":{"automated":null}}}' || true
+        done
+        for ns in hfd-25 hfd-25-git hfd-25-repo; do
+            kubectl delete kafkatopic --all -n "$ns" --wait --timeout=120s 2>/dev/null || true
+        done
         kubectl -n argocd delete application --all --ignore-not-found --timeout=5m || true
         helm uninstall argocd -n argocd || true
         kubectl delete ns argocd hfd-25 hfd-25-git hfd-25-repo --ignore-not-found

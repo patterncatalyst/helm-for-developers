@@ -206,38 +206,38 @@ One row per claim in `_plans/claims/s6-*.md`, merged with the S7 results in `_pl
 
 ## Status by chapter
 
-Claim counts come from the merged table above; the footer column is the current verification footer in `_docs/`.
+Claim counts are recounted from the rows of every claim table in this file (`scratchpad/count.py` groups by the Chapter column; a row for two chapters counts for each). Total: 186 chapter-claims; 166 verified, 6 refuted-and-fixed, 3 partial, 1 inference, 10 not verified. The footer column is the current verification footer in `_docs/`.
 
 | Chapter | Claims | Claim statuses | Footer status | Footer evidence | Evidence file present |
 |---|---|---|---|---|---|
 | 00-outline | 0 | none | (no footer) | none | n/a |
-| 01-prerequisites | 6 | 1 not verified, 5 verified | partially verified | 01-lab-setup.txt | yes |
+| 01-prerequisites | 6 | 6 verified | partially verified | 01-lab-setup.txt | yes |
 | 02-helm-4-tour | 8 | 6 verified, 2 not verified | verified | 02-helm-tour.txt | yes |
 | 03-shipping-service-raw-manifests | 3 | 3 verified | verified | 03-raw-manifests.txt | yes |
 | 04-first-chart | 7 | 7 verified | verified | 04-first-chart.txt | yes |
-| 05-values-and-overrides | 5 | 5 verified | verified | 05-values.txt | yes |
+| 05-values-and-overrides | 6 | 6 verified | verified | 05-values.txt | yes |
 | 06-templates | 3 | 3 verified | verified | 06-templates.txt, 08-config-secrets.txt | yes |
 | 07-helpers-and-notes | 3 | 3 verified | verified | 07-helpers-notes.txt | yes |
-| 08-config-and-secrets | 6 | 5 verified, 1 partial | verified | 08-config-secrets.txt | yes |
+| 08-config-and-secrets | 6 | 6 verified | verified | 08-config-secrets.txt | yes |
 | 09-dependencies-postgres | 5 | 5 verified | verified | 09-postgres-subchart.txt | yes |
 | 10-crds-and-operators | 5 | 5 verified | verified | 10-crds-operators.txt | yes |
-| 11-hooks-and-migrations | 5 | 5 verified | verified | 11-hooks-migrations-deadlock.txt, 11-hooks-migrations.txt | yes |
-| 12-release-lifecycle | 9 | 7 verified, 2 refuted-and-fixed | verified | 12-release-lifecycle.txt | yes |
-| 13-debugging-charts | 4 | 1 refuted-and-fixed, 3 verified | verified | 13-debugging.txt | yes |
+| 11-hooks-and-migrations | 8 | 7 verified, 1 inference | verified | 11-hooks-migrations-deadlock.txt, 11-hooks-migrations.txt | yes |
+| 12-release-lifecycle | 10 | 8 verified, 2 refuted-and-fixed | verified | 12-release-lifecycle.txt | yes |
+| 13-debugging-charts | 5 | 4 verified, 1 refuted-and-fixed | verified | 13-debugging.txt | yes |
 | 14-chart-testing | 6 | 4 verified, 2 not verified | partially verified | 14-chart-testing.txt | yes |
 | 15-kafka-and-notification | 8 | 8 verified | verified | 15-kafka-notification.txt | yes |
-| 16-umbrella-charts | 7 | 6 verified, 1 partial | verified | 16-umbrella.txt | yes |
+| 16-umbrella-charts | 8 | 7 verified, 1 partial | verified | 16-umbrella.txt | yes |
 | 17-library-charts | 3 | 3 verified | verified | 17-library-chart.txt | yes |
-| 18-starters-golden-paths | 3 | 3 verified | verified | 18-starters.txt | yes |
+| 18-starters-golden-paths | 4 | 4 verified | verified | 18-starters.txt | yes |
 | 19-packaging-and-repos | 8 | 8 verified | verified | 19-packaging-repos.txt | yes |
-| 20-oci-registries | 8 | 8 verified | verified | 20-oci.txt | yes |
+| 20-oci-registries | 9 | 9 verified | verified | 20-oci.txt | yes |
 | 21-provenance-and-signing | 11 | 10 verified, 1 not verified | verified | 21-signing.txt | yes |
 | 22-plugins | 8 | 7 verified, 1 partial | verified | 22-plugins.txt | yes |
-| 23-post-renderers | 6 | 6 verified | verified | 23-post-renderers.txt | yes |
-| 24-environment-promotion | 4 | 3 verified, 1 refuted-and-fixed | verified | 24-environments.txt | yes |
-| 25-gitops-argocd | 11 | 10 verified, 1 refuted-and-fixed | verified | 25-gitops-argocd.txt | yes |
+| 23-post-renderers | 7 | 7 verified | verified | 23-post-renderers.txt | yes |
+| 24-environment-promotion | 5 | 4 verified, 1 refuted-and-fixed | verified | 24-environments.txt | yes |
+| 25-gitops-argocd | 12 | 11 verified, 1 refuted-and-fixed | verified | 25-gitops-argocd.txt | yes |
 | 26-observability-lgtm | 6 | 5 verified, 1 refuted-and-fixed | verified | 26-observability.txt | yes |
-| 27-appendix-openshift-local | 9 | 8 verified, 1 partial | verified | 27-openshift-crc.txt, 27-openshift-crc-streams.txt, 27-openshift-crc-console.txt | yes |
+| 27-appendix-openshift-local | 11 | 10 verified, 1 partial | verified | 27-openshift-crc.txt, 27-openshift-crc-streams.txt, 27-openshift-crc-console.txt | yes |
 | 28-appendix-helm3-to-helm4 | 3 | 3 not verified | unverified | none | n/a |
 | 29-appendix-cheat-sheet | 1 | 1 not verified | unverified | none | n/a |
 | 30-appendix-further-reading | 1 | 1 not verified | unverified | none | n/a |
