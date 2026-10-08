@@ -51,6 +51,16 @@ jobs:
         env:
           JEKYLL_ENV: production
 
+      - name: Install Helm
+        # Checksum-verified download of the pinned Helm 4 into .tools/.
+        run: scripts/install-tools.sh --helm-only
+
+      - name: Publish Helm chart repository into _site/charts
+        # Jekyll excludes the source charts/ directory, so _site/charts/ is free.
+        run: |
+          source scripts/env.sh
+          scripts/publish-charts.sh _site
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         # actions/configure-pages already points this at _site/.
