@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 440" font-family="'Red Hat Text', system-ui, sans-serif" role="img">
+<defs><marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker><marker id="am" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b8650a"/></marker></defs>
+<rect x="20" y="20" width="400" height="400" rx="12" fill="#fafafa" stroke="#ddd"/>
+<text x="32" y="40" font-size="12" font-weight="700" fill="#888">Host: repository checkout</text>
+<rect x="470" y="20" width="550" height="400" rx="12" fill="#fafafa" stroke="#ddd"/>
+<text x="482" y="40" font-size="12" font-weight="700" fill="#888">minikube profile helm4dev (docker driver, containerd, 12g, 8 CPUs)</text>
+<rect x="490" y="210" width="510" height="190" rx="12" fill="#f4f4f4" stroke="#ddd"/>
+<text x="502" y="230" font-size="12" font-weight="700" fill="#888">Namespaces</text>
+<rect x="40" y="52" width="360" height="60" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="220.0" y="80.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">scripts/env.sh</text>
+<text x="220.0" y="97.0" font-size="11.5" fill="#555555" text-anchor="middle">PATH and HELM_*_HOME under .tools/</text>
+<rect x="40" y="140" width="360" height="60" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="220.0" y="168.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">.tools/bin</text>
+<text x="220.0" y="185.0" font-size="11.5" fill="#555555" text-anchor="middle">helm 4.3.0, kubeconform, ct, cosign, helmfile</text>
+<rect x="40" y="228" width="360" height="60" rx="9" fill="#ffffff" stroke="#999999" stroke-width="1.5"/>
+<text x="220.0" y="256.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">.tools/helm/{config,cache,data,plugins}</text>
+<text x="220.0" y="273.0" font-size="11.5" fill="#555555" text-anchor="middle">repos, OCI cache, unittest and diff plugins</text>
+<rect x="40" y="316" width="170" height="84" rx="9" fill="#f4f4f4" stroke="#888888" stroke-width="1.5"/>
+<text x="125.0" y="348.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">~/.local/bin/helm</text>
+<text x="125.0" y="365.5" font-size="11.5" fill="#555555" text-anchor="middle">Helm 3, never read</text>
+<text x="125.0" y="380.5" font-size="11.5" fill="#555555" text-anchor="middle">or modified</text>
+<rect x="230" y="316" width="170" height="84" rx="9" fill="#eef4fb" stroke="#2f6db5" stroke-width="2"/>
+<text x="315.0" y="348.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">scripts/tunnel.sh</text>
+<text x="315.0" y="365.5" font-size="11.5" fill="#555555" text-anchor="middle">SSH tunnels to</text>
+<text x="315.0" y="380.5" font-size="11.5" fill="#555555" text-anchor="middle">NodePorts</text>
+<rect x="490" y="52" width="230" height="60" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="605.0" y="80.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Kubernetes API server</text>
+<text x="605.0" y="97.0" font-size="11.5" fill="#555555" text-anchor="middle">helm --kube-context helm4dev</text>
+<rect x="760" y="52" width="240" height="60" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="880.0" y="80.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Registry addon</text>
+<text x="880.0" y="97.0" font-size="11.5" fill="#555555" text-anchor="middle">localhost:5000, images 0.1.0</text>
+<rect x="490" y="130" width="230" height="60" rx="9" fill="#ffffff" stroke="#999999" stroke-width="1.5"/>
+<text x="605.0" y="158.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Release records</text>
+<text x="605.0" y="175.0" font-size="11.5" fill="#555555" text-anchor="middle">Secrets sh.helm.release.v1.*</text>
+<rect x="760" y="130" width="240" height="60" rx="9" fill="#ffffff" stroke="#999999" stroke-width="1.5"/>
+<text x="880.0" y="158.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Images built by</text>
+<text x="880.0" y="175.0" font-size="11.5" fill="#555555" text-anchor="middle">scripts/build-images.sh</text>
+<rect x="510" y="244" width="220" height="60" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="620.0" y="272.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">cnpg-system, strimzi</text>
+<text x="620.0" y="289.0" font-size="11.5" fill="#555555" text-anchor="middle">operators only</text>
+<rect x="760" y="244" width="220" height="60" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="870.0" y="272.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">observability</text>
+<text x="870.0" y="289.0" font-size="11.5" fill="#555555" text-anchor="middle">Loki, Grafana, Tempo, Mimir</text>
+<rect x="510" y="322" width="470" height="62" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="745.0" y="351.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">hfd-NN, one per example</text>
+<text x="745.0" y="368.0" font-size="11.5" fill="#555555" text-anchor="middle">charts create the Postgres and Kafka resources</text>
+<path d="M400,82 L490,82" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="451.0" y="74.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">kubeconfig</text>
+<text x="451.0" y="74.0" font-size="11" fill="#555" text-anchor="middle">kubeconfig</text>
+<path d="M400,346 L470,346" fill="none" stroke="#b8650a" stroke-width="2" marker-end="url(#am)"/>
+<text x="441.0" y="338.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">NodePort</text>
+<text x="441.0" y="338.0" font-size="11" fill="#b8650a" text-anchor="middle">NodePort</text>
+<path d="M605,112 L605,130" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
+<path d="M210,112 L210,140" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
+</svg>
