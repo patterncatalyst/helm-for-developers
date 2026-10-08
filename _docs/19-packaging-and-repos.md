@@ -132,6 +132,18 @@ The install uses the repository reference and an explicit version:
 
 Without `--version`, Helm picks the newest non-pre-release version. Pin it in anything that is not a throwaway.
 
+## Published chart repository
+
+This site serves a classic repository of the reference charts from GitHub Pages: `index.yaml` plus a packaged archive for `pc-lib`, `shipping-service`, `notification-service`, `shipping-postgres`, `shipping-kafka` and `shipping-platform`. `scripts/publish-charts.sh` builds it bottom-up with the same `helm dependency build`, `helm package` and `helm repo index --url` sequence this chapter uses, and the Pages workflow runs it after the Jekyll build. The umbrella archive carries its subcharts, so installing `shipping-platform` from the repository needs no `file://` paths.
+
+```bash
+[host]$ helm repo add hfd https://patterncatalyst.github.io/helm-for-developers/charts
+[host]$ helm search repo hfd
+[host]$ helm pull hfd/shipping-platform --version 1.0.0 -d .
+```
+
+The same build served from a local HTTP server listed all six charts at 1.0.0, and `helm template` rendered the umbrella from the pulled archive. The commands against the real Pages URL run after the r1.1 deploy; until then treat that URL as unverified.
+
 ## Cross-check
 
 Compare three views of the same release. `sha256sum .work/repo/shipping-service-1.0.0.tgz` equals the `digest` in `index.yaml`. `helm get metadata shipping -n hfd-19` shows chart `shipping-service` version `1.0.0` and appVersion `0.1.0`. `helm show chart hfd-local/shipping-service --version 1.0.0` prints the same `Chart.yaml` the directory holds. Agreement across the digest, the stored release and the repository entry confirms the install used the packaged archive.
@@ -156,4 +168,4 @@ Next, the same archive moves into an OCI registry, where the version is a tag an
 
 ---
 
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/19-packaging-repos.txt`. Observed on Helm 4.3.0 and minikube: `helm package` without `--dependency-update` failed with `missing in charts/ directory: pc-lib`; `--version` and `--app-version` changed the file name and the rendered image tag (`shipping-service:0.1.1`); the index digest equalled the `sha256sum` of the archive; `helm search repo` hid `1.1.0-rc.1` until `--devel`; `1.0` and `v1.0.2` were accepted as written; `helm pull -d` into a missing directory failed; the archive kept `templates/tests/`; the install from `hfd-local` reached Ready, `helm get metadata` reported chart 1.0.0 and appVersion 0.1.0, and `/api/info` answered through the NodePort tunnel.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/19-packaging-repos.txt`; the Published chart repository section is unverified against the live Pages URL until the r1.1 deploy. Observed on Helm 4.3.0 and minikube: `helm package` without `--dependency-update` failed with `missing in charts/ directory: pc-lib`; `--version` and `--app-version` changed the file name and the rendered image tag (`shipping-service:0.1.1`); the index digest equalled the `sha256sum` of the archive; `helm search repo` hid `1.1.0-rc.1` until `--devel`; `1.0` and `v1.0.2` were accepted as written; `helm pull -d` into a missing directory failed; the archive kept `templates/tests/`; the install from `hfd-local` reached Ready, `helm get metadata` reported chart 1.0.0 and appVersion 0.1.0, and `/api/info` answered through the NodePort tunnel.*
