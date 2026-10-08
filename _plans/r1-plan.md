@@ -682,10 +682,10 @@ Sources consulted for version facts:
 | S3 | done (F1: Python 3.14) |
 | S4 | done |
 | S5 | done (7/7 met) |
-| S6.0–S6.8 | pending |
+| S6.0–S6.8 | done (+ repair pass) |
 | S7 | pending |
 | S8a/S8b | pending |
-| S9 | pending |
+| S9 | done (hub branch, not pushed) |
 | S10 | pending |
 | S11 | pending |
 | S12 | gated |
