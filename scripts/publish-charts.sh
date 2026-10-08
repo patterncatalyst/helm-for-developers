@@ -15,7 +15,9 @@
 # built with `helm repo index --merge`. A chart version that is already published and
 # would be republished with different bytes fails the build: bump the version in
 # Chart.yaml instead. Unchanged charts package to identical bytes, so they pass.
-# If the live site cannot be reached, the script warns and builds a fresh index.
+# If the live index cannot be fetched, the script fails: a fresh index would drop
+# every earlier version and could rewrite a published one. For the very first
+# publish, set HFD_ALLOW_FRESH_INDEX=1.
 
 set -euo pipefail
 
@@ -41,7 +43,12 @@ if curl -fsS --retry 2 --max-time 30 -o "$PREV/index.yaml" "$BASE_URL/index.yaml
     done < <(grep -oE '[A-Za-z0-9._+-]+\.tgz$' "$PREV/index.yaml" | sort -u)
 else
     rm -f "$PREV/index.yaml"
-    echo "WARNING: $BASE_URL/index.yaml is unreachable; building a fresh index without earlier versions." >&2
+    if [[ "${HFD_ALLOW_FRESH_INDEX:-0}" != "1" ]]; then
+        echo "ERROR: $BASE_URL/index.yaml cannot be fetched. Publishing a fresh index would drop" >&2
+        echo "       earlier versions. Retry later, or set HFD_ALLOW_FRESH_INDEX=1 for a first publish." >&2
+        exit 1
+    fi
+    echo "WARNING: HFD_ALLOW_FRESH_INDEX=1: building a fresh index without earlier versions." >&2
 fi
 
 # Dependencies first: pc-lib, then the service charts that use it, then the umbrella.
@@ -88,8 +95,8 @@ OUT="$(cd "$1" && pwd)/charts"
 rm -rf "$OUT"
 mkdir -p "$OUT"
 # Earlier versions first, then the archives that are new in this build.
-cp -n "$PREV"/*.tgz "$OUT"/ 2>/dev/null || true
-cp -n "$NEW"/*.tgz "$OUT"/
+cp --update=none "$PREV"/*.tgz "$OUT"/ 2>/dev/null || true
+cp --update=none "$NEW"/*.tgz "$OUT"/
 
 if (( have_prev )); then
     helm repo index "$OUT" --url "$BASE_URL" --merge "$PREV/index.yaml"

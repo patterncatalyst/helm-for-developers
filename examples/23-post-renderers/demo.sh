@@ -18,7 +18,7 @@ source "$REPO_ROOT/scripts/kube-context.sh"
 mode="${1:-all}"
 if [[ "$mode" == clean ]]; then rm -rf .tmp; echo "clean: removed .tmp"; exit 0; fi
 [[ "$mode" == all || "$mode" == offline ]] || { echo "usage: $0 [offline|clean]" >&2; exit 2; }
-command -v kubectl >/dev/null 2>&1 || { echo "kubectl is required for kubectl kustomize" >&2; exit 1; }
+type -P kubectl >/dev/null 2>&1 || { echo "kubectl is required for kubectl kustomize" >&2; exit 1; }
 
 export HELM_DATA_HOME="$SCRIPT_DIR/.tmp/data"
 export HELM_PLUGINS="$HELM_DATA_HOME/plugins"

@@ -46,7 +46,7 @@ preflight() {
 
     step "Cluster tooling on PATH"
     for t in minikube kubectl; do
-        command -v "$t" >/dev/null 2>&1 && ok "$t" || bad "$t is not on PATH"
+        type -P "$t" >/dev/null 2>&1 && ok "$t" || bad "$t is not on PATH"
     done
     if command -v docker >/dev/null 2>&1 || command -v podman >/dev/null 2>&1; then
         ok "container engine present"

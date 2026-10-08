@@ -142,13 +142,13 @@ This site serves a classic repository of the reference charts from GitHub Pages:
 [host]$ helm pull hfd/shipping-platform --version 1.0.1 -d .
 ```
 
-Both `1.0.0` and `1.0.1` of `shipping-service`, `notification-service` and `shipping-platform` are listed. `1.0.1` changes `NOTES.txt` to print a `curl` against `127.0.0.1` and the published NodePort. `pc-lib`, `shipping-postgres` and `shipping-kafka` did not change and stay at `1.0.0`. Against the live URL, `helm repo add hfd` succeeded, the search listed all six charts at `1.0.0`, and `helm template` of the pulled `hfd/shipping-platform` rendered 15 objects.
+After the r1.1 deploy, both `1.0.0` and `1.0.1` of `shipping-service`, `notification-service` and `shipping-platform` are listed. `1.0.1` changes `NOTES.txt` to print a `curl` against `127.0.0.1` and the published NodePort. `pc-lib`, `shipping-postgres` and `shipping-kafka` did not change and stay at `1.0.0`. Against the live URL, `helm repo add hfd` succeeded, the search listed all six charts at `1.0.0`, and `helm template` of the pulled `hfd/shipping-platform` rendered 15 objects.
 
 ### Published versions are immutable
 
 A version in a repository is a promise. A client that pinned `shipping-platform` at `1.0.0` expects the same bytes tomorrow, and the `digest` in `index.yaml` lets it check. SemVer states the rule: once a version is released, its contents never change, and any change ships as a new version. The publish script enforces it in two steps:
 
-1. It downloads the `index.yaml` that is live at `HFD_CHARTS_URL` (default: the Pages URL) and every archive that index lists, keeps each of them in the new repository, and builds the new index with `helm repo index --merge`. Versions that are not rebuilt stay available, which is why `1.0.0` still installs after `1.0.1` ships. If the site cannot be reached, the script prints a warning and builds a fresh index.
+1. It downloads the `index.yaml` that is live at `HFD_CHARTS_URL` (default: the Pages URL) and every archive that index lists, keeps each of them in the new repository, and builds the new index with `helm repo index --merge`. Versions that are not rebuilt stay available, which is why `1.0.0` still installs after `1.0.1` ships. If the live index cannot be fetched, the script fails rather than publish a fresh index that would drop earlier versions; set `HFD_ALLOW_FRESH_INDEX=1` only for a repository's first publish.
 2. It compares every freshly packaged `name-version` that is already published with the published archive. The comparison is on content, a SHA-256 over the extracted files, because `helm package` records file modification times and the same chart packaged from two checkouts differs in bytes. A match keeps the published archive and its digest. A mismatch fails the build and tells you to bump `version` in `Chart.yaml`.
 
 To test the guard locally, serve a copy of the live repository with `python3 -m http.server` and point the script at it:
