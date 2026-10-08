@@ -31,7 +31,7 @@ With separate releases the object names follow the fullname rule from chapter 7:
 | `notification` | `notification-service` | Deployment, Service, ConfigMap | `kafka.bootstrap` |
 | `shipping` | `shipping-service` | Deployment, Service, ConfigMap, Secret | `kafka.bootstrap`, `kafka.enabled` |
 
-The last column is the chapter's lesson. Both application charts take the broker address as a value, and nothing checks that it names a Service that exists. A typo installs cleanly and fails at runtime: the shipping producer cannot connect, and the notification pod stays out of the Service because its consumer never starts.
+The last column is the weak point. Both application charts take the broker address as a value, and nothing checks that it names a Service that exists. A typo installs cleanly and fails at runtime: the shipping producer cannot connect, and the notification pod stays out of the Service because its consumer never starts.
 
 ## How the code works
 
@@ -57,7 +57,7 @@ Replication factor and minimum in-sync replicas are 1 because the dev cluster ha
 
 **The node pool.** `templates/nodepool.yaml` is a `KafkaNodePool` named `dual` with `roles: [controller, broker]`: one KRaft node doing both jobs. It carries the label `strimzi.io/cluster: shipping-kafka`, which is how a pool attaches to its `Kafka`. Storage is `ephemeral` by default and `jbod` with a `persistent-claim` volume when `storage.type` says so.
 
-**Dev-only sizing.** `values.yaml` asks for 200m CPU and 768Mi memory (limit 1536Mi) for the single node and uses ephemeral storage, so topic data disappears when the broker pod is rescheduled. That suits the lab, where the topic is re-created from the chart on every install. The `persistent-claim` branch of the node pool template exists for the stage and prod overrides, where `storage.size` becomes a PersistentVolumeClaim per node and `deleteClaim: true` removes it on uninstall. Keep that last setting in mind before pointing a values file at a cluster whose data you care about.
+**Dev-only sizing.** `values.yaml` asks for 200m CPU and 768Mi memory (limit 1536Mi) for the single node and uses ephemeral storage, so topic data disappears when the broker pod is rescheduled. That suits the lab, where the topic is re-created from the chart on every install. The `persistent-claim` branch of the node pool template exists for the stage and prod overrides, where `storage.size` becomes a PersistentVolumeClaim per node and `deleteClaim: true` removes it on uninstall. Check the data on a cluster before pointing such a values file at it.
 
 **The topic.** `templates/topic.yaml` declares `shipment.dispatched` with the same cluster label, so one value (`clusterName`) must agree in three places. The chart also exports the address other charts need:
 
@@ -83,13 +83,13 @@ Strimzi names the bootstrap Service `<cluster>-kafka-bootstrap`. `exports` is a 
 
 `required` fails at render time, so a missing address stops `helm install` before anything reaches the cluster. The consumer group, topic and log level go in the ConfigMap, and a `checksum/config` pod annotation rolls the pods when any of them change (chapter 8).
 
-The readiness probe targets `/healthz`, which the service reports as healthy only while its consumer is connected. A pod with no broker stays Live but is held out of the Service, so `--wait` reflects real readiness.
+The readiness probe targets `/healthz`, which the service reports as healthy only while its consumer is connected. A pod with no broker stays Live but is held out of the Service, so `--wait` reflects readiness.
 
 **The configuration both services read.** notification-service renders only what the Python settings class reads: `KAFKA_TOPIC_DISPATCHED`, `KAFKA_GROUP_ID`, `LOG_LEVEL`, `DEPLOY_ENV` and `SERVICE_NAME` in a ConfigMap, and `KAFKA_BOOTSTRAP` in the container env. The consumer group (`notification-service`) is a value so a second consumer chart can read the same topic independently. The values schema sets `additionalProperties: false`, so a misspelled key such as `kafka.bootstrapp` fails `helm lint` instead of being ignored; the unit tests include one that sets an invalid `config.logLevel` and expects the schema error.
 
 **The producer side.** shipping-service gains nothing new in templates. Setting `kafka.enabled: true` and `kafka.bootstrap` in `values/shipping-dev.yaml` adds `KAFKA_ENABLED` to its ConfigMap and `KAFKA_BOOTSTRAP` to its container env.
 
-**What is fragile.** The bootstrap address is typed into two values files and exported a third time. The shipping-service producer is created during application startup, so if the shipping pod starts while the broker pod is still starting, it restarts a few times before it connects. Installed concurrently with a fresh Kafka cluster it restarted 3 times (a stable pod after about 40 seconds to a stable pod); in this chapter's demo it shows 0 restarts, because `kubectl wait` holds back the install until Kafka is Ready. In the full platform run (chapter 16) that took about 50 seconds to settle; the startup probe allows up to 60 seconds and `--wait` holds the release open until it does. Chapter 16 covers what `--wait` can and cannot order.
+**What is fragile.** The bootstrap address is typed into two values files and exported a third time. The shipping-service producer is created during application startup, so if the shipping pod starts while the broker pod is still starting, it restarts a few times before it connects. Installed concurrently with a fresh Kafka cluster it restarted 3 times (stable after about 40 seconds); in this chapter's demo it shows 0 restarts, because `kubectl wait` holds back the install until Kafka is Ready. In the full platform run (chapter 16) that took about 50 seconds to settle; the startup probe allows up to 60 seconds and `--wait` holds the release open until it does. Chapter 16 covers what `--wait` can and cannot order.
 
 ## Build, run, observe
 

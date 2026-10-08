@@ -8,7 +8,7 @@ duration: 30 minutes
 
 The `shipping-postgres` subchart from chapter 09 renders a `Cluster` object, and the object means nothing unless the CloudNativePG operator is installed and its CustomResourceDefinition (CRD) exists. This chapter covers the division of labor between charts and operators, the one directory where Helm installs CRDs, and a render-time guard that turns a confusing server error into a readable one.
 
-The code is in `examples/10-crds-operators/`. `./demo.sh offline` needs no cluster, and `./demo.sh` runs the live comparison against minikube.
+The code is in `examples/10-crds-operators/`. `./demo.sh offline` needs no cluster, and `./demo.sh` runs the live comparison against the lab cluster.
 
 {% include excalidraw.html
    file="10-crd-ownership"
@@ -64,7 +64,7 @@ Error: execution error at (shipping-service/charts/shipping-postgres/templates/c
 
 It then repeats the render with `--api-versions postgresql.cnpg.io/v1` and expects four objects. This is also the pattern for any template that depends on an optional API: gate it with `Has`, and give offline renders a way to declare the API.
 
-One trap showed up while writing this chapter. `helm lint` runs templates in a lenient mode: with `-f values-postgres.yaml` and no declared API, lint printed the `fail` message as `level=INFO msg="funcMap fail"` and still reported `0 chart(s) failed`. Do not count on lint to enforce a guard. Use `helm template` or a unit test.
+The `helm lint` command runs templates in a lenient mode: with `-f values-postgres.yaml` and no declared API, lint printed the `fail` message as `level=INFO msg="funcMap fail"` and still reported `0 chart(s) failed`. Do not count on lint to enforce a guard. Use `helm template` or a unit test.
 
 ## Build, run, observe
 
@@ -108,7 +108,7 @@ kubectl-client-side-apply  -> Update
 - `crds/` is install-only: not templated, not upgraded, not deleted. `--skip-crds` and `--include-crds` control it, and `kubectl apply` is the way to change a CRD.
 - `.Capabilities.APIVersions.Has` plus `fail` converts a missing operator into a clear render-time error. `helm template` needs `--api-versions` to pass offline, and lint does not enforce the guard.
 
-Chapter 11 adds the migration Job, and with it the first real conflict between Helm's ordering and the application's readiness.
+Chapter 11 adds the migration Job, and with it the first conflict between Helm's ordering and the application's readiness.
 
 ## Further reading
 

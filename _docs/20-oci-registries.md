@@ -21,7 +21,7 @@ The `helm push` command uploads one OCI image manifest. It references a config b
 
 Two digests exist, and they answer different questions. The chart layer digest is the SHA-256 of the `.tgz`, the same value `index.yaml` showed in chapter 19. The manifest digest is what `helm push` prints as `Digest:` and what a registry uses to address the whole artifact. Pin the manifest digest when you want an install that cannot change underneath you, because a tag is a mutable pointer and a digest is not.
 
-The Helm documentation describes the registry commands and the `oci://` reference format in [Use OCI-based registries](https://helm.sh/docs/topics/registries/), including installing by digest ("digests are immutable"). The [Helm 4 release announcement](https://helm.sh/blog/helm-4-released/) adds content-based caching and reproducible builds, which matter in chapter 21. Every command below was checked against `helm <command> --help` from Helm 4.3.0.
+The Helm documentation describes the registry commands and the `oci://` reference format in [Use OCI-based registries](https://helm.sh/docs/topics/registries/), including installing by digest ("digests are immutable"). The [Helm 4 release announcement](https://helm.sh/blog/helm-4-released/) adds content-based caching and reproducible builds, which matter in chapter 21.
 
 ## How the code works
 
@@ -33,7 +33,7 @@ The Helm documentation describes the registry commands and the `oci://` referenc
 [host]$ docker run -d --name hfd-registry -p 127.0.0.1:5001:5000 docker.io/library/registry:2
 ```
 
-Binding to `127.0.0.1` keeps the registry off the network. The second container, `hfd-registry-auth` on port 5002, enables `REGISTRY_AUTH=htpasswd` and reads a bcrypt file created with `htpasswd -Bbn`. The script uses `create`, `cp` and `start` rather than a bind mount because some container engines refuse mounts outside configured shared paths; that happened on the authoring machine. `ENGINE=podman` swaps the engine.
+Binding to `127.0.0.1` keeps the registry off the network. The second container, `hfd-registry-auth` on port 5002, enables `REGISTRY_AUTH=htpasswd` and reads a bcrypt file created with `htpasswd -Bbn`. The script uses `create`, `cp` and `start` rather than a bind mount because some container engines refuse mounts outside configured shared paths. `ENGINE=podman` swaps the engine.
 
 **Push.** The first attempt leaves out `--plain-http` to show the failure:
 
@@ -122,7 +122,7 @@ Four failures account for most registry problems, and each prints a message that
 - **A tag points at different bytes than yesterday.** Pushing `1.0.0` again replaces the tag's manifest, and nothing in the registry objects. Consumers that pinned the tag follow it silently. Consumers that pinned `@sha256:<manifest digest>` keep getting the original content, or fail if the registry has garbage-collected it. Treat tags as mutable and digests as the record of what shipped.
 - **`helm dependency update` contacts unrelated repositories.** The command refreshes every classic repository configured on the machine before it resolves dependencies, so an unreachable one slows or breaks an OCI-only update. `--skip-refresh` skips that step, which is correct whenever every dependency comes from an `oci://` URL.
 
-One environment detail belongs to the demo, not to Helm. The authenticated registry needs an `htpasswd` file inside the container. A bind mount from a scratch directory was denied on the authoring machine, so the script uses `docker create`, `docker cp` and `docker start` to place the file. If you adapt the demo to rootless podman, expect to adjust that step.
+One environment detail belongs to the demo, not to Helm. The authenticated registry needs an `htpasswd` file inside the container. A bind mount from a scratch directory was denied on the machine that ran the demo, so the script uses `docker create`, `docker cp` and `docker start` to place the file. If you adapt the demo to rootless podman, expect to adjust that step.
 
 ## Cross-check
 

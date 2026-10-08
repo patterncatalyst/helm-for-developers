@@ -8,7 +8,7 @@ Argo CD 3.5.4, installed from Helm chart `argo/argo-cd` 10.10.1, syncs the umbre
 | `apps/repo-registry.yaml` | Registers the registry addon as an OCI Helm repository |
 | `apps/shipping-platform-oci.yaml` | Primary `Application`: chart 1.0.0 from OCI, `valueFiles` plus `valuesObject` |
 | `apps/shipping-platform-git.yaml` | Same chart from Git. Pending until `patterncatalyst/helm-for-developers` is pushed; not applied by the demo |
-| `charts/` | Self-contained copy of the golden charts |
+| `charts/` | Self-contained copy of the reference charts |
 
 ## Run
 

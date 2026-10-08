@@ -90,4 +90,4 @@ Chapters 01 to 12 are the core and should be read in order. Chapters 13 and 14 a
 
 ## Verification status
 
-Every chapter ends with a verification footer. No chapter is marked `verified` until its example has run against a live cluster and the observed effect is recorded under `_plans/evidence/`.
+Every chapter ends with a verification footer. A chapter is marked `verified` only after its example has run against a live cluster and the observed effect is recorded as evidence in the repository.

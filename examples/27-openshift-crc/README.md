@@ -8,7 +8,7 @@ The final umbrella chart (`shipping-platform` 1.0.0 and its subcharts) deployed 
 
 | File | Purpose |
 |---|---|
-| `charts/` | Self-contained copies of the six golden charts (the Chapter 16 umbrella and its dependencies) |
+| `charts/` | Self-contained copies of the six reference charts (the Chapter 16 umbrella and its dependencies) |
 | `values-openshift.yaml` | Full profile: Routes, internal registry, ClusterIP, database and Kafka on |
 | `values-openshift-minimal.yaml` | Overlay for a run without operators: in-memory storage, no Kafka, no notification service |
 | `build-and-push.sh` | Exposes the registry `default-route`, logs podman in with `oc whoami -t`, builds and pushes both images |
@@ -37,7 +37,7 @@ That renders both profiles with `--api-versions route.openshift.io/v1`, asserts 
 
 ## Chart copy
 
-`charts/` is a snapshot of the golden charts (Chapter 16 umbrella and dependencies). The umbrella's Route and test templates are gated on `tags.messaging`, so the minimal profile renders one Route and probes only the shipping service.
+`charts/` is a snapshot of the reference charts (Chapter 16 umbrella and dependencies). The umbrella's Route and test templates are gated on `tags.messaging`, so the minimal profile renders one Route and probes only the shipping service.
 
 ## Cleaning up
 

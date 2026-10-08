@@ -6,7 +6,7 @@ description: "Combine the services, the database and Kafka into one release with
 duration: 45 minutes
 ---
 
-Chapter 15 left you with three releases and a Kafka address copied between values files. An umbrella chart replaces them with one release, one `helm install`, and one rollback unit. It also introduces the first bugs that only exist because charts are composed, so this chapter spends as much time on the traps as on the mechanics.
+Chapter 15 left you with three releases and a Kafka address copied between values files. An umbrella chart replaces them with one release, one `helm install`, and one rollback unit. It also introduces the first bugs that exist only because charts are composed.
 
 The code is in `examples/16-umbrella/`. The `demo.sh` there installs and runs it; its `README.md` covers what it does and how to drive it.
 

@@ -12,7 +12,7 @@ A chapter-by-chapter tutorial for Helm 4, written for application developers. On
 
 - 31 chapters in nine parts (`_docs/`), from a lab setup to OpenShift Local.
 - 27 runnable examples (`examples/NN-slug/`), each a self-contained snapshot of the charts at that step, with a `demo.sh` that supports `offline` and `clean`.
-- Two services (`services/`) built once on UBI 10, and a golden chart set (`charts/`) that the examples are derived from.
+- Two services (`services/`) built once on UBI 10, and a reference chart set (`charts/`) that the examples are derived from.
 - Three Helm 4 plugins (`plugins/`): a subprocess CLI plugin, a post-renderer plugin and a Wasm plugin.
 - Two slide decks (`presentation/`): Helm 101 and Helm 201.
 

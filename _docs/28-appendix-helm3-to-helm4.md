@@ -26,7 +26,7 @@ Charts stay `apiVersion: v2`. A chart that installs with Helm 3 installs with He
 | `helm registry login oci://host/path` | `helm registry login host` | Domain name only. Chapter 20. |
 | `--hide-notes`, `--render-subchart-notes` on `helm template` | deprecated | Template output never includes notes, so the flags do nothing. Removal is planned for Helm 5. |
 
-New flags worth knowing: `--server-side` and `--force-conflicts` for server-side apply, `--take-ownership` to adopt resources that lack Helm's ownership annotations, `--wait-for-jobs`, `--skip-schema-validation`, `--history-max` on `upgrade` and `rollback`, `--show-rollback-revision` on `helm history`, `--color` and `--content-cache` as global flags, and `helm get metadata`.
+New flags: `--server-side` and `--force-conflicts` for server-side apply, `--take-ownership` to adopt resources that lack Helm's ownership annotations, `--wait-for-jobs`, `--skip-schema-validation`, `--history-max` on `upgrade` and `rollback`, `--show-rollback-revision` on `helm history`, `--color` and `--content-cache` as global flags, and `helm get metadata`.
 
 ## Server-side apply
 

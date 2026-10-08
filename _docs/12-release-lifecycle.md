@@ -6,7 +6,7 @@ description: "Drive one release through good upgrades, failed upgrades and rollb
 duration: 45 minutes
 ---
 
-Installing a chart is the easy half of Helm. The other half is what a release does when an upgrade goes wrong: which revision is live, what Helm cleans up, who owns each field of each object. This chapter takes the chart from chapter 11, switches it back to memory mode so every step is fast, and walks it through the failure paths that Helm 4 changed.
+Installing a chart is half of Helm. The other half is what a release does when an upgrade goes wrong: which revision is live, what Helm cleans up, who owns each field of each object. This chapter takes the chart from chapter 11, switches it back to memory mode so every step is fast, and walks it through the failure paths that Helm 4 changed.
 
 The code is in `examples/12-release-lifecycle/`. `./demo.sh offline` needs no cluster, and `./demo.sh` runs eleven numbered steps against minikube.
 
@@ -41,7 +41,7 @@ The chart is chapter 11's, plus `templates/extra-configmap.yaml`: a second Confi
 
 ## Observed failure path
 
-The golden umbrella run recorded the negative control for step 3 in `_plans/evidence/golden-08-negative-control.txt`. It upgraded release `platform` with a nonexistent image tag:
+The umbrella run recorded the negative control for step 3 in `_plans/evidence/golden-08-negative-control.txt`. It upgraded release `platform` with a nonexistent image tag:
 
 ```text
 $ helm upgrade platform charts/shipping-platform -n hfd-26 -f values-dev.yaml --set shipping.image.tag=doesnotexist --wait --timeout 90s --rollback-on-failure
@@ -64,7 +64,7 @@ Three things stand out. The failed attempt keeps its own revision, 4. The rollba
 
 The standalone `./demo.sh` run (`_plans/evidence/12-release-lifecycle.txt`) produced the same failure text for release `shipping` and the same row pattern: revision 3 `failed`, revision 4 `Rollback to 2`. Step 4 then left revision 5 `failed` and `kubectl get configmap shipping-shipping-service-extra` returned `NotFound`. Step 5's `helm rollback shipping 2` created revision 6 with the description `Rollback to 2`.
 
-The message deserves a warning. Helm said `Pending termination: 1`, which is kstatus describing the Deployment, not the cause. The image-pull error is on the pod, so `kubectl describe pod` is the next command after any `--wait` failure.
+The message misleads. Helm said `Pending termination: 1`, which is kstatus describing the Deployment, not the cause. The image-pull error is on the pod, so `kubectl describe pod` is the next command after any `--wait` failure.
 
 ## Observed ownership and replacement
 
@@ -129,4 +129,4 @@ Chapter 13 turns from running releases to debugging charts before they run.
 
 ---
 
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/12-release-lifecycle.txt`. Observed on Helm 4.3.0: steps 1 to 11 ran end to end. `--rollback-on-failure` left a `failed` revision then a `Rollback to 2` revision, `--cleanup-on-fail` removed only the new ConfigMap, the Secret decoded to JSON, the field-manager conflict, the ownership refusal and the adoption (with `--force-conflicts`) were captured, and `--force-replace` worked only with `--server-side=false`. The chapter and `demo.sh` were corrected where the first run disagreed.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/12-release-lifecycle.txt`. Observed on Helm 4.3.0: steps 1 to 11 ran end to end. `--rollback-on-failure` left a `failed` revision then a `Rollback to 2` revision, `--cleanup-on-fail` removed only the new ConfigMap, the Secret decoded to JSON, the field-manager conflict, the ownership refusal and the adoption (with `--force-conflicts`) were captured, and `--force-replace` worked only with `--server-side=false`.*

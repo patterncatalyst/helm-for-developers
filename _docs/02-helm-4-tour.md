@@ -52,7 +52,7 @@ Values layer on top of the chart's `values.yaml`. Anything you do not set keeps 
 [host]$ helm template podinfo oci://ghcr.io/stefanprodan/charts/podinfo --version 6.15.0 -n hfd-02 -f values-tour.yaml
 ```
 
-`helm show chart` prints `Chart.yaml` and fails the demo unless `version: 6.15.0` is present. `helm show values` prints the defaults you may override; run it before writing any values file. `helm template` renders locally with no cluster connection, so the demo checks `replicas: 2` appears in the output. It then pipes the manifests through `kubeconform -strict`, which validates each object against the Kubernetes schemas. A real run found five resources and all valid: one Service, one Deployment and three Pods. The Pods are the chart's test hooks, which `helm test` runs on demand.
+`helm show chart` prints `Chart.yaml` and fails the demo unless `version: 6.15.0` is present. `helm show values` prints the defaults you may override; run it before writing any values file. `helm template` renders locally with no cluster connection, so the demo checks `replicas: 2` appears in the output. It then pipes the manifests through `kubeconform -strict`, which validates each object against the Kubernetes schemas. A run found five resources and all valid: one Service, one Deployment and three Pods. The Pods are the chart's test hooks, which `helm test` runs on demand.
 
 ### `demo.sh` (full run)
 
@@ -118,7 +118,7 @@ Helm 3 receives bug fixes until July 8th 2026 and security fixes until November 
 - `helm show chart`, `show values` and `template` inspect a chart before anything touches a cluster.
 - Helm 4 renamed `--atomic` and `--force`, defaults to server-side apply for new releases, and rebuilt plugins and post-renderers. <!-- helm3-reference -->
 
-Chapter 03 returns to the shipping service and deploys it as raw manifests, so you feel the problem a chart solves.
+Chapter 03 returns to the shipping service and deploys it as raw manifests, so the problem a chart solves is concrete.
 
 ## Further reading
 

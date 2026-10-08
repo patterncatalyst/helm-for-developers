@@ -18,7 +18,7 @@ The full run is idempotent. To delete the cluster entirely: `scripts/platform/te
 - `scripts/platform/cluster-status.sh` ends with `ok: platform healthy`.
 - `kubectl --context helm4dev get pods -A` shows operators in `cnpg-system` and `strimzi`, and observability pods in `observability`. No application pods exist yet.
 
-Python 3.14 note: the service images currently build on CPython 3.14.8 (fallback F1 in `CONTRIBUTING.md`). Nothing in this chapter depends on the Python version.
+Python 3.14 note: the service images currently build on CPython 3.14.8 (the fallback is recorded in `CONTRIBUTING.md`). Nothing in this chapter depends on the Python version.
 
 ## Verification status
 

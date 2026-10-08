@@ -97,7 +97,7 @@ The outer `with` skips the `env:` key for an empty list, so the key is omitted i
 
 ## lookup and its limits
 
-`lookup "v1" "Secret" "ns" "name"` queries the live cluster during rendering and returns the object as a map, or an empty map if it does not exist. Under `helm template` and `--dry-run=client` there is no cluster connection, so `lookup` always returns an empty map. A chart that depends on it renders differently offline than in a real install. `helm template --dry-run=server` and `helm install --dry-run=server` connect to the cluster and run `lookup`. Chapter 08 uses `lookup` to keep a generated Secret stable, and chapter 25 returns to the limit when Argo CD renders the chart.
+`lookup "v1" "Secret" "ns" "name"` queries the live cluster during rendering and returns the object as a map, or an empty map if it does not exist. Under `helm template` and `--dry-run=client` there is no cluster connection, so `lookup` always returns an empty map. A chart that depends on it renders differently offline than in an install against a cluster. `helm template --dry-run=server` and `helm install --dry-run=server` connect to the cluster and run `lookup`. Chapter 08 uses `lookup` to keep a generated Secret stable, and chapter 25 returns to the limit when Argo CD renders the chart.
 
 ## Build, run, observe
 

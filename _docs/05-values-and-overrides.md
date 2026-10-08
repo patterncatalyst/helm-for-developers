@@ -6,7 +6,7 @@ description: "Design the chart's values interface, validate it with values.schem
 duration: 40 minutes
 ---
 
-The chart from chapter 04 reads three values. Everything else, including the log level, the resources and the probe paths, is still hardcoded in the templates. This chapter moves those settings into `values.yaml`, adds a JSON Schema that rejects bad input before anything is rendered, and shows exactly how `-f` files and `--set` flags combine. The new idea is that `values.yaml` is the chart's public interface and deserves the same design care as an API.
+The chart from chapter 04 reads three values. Everything else, including the log level, the resources and the probe paths, is still hardcoded in the templates. This chapter moves those settings into `values.yaml`, adds a JSON Schema that rejects bad input before anything is rendered, and shows how `-f` files and `--set` flags combine. The new idea is that `values.yaml` is the chart's public interface and deserves the same design care as an API.
 
 The code is in `examples/05-values/`. `./demo.sh offline` runs the schema and precedence assertions without a cluster; `./demo.sh` installs the dev configuration into `hfd-05` and upgrades to the prod one.
 

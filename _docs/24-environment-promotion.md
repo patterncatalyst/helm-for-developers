@@ -24,7 +24,7 @@ Keeping the pins outside the chart matters. A chart version is an immutable arti
 
 Two pins identify what runs in an environment. The chart pin is an exact version such as `1.0.0`, never a range, because a range lets the registry decide what prod installs. The image pin is a tag plus a digest. A tag is a movable label: pushing `0.1.0` again changes what every node pulls next. A digest names the content. The reference `shipping-service:0.1.0@sha256:...` keeps the human-readable tag and adds the content check, and the container runtime resolves by digest when both are present.
 
-The golden charts accept this without changes. `pc-lib.image` formats `repository:tag`, and the `tag` value is a free string, so a value of `0.1.0@sha256:<digest>` renders as a valid reference. Dev follows a tag so developers see their pushes. Stage and prod carry digests.
+The reference charts accept this without changes. `pc-lib.image` formats `repository:tag`, and the `tag` value is a free string, so a value of `0.1.0@sha256:<digest>` renders as a valid reference. Dev follows a tag so developers see their pushes. Stage and prod carry digests.
 
 ## How the code works
 

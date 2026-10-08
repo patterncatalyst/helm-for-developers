@@ -80,7 +80,7 @@ helm diff local charts/shipping-service /tmp/changed
 
 Schema validation runs before rendering, so fault 1 hides everything else. Fault 2 shows how Helm reports an `include` chain: the error starts at `deployment.yaml:1:18`, which is the `include` that renders the ConfigMap for the checksum annotation, and ends at `configmap.yaml:11:23`, the line that holds the bad lookup. Read an error from the bottom: the last frame is the cause.
 
-Fault 3 is a classic. `indent` does not add a leading newline, so the first label lands on the `labels:` line and the rest of the block is indented under a scalar. `helm template --show-only templates/service.yaml --debug` prints `labels:    helm.sh/chart: shipping-service-0.13.0`, which makes the problem visible.
+Fault 3 is a common mistake. `indent` does not add a leading newline, so the first label lands on the `labels:` line and the rest of the block is indented under a scalar. `helm template --show-only templates/service.yaml --debug` prints `labels:    helm.sh/chart: shipping-service-0.13.0`, which makes the problem visible.
 
 Fault 4 passes plain `helm lint` with one `[WARNING]` and exit code 0. Only `--strict` fails it. Fault 5 passes lint and render, because `quote` is valid in a template and `containerPort: "8080"` is valid YAML. Only a schema that says `containerPort` is an integer rejects it.
 
@@ -163,4 +163,4 @@ Chapter 14 turns these one-off checks into repeatable ones: unit tests, `helm te
 
 ---
 
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/13-debugging.txt`. Observed on Helm 4.3.0 against minikube: `helm diff upgrade` showed the `replicaCount` and `LOG_LEVEL` changes, `helm get manifest` passed kubeconform and listed the same resources as `helm template`, a bad-tag `--wait` upgrade printed `Pending termination: 1` and `context deadline exceeded`, and the string `containerPort` passed both Helm dry-runs (the original claim that `--dry-run=server` rejects it was refuted) but failed `kubectl apply --server-side --dry-run=server`.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/13-debugging.txt`. Observed on Helm 4.3.0 against minikube: `helm diff upgrade` showed the `replicaCount` and `LOG_LEVEL` changes, `helm get manifest` passed kubeconform and listed the same resources as `helm template`, a bad-tag `--wait` upgrade printed `Pending termination: 1` and `context deadline exceeded`, and the string `containerPort` passed both Helm dry-runs but failed `kubectl apply --server-side --dry-run=server`.*

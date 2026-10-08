@@ -34,7 +34,7 @@ The `helm package` command can override both without editing the file, which is 
 
 With `--app-version 0.1.1`, `helm template` on the packaged chart renders `image: "shipping-service:0.1.1"` and `app.kubernetes.io/version: "0.1.1"`. Pre-release versions such as `1.1.0-rc.1` are valid SemVer and Helm hides them from `helm search repo` until you pass `--devel`.
 
-Helm's version parser is lenient. During authoring it packaged `--version 1.0` and `--version v1.0.2` without complaint, and the index stored them as written. Treat that leniency as a trap: three-part numbers with no `v` prefix keep ordering, ranges and tooling predictable.
+Helm's version parser is lenient. Helm packaged `--version 1.0` and `--version v1.0.2` without complaint, and the index stored them as written. Treat that leniency as a trap: three-part numbers with no `v` prefix keep ordering, ranges and tooling predictable.
 
 ## How the code works
 
@@ -143,7 +143,7 @@ Compare three views of the same release. `sha256sum .work/repo/shipping-service-
 - A classic repository is `index.yaml` (from `helm repo index --url`) plus archives behind any HTTP server; `helm repo add`, `update` and `search` work on a cached copy of the index.
 - Pre-release versions stay hidden unless you ask with `--devel`, and installs should always pin `--version`.
 
-The failure modes are worth remembering because they all look alike from a CI log: a missing dependency fails at package time, a stale index fails at search time (the new version is missing), and a wrong `--url` fails at install time with a download error for an address that only worked on the machine that built the index. Each has the same remedy, which is to rebuild the index from the directory you are about to publish and to run `helm repo update` on the client.
+The failure modes look alike in a CI log: a missing dependency fails at package time, a stale index fails at search time (the new version is missing), and a wrong `--url` fails at install time with a download error for an address that only worked on the machine that built the index. Each has the same remedy, which is to rebuild the index from the directory you are about to publish and to run `helm repo update` on the client.
 
 Next, the same archive moves into an OCI registry, where the version is a tag and the content can be pinned by digest.
 

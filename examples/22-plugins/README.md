@@ -18,7 +18,7 @@ The demo also packages `helm-shipping-env` without a signature and shows that `h
 
 ## Against a cluster
 
-The first form of the plugin reads a deployed release: install the chart into a namespace, then run `helm shipping-env RELEASE -n NAMESPACE` with the plugin installed. The demo does not do this; the S7 run did (`_plans/evidence/22-plugins.txt`).
+The first form of the plugin reads a deployed release: install the chart into a namespace, then run `helm shipping-env RELEASE -n NAMESPACE` with the plugin installed. The demo does not do this; a live run did (`_plans/evidence/22-plugins.txt`).
 
 ## Verification status
 

@@ -6,7 +6,7 @@ description: "Install Helm 4.3.0 and the supporting tools into the repository, i
 duration: 40 minutes
 ---
 
-Every chapter after this one runs Helm against a real cluster, so this chapter builds the lab once and makes it disposable. The new idea is isolation: Helm 4 lives inside the repository, its config, cache and plugins live beside it, and the cluster is a single minikube profile named `helm4dev` that holds operators and nothing else.
+Every chapter after this one runs Helm against a cluster, so this chapter builds the lab once and makes it disposable. The new idea is isolation: Helm 4 lives inside the repository, its config, cache and plugins live beside it, and the cluster is a single minikube profile named `helm4dev` that holds operators and nothing else.
 
 The code is in `examples/01-lab-setup/`. `./demo.sh offline` checks the toolchain without touching a cluster; `./demo.sh` builds the whole lab.
 
@@ -19,7 +19,7 @@ The code is in `examples/01-lab-setup/`. `./demo.sh offline` checks the toolchai
 
 The lab was run with `minikube` 1.38.1. It also needs `kubectl`, a container engine (Docker or Podman), `curl`, `tar`, `sha256sum` and `python3`. The minikube profile uses the docker driver with the containerd runtime, 12g of RAM and 8 CPUs. Everything else, including Helm, comes from `scripts/install-tools.sh`.
 
-The service images are built on CPython 3.14.8, not 3.15. `uv` had no 3.15.0 build and `aiokafka` had no cp315 wheel when the images were first built, so `CONTRIBUTING.md` records fallback F1. Nothing in the Helm chapters depends on the interpreter version; the change is one `ARG PYTHON_VERSION` line in `services/Containerfile`.
+The service images are built on CPython 3.14.8, not 3.15. `uv` had no 3.15.0 build and `aiokafka` had no cp315 wheel when the images were first built, and `CONTRIBUTING.md` records the fallback. Nothing in the Helm chapters depends on the interpreter version; the change is one `ARG PYTHON_VERSION` line in `services/Containerfile`.
 
 ## Why Helm lives in the repository
 
@@ -65,7 +65,7 @@ The bootstrap runs four tiers and gates each on the health of the one before:
 3. `setup-kafka-operator.sh` installs Strimzi into `strimzi` with `watchAnyNamespace=true`, so one operator serves every `hfd-NN` namespace.
 4. `setup-lgtm.sh` installs Loki, Grafana, Tempo and Mimir into `observability`. Its Grafana only loads dashboard ConfigMaps from its own namespace; chapter 26 upgrades the shared Grafana with `sidecar.dashboards.searchNamespace=ALL` so the umbrella's dashboard in `hfd-26` appears.
 
-Operators only is a deliberate decision. The bootstrap installs the machinery that understands a `Cluster` or a `Kafka` custom resource. It never creates a database or a broker, because from chapter 09 onward the charts you write own those resources, and that is what a chart is for. Every helper in `lib.sh` pins `--context helm4dev` explicitly, so the kubectl context you happen to have active never decides where a command lands.
+The bootstrap installs operators only: the machinery that understands a `Cluster` or a `Kafka` custom resource. It never creates a database or a broker, because from chapter 09 onward the charts you write own those resources, and that is what a chart is for. Every helper in `lib.sh` pins `--context helm4dev` explicitly, so the kubectl context you happen to have active never decides where a command lands.
 
 ### `scripts/build-images.sh`
 
@@ -83,7 +83,7 @@ Run the preflight first. It needs no cluster.
 [host]$ cd examples/01-lab-setup && ./demo.sh offline
 ```
 
-It checks that `helm` resolves to `.tools/bin/helm`, that the pinned versions are present, that the two plugins are installed, and that every script under `scripts/` passes `bash -n`. A real run printed these lines:
+It checks that `helm` resolves to `.tools/bin/helm`, that the pinned versions are present, that the two plugins are installed, and that every script under `scripts/` passes `bash -n`. A run printed these lines:
 
 ```
 ==> Project-local Helm 4

@@ -6,7 +6,7 @@ The umbrella chart from chapter 16 deployed to three environments with Helmfile 
 |---|---|
 | `helmfile.yaml` | Three releases; the `version:` line is the chart pin |
 | `pins/<env>.yaml` | Image tag, or tag@digest after `./demo.sh pin <env>` |
-| `charts/` | Self-contained copy of the golden charts at 1.0.0 |
+| `charts/` | Self-contained copy of the reference charts at 1.0.0 |
 
 ## Run
 

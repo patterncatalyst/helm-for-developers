@@ -31,7 +31,7 @@ OpenShift Local runs a single-node OpenShift cluster in a local VM. It needs a f
 
 OpenShift admits every pod through a Security Context Constraint. The default for ordinary workloads, `restricted-v2`, assigns each pod a UID from a range reserved for the project, sets the group to 0, and rejects a pod that asks for a specific UID. A manifest with `runAsUser: 1001` fails admission. This is the one place where a chart written for minikube can break on OpenShift without any template error.
 
-The golden charts avoid it by construction. `pc-lib` renders `runAsNonRoot: true`, `allowPrivilegeEscalation: false`, dropped capabilities and a `RuntimeDefault` seccomp profile, and never emits `runAsUser` or `fsGroup`. The image's `USER 1001:0` is only a default. On OpenShift the assigned UID replaces it, and the container still works because the image makes its files group-0 readable. The Containerfile from the services directory was built for this. A UID near `1000650000` inside the pod, not 1001, is the observable proof. On the verified run the project's range was `1000650000/10000` and both services reported the same UID, with group 0:
+The reference charts avoid it by construction. `pc-lib` renders `runAsNonRoot: true`, `allowPrivilegeEscalation: false`, dropped capabilities and a `RuntimeDefault` seccomp profile, and never emits `runAsUser` or `fsGroup`. The image's `USER 1001:0` is only a default. On OpenShift the assigned UID replaces it, and the container still works because the image makes its files group-0 readable. The Containerfile from the services directory was built for this. A UID near `1000650000` inside the pod, not 1001, is the observable proof. On the verified run the project's range was `1000650000/10000` and both services reported the same UID, with group 0:
 
 ```
 [crc-host]$ oc exec -n hfd-ocp deploy/platform-shipping -- id
@@ -228,7 +228,7 @@ Plain HTTP answers `302` with `location: https://...`, which is the `Redirect` p
 
 Compare Helm's view with the cluster's. `[crc-host]$ helm get manifest platform -n hfd-ocp | grep -c 'kind: Route'` and `[crc-host]$ oc get routes -n hfd-ocp --no-headers | wc -l` both print `2` in the full profile. `[crc-host]$ helm get manifest platform -n hfd-ocp | grep -c runAsUser` prints `0`: the chart pins no UID.
 
-The live pod disagrees with the manifest, and that is the point. The SCC admission fills in the fields the chart left out:
+The live pod disagrees with the manifest. The SCC admission fills in the fields the chart left out:
 
 ```
 [crc-host]$ oc get pod -n hfd-ocp -l app.kubernetes.io/name=shipping -o jsonpath='{.items[0].spec.securityContext}'

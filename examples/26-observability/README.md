@@ -1,6 +1,6 @@
 # 26 Observability with the LGTM stack
 
-The final umbrella chart (release `platform`, namespace `hfd-26`) with telemetry on in `values-dev.yaml` and a Grafana dashboard ConfigMap added to the umbrella: `templates/dashboard.yaml`, `files/shipping-dashboard.json`, a `dashboards:` values block and `tests/dashboard_test.yaml`. Everything else matches the golden `charts/` directory.
+The final umbrella chart (release `platform`, namespace `hfd-26`) with telemetry on in `values-dev.yaml` and a Grafana dashboard ConfigMap added to the umbrella: `templates/dashboard.yaml`, `files/shipping-dashboard.json`, a `dashboards:` values block and `tests/dashboard_test.yaml`. Everything else matches the reference `charts/` directory.
 
 ## Run
 
