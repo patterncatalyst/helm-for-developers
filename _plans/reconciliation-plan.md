@@ -207,11 +207,13 @@ One row per claim in `_plans/claims/s6-*.md`, merged with the S7 results in `_pl
 ## Status by chapter
 
 Claim counts are recounted from the rows of every claim table in this file (`scratchpad/count.py` groups by the Chapter column; a row for two chapters counts for each). Total: 186 chapter-claims; 166 verified, 6 refuted-and-fixed, 3 partial, 1 inference, 10 not verified. The footer column is the current verification footer in `_docs/`.
+r1.1 sweep (2026-10-08, published NodePorts, helm4dev recreated): examples 01-13 re-run live, all exit 0; evidence files for 02-13 overwritten with the r1.1 runs, 01 adds `01-lab-setup-nodeports.txt`. Fixed `12-release-lifecycle/demo.sh` (`| head` under pipefail aborted with 141; now `sed -n`) and `05-values/demo.sh` (same pattern).
+
 
 | Chapter | Claims | Claim statuses | Footer status | Footer evidence | Evidence file present |
 |---|---|---|---|---|---|
 | 00-outline | 0 | none | (no footer) | none | n/a |
-| 01-prerequisites | 6 | 6 verified | partially verified | 01-lab-setup.txt | yes |
+| 01-prerequisites | 6 | 6 verified | partially verified | 01-lab-setup.txt, 01-lab-setup-nodeports.txt | yes |
 | 02-helm-4-tour | 8 | 6 verified, 2 not verified | verified | 02-helm-tour.txt | yes |
 | 03-shipping-service-raw-manifests | 3 | 3 verified | verified | 03-raw-manifests.txt | yes |
 | 04-first-chart | 7 | 7 verified | verified | 04-first-chart.txt | yes |

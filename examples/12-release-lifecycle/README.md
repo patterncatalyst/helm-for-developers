@@ -26,4 +26,4 @@ Snapshot after chapter 12: the chapter 11 charts plus an `extras.configMap` togg
 
 ## Verification status
 
-`verified` on 2026-10-08 (`_plans/evidence/12-release-lifecycle.txt`): all eleven steps ran end to end. Step 9 needs `--force-conflicts` with `--take-ownership` when another field manager owns differing fields (after adoption only the `meta.helm.sh` annotations were captured, not the label, the replaced data or `managedFields`), and step 10 needs `--server-side=false`.
+`verified` on 2026-10-08 (`_plans/evidence/12-release-lifecycle.txt`): all eleven steps ran end to end. Step 9 needs `--force-conflicts` with `--take-ownership` when another field manager owns differing fields (after adoption only the `meta.helm.sh` annotations were captured, not the label, the replaced data or `managedFields`), and step 10 needs `--server-side=false`. Re-run on r1.1 on 2026-10-08 on the recreated helm4dev profile; this chapter makes no host requests, so only the cluster changed, and the behaviour above held. `demo.sh` step 6 piped `helm get ... | head` under `pipefail`, which could abort the run with exit 141; it now uses `sed -n`.

@@ -31,4 +31,4 @@ The live run needs the helm4dev cluster with the CloudNativePG operator (`script
 
 ## Verification status
 
-`verified` on 2026-10-08 (`_plans/evidence/09-postgres-subchart.txt`): `--wait` succeeded with the CNPG `Cluster`, the pod authenticated with the generated `shipping-postgres-app` Secret, the manual migration and a POST stored a row, the `import-values` names matched the live Service and Secret, `helm lint` failed without `--set postgres.host`, and `helm template` rendered the packaged copy until `helm dependency build` was rerun.
+`verified` on 2026-10-08 (`_plans/evidence/09-postgres-subchart.txt`): `--wait` succeeded with the CNPG `Cluster`, the pod authenticated with the generated `shipping-postgres-app` Secret, the manual migration and a POST stored a row, the `import-values` names matched the live Service and Secret, `helm lint` failed without `--set postgres.host`, and `helm template` rendered the packaged copy until `helm dependency build` was rerun. Re-run on r1.1 with published NodePorts on 2026-10-08 (helm4dev recreated with `HFD_NODE_PORTS`, host requests at `http://127.0.0.1:30080`, no tunnel); the behaviour above held.

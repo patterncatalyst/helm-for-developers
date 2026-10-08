@@ -16,4 +16,4 @@ The live run builds `shipping-service:0.1.0` with `scripts/build-images.sh` and 
 
 ## Verification status
 
-`verified` on 2026-10-08 (`_plans/evidence/03-raw-manifests.txt`): The manifests rolled out one ready pod, `/api/info` returned `storage: memory`, the pod ran with the non-root `securityContext` and a read-only root filesystem, and re-applying a changed image tag created a second ReplicaSet while the old one kept serving.
+`verified` on 2026-10-08 (`_plans/evidence/03-raw-manifests.txt`): The manifests rolled out one ready pod, `/api/info` returned `storage: memory`, the pod ran with the non-root `securityContext` and a read-only root filesystem, and re-applying a changed image tag created a second ReplicaSet while the old one kept serving. Re-run on r1.1 with published NodePorts on 2026-10-08 (helm4dev recreated with `HFD_NODE_PORTS`, host requests at `http://127.0.0.1:30080`, no tunnel); the behaviour above held.

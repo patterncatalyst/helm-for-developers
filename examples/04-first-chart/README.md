@@ -16,4 +16,4 @@ The live run builds `shipping-service:0.1.0` with `scripts/build-images.sh` and 
 
 ## Verification status
 
-`verified` on 2026-10-08 (`_plans/evidence/04-first-chart.txt`): `helm history` showed revisions 1, 2 and 3 (3 = `Rollback to 1`), one `sh.helm.release.v1.shipping.vN` Secret per revision, `--keep-history` left an `uninstalled` release, the Deployment fields were owned by manager `helm` (apply), and the history cap held at 10.
+`verified` on 2026-10-08 (`_plans/evidence/04-first-chart.txt`): `helm history` showed revisions 1, 2 and 3 (3 = `Rollback to 1`), one `sh.helm.release.v1.shipping.vN` Secret per revision, `--keep-history` left an `uninstalled` release, the Deployment fields were owned by manager `helm` (apply), and the history cap held at 10. Re-run on r1.1 with published NodePorts on 2026-10-08 (helm4dev recreated with `HFD_NODE_PORTS`, host requests at `http://127.0.0.1:30080`, no tunnel); the behaviour above held.

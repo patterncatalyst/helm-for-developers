@@ -32,7 +32,7 @@ live() {
   kubectl -n "$NS" get deploy,svc,cm
   curl -s --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:30080/api/info; echo
   helm upgrade shipping "$CHART" -n "$NS" -f values-dev.yaml -f values-prod.yaml --wait
-  helm get values shipping -n "$NS" --all | head -20
+  helm get values shipping -n "$NS" --all | sed -n '1,20p'
   helm upgrade shipping "$CHART" -n "$NS" --reset-then-reuse-values --set config.logLevel=ERROR --wait
 }
 

@@ -127,4 +127,4 @@ Chapter 08 adds the configuration and secret handling that the service needs to 
 
 ---
 
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/07-helpers-notes.txt`. Observed on Helm 4.3.0: `helm get notes` printed the notes, the Service had one endpoint, every resource carried the recommended labels, a 54-character release name was rejected, and a chart `version` bump rolled the pods.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/07-helpers-notes.txt`. Observed on Helm 4.3.0: `helm get notes` printed the notes, the Service had one endpoint, every resource carried the recommended labels, a 54-character release name was rejected, and a chart `version` bump rolled the pods. Re-run on r1.1 with published NodePorts on 2026-10-08 (helm4dev recreated with `HFD_NODE_PORTS`, host requests at `http://127.0.0.1:30080`, no tunnel); the behaviour above held.*

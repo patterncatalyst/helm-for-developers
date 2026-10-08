@@ -16,4 +16,4 @@ The live run builds `shipping-service:0.1.0` with `scripts/build-images.sh` and 
 
 ## Verification status
 
-`verified` on 2026-10-08 (`_plans/evidence/06-templates.txt`): The `tpl` annotation reached the running pod with the install namespace, `required` fired only with schema validation skipped, and `lookup` returned an empty map under `helm template` and `--dry-run=client` but the live object under `--dry-run=server` (observed with the chapter 08 chart, `_plans/evidence/08-config-secrets.txt`).
+`verified` on 2026-10-08 (`_plans/evidence/06-templates.txt`): The `tpl` annotation reached the running pod with the install namespace, `required` fired only with schema validation skipped, and `lookup` returned an empty map under `helm template` and `--dry-run=client` but the live object under `--dry-run=server` (observed with the chapter 08 chart, `_plans/evidence/08-config-secrets.txt`). Re-run on r1.1 with published NodePorts on 2026-10-08 (helm4dev recreated with `HFD_NODE_PORTS`, host requests at `http://127.0.0.1:30080`, no tunnel); the behaviour above held.

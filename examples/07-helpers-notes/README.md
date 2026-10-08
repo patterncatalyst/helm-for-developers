@@ -16,4 +16,4 @@ The live run builds `shipping-service:0.1.0` with `scripts/build-images.sh` and 
 
 ## Verification status
 
-`verified` on 2026-10-08 (`_plans/evidence/07-helpers-notes.txt`): `helm get notes` printed the notes, the Service had one endpoint, every resource carried the recommended labels, a 54-character release name was rejected, and a chart `version` bump rolled the pods.
+`verified` on 2026-10-08 (`_plans/evidence/07-helpers-notes.txt`): `helm get notes` printed the notes, the Service had one endpoint, every resource carried the recommended labels, a 54-character release name was rejected, and a chart `version` bump rolled the pods. Re-run on r1.1 with published NodePorts on 2026-10-08 (helm4dev recreated with `HFD_NODE_PORTS`, host requests at `http://127.0.0.1:30080`, no tunnel); the behaviour above held.

@@ -1,4 +1,6 @@
-$ ./demo.sh  (second run, after adding curl retry; first run lost the race on the first curl, exit 56)
+# r1.1 re-run 2026-10-08, published NodePorts, helm4dev recreated with HFD_NODE_PORTS; Helm v4.3.0+gbec5b06
+
+$ ./demo.sh   # (example 05)
 ==> Linting ./shipping-service
 [INFO] Chart.yaml: icon is recommended
 1 chart(s) linted, 0 chart(s) failed
@@ -8,33 +10,30 @@ schema rejects bad type and unknown key
   LOG_LEVEL: "DEBUG"
 ==> engine=docker mode=build tag=0.1.0
 ==> shipping-service:0.1.0
-View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/8wwk9br88d1f24057ix31cmrp
 ==> images in the profile:
 docker.io/library/shipping-service:0.1.0
 docker.io/library/notification-service:0.1.0
 Release "shipping" does not exist. Installing it now.
 NAME: shipping
-LAST DEPLOYED: Thu Oct  8 10:44:23 2026
+LAST DEPLOYED: Thu Oct  8 17:58:27 2026
 NAMESPACE: hfd-05
 STATUS: deployed
 REVISION: 1
 DESCRIPTION: Install complete
 TEST SUITE: None
 NAME    	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART                 	APP VERSION
-shipping	hfd-05   	1       	2026-10-08 10:44:23.017989549 -0400 EDT	deployed	shipping-service-0.5.0	0.1.0      
+shipping	hfd-05   	1       	2026-10-08 17:58:27.298048311 -0400 EDT	deployed	shipping-service-0.5.0	0.1.0      
 NAME                                        READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/shipping-shipping-service   1/1     1            1           3s
-NAME                                TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
-service/shipping-shipping-service   NodePort   10.100.211.183   <none>        8080:30080/TCP   3s
+NAME                                TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+service/shipping-shipping-service   NodePort   10.100.32.76   <none>        8080:30080/TCP   3s
 NAME                                  DATA   AGE
 configmap/kube-root-ca.crt            1      3s
 configmap/shipping-shipping-service   6      3s
-    ok: shipping      127.0.0.1:8080 -> node:30080
-    stop with: scripts/tunnel.sh stop
 {"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"ACME-Post","storage":"memory","kafkaEnabled":false}
 Release "shipping" has been upgraded. Happy Helming!
 NAME: shipping
-LAST DEPLOYED: Thu Oct  8 10:44:26 2026
+LAST DEPLOYED: Thu Oct  8 17:58:30 2026
 NAMESPACE: hfd-05
 STATUS: deployed
 REVISION: 2
@@ -62,62 +61,9 @@ probes:
     failureThreshold: 30
 Release "shipping" has been upgraded. Happy Helming!
 NAME: shipping
-LAST DEPLOYED: Thu Oct  8 10:44:36 2026
+LAST DEPLOYED: Thu Oct  8 17:58:39 2026
 NAMESPACE: hfd-05
 STATUS: deployed
 REVISION: 3
 DESCRIPTION: Upgrade complete
 TEST SUITE: None
-exit=0
---- after prod upgrade + reset-then-reuse
-replicas=3
-LOG_LEVEL=ERROR
-  logLevel: ERROR
-replicaCount: 3
---- reuse-values vs new default
-reuse-values: brandNewDefault count in --all = 0
-reset-then-reuse: brandNewDefault: fresh
-replicas=3
-LOG_LEVEL=ERROR
---- set flags
-shipping-service:
-- at '/image/tag': got number, want string
-
-          image: "shipping-service:12345"
-  SHIPPING_DEFAULT_CARRIER: "ACME,Post"
-  SHIPPING_DEFAULT_CARRIER: "line\n"
-  SHIPPING_STORAGE: "memory"
---- schema draft
-{
-  "$schema": "https://json-schema.org/draft-07/schema#",
-  "type": "object",
-- at '/replicaCount': got string, want integer
-
-
-Error: 1 chart(s) linted, 1 chart(s) failed
---- 2020-12 scratch chart
-  "$schema": "https://json-schema.org/2020-12/schema",
-shipping-service:
-failing loading "https://json-schema.org/2020-12/schema": HTTP request to https://json-schema.org/2020-12/schema returned status 404 (Not Found)
-
-Error: 1 chart(s) linted, 1 chart(s) failed
---- 2020-12 canonical URI
-- at '/replicaCount': got string, want integer
-
-
-Error: 1 chart(s) linted, 1 chart(s) failed
-
---- repair-round capture 2026-10-08 (offline re-run, Helm 4.3.0)
-$ helm lint shipping-service --set replicas=3
-==> Linting shipping-service
-[INFO] Chart.yaml: icon is recommended
-[ERROR] values.yaml: - at '': additional properties 'replicas' not allowed
-
-[ERROR] templates/: values don't meet the specifications of the schema(s) in the following chart(s):
-shipping-service:
-- at '': additional properties 'replicas' not allowed
-
-
-Error: 1 chart(s) linted, 1 chart(s) failed
-$ helm template x shipping-service --set config.defaultCarrier=ACME,Post
-Error: failed parsing --set data: key "Post" has no value
