@@ -1,86 +1,202 @@
-# 25 gitops-argocd, 2026-10-08, Helm 4.3.0, Argo CD chart 10.10.1 (v3.5.4)
-# First run: Application stuck Unknown: repo-server ran 'helm pull oci://registry.kube-system.svc.cluster.local:80/...' over https ('server gave HTTP response to HTTPS client'). Cause: repo Secret key was insecureOciForceHttp; Argo CD reads insecureOCIForceHttp (case-sensitive). After patching the key + hard refresh: Synced/Healthy. Fixed apps/repo-registry.yaml and chapter.
+# r1.1 re-run on 2026-10-08, helm4dev with NodePorts published on 127.0.0.1 (Helm 4.3.0)
+$ ./demo.sh   # exit 0
+==> Argo CD chart 10.10.1 renders under v4.3.0+gbec5b06
+Summary: 44 resources found parsing stdin - Valid: 41, Invalid: 0, Errors: 0, Skipped: 3
+==> the chart as Argo CD renders it: helm template, valueFiles then valuesObject
+Summary: 15 resources found parsing stdin - Valid: 11, Invalid: 0, Errors: 0, Skipped: 4
+==> helm hook annotations Argo CD maps to sync hooks:
+      1     "helm.sh/hook": "post-install,post-upgrade"
+      3     "helm.sh/hook": test
+      1     "helm.sh/hook-weight": "0"
+==> Application manifests parse
+    apps/repo-registry.yaml: Secret/lab-registry
+    apps/shipping-platform-helmrepo.yaml: Application/platform-repo
+    apps/shipping-platform-oci.yaml: Application/platform
+    apps/shipping-service-git.yaml: Application/shipping-git
+offline: OK
+==> engine=docker mode=build tag=0.1.0
 
-# observations on the first (patched) run
-## helm list -n hfd-25
-NAME	NAMESPACE	REVISION	UPDATED	STATUS	CHART	APP VERSION
-(end)
-## argocd svc
-NAME            TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)                      AGE
-argocd-server   NodePort   10.98.31.184   <none>        80:30082/TCP,443:30443/TCP   13m
-    ok: shipping      127.0.0.1:8080 -> node:30080
-    ok: argocd already up on 127.0.0.1:8443
-    stop with: scripts/tunnel.sh stop
-## UI
-200
-## /api/info
-{"service":"platform-shipping","version":"0.1.0","environment":"dev","defaultCarrier":"ARGO-Post","storage":"postgres","kafkaEnabled":true}
-## hooks / events
-82s         Normal    SuccessfulCreate              job/shipping-postgres-1-initdb                         Created pod: shipping-postgres-1-initdb-vq6r8
-76s         Normal    Completed                     job/shipping-postgres-1-initdb                         Job completed
-33s         Normal    Created                       pod/platform-shipping-migrate-gc2fx                    Container created
-33s         Normal    Pulled                        pod/platform-shipping-migrate-gc2fx                    Container image "shipping-service:0.1.0" already present on machine and can be accessed by the pod
-33s         Normal    Scheduled                     pod/platform-shipping-migrate-gc2fx                    Successfully assigned hfd-25/platform-shipping-migrate-gc2fx to helm4dev
-33s         Normal    Started                       pod/platform-shipping-migrate-gc2fx                    Container started
-33s         Normal    SuccessfulCreate              job/platform-shipping-migrate                          Created pod: platform-shipping-migrate-gc2fx
-30s         Normal    Completed                     job/platform-shipping-migrate                          Job completed
-No resources found in hfd-25 namespace.
-Job/platform-shipping-migrate PostSync Succeeded Reached expected number of succeeded pods
-Succeeded
-## schema_migrations
- version |          applied_at           
----------+-------------------------------
-       1 | 2026-10-08 15:56:59.957345+00
-       2 | 2026-10-08 15:56:59.960993+00
-(2 rows)
+==> shipping-service:0.1.0
+#0 building with "desktop-linux" instance using docker driver
 
+#1 [internal] load build definition from Containerfile
+#1 transferring dockerfile: 2.17kB done
+#1 DONE 0.0s
 
-## drift: scale shipping to 3 (selfHeal)
-1
-deployment.apps/platform-shipping scaled
-t+1x3s replicas=3 sync=Synced
-t+2x3s replicas=1 sync=Synced
-t+3x3s replicas=1 sync=Synced
-t+4x3s replicas=1 sync=Synced
-t+5x3s replicas=1 sync=Synced
-t+6x3s replicas=1 sync=Synced
-t+7x3s replicas=1 sync=Synced
-t+8x3s replicas=1 sync=Synced
-t+9x3s replicas=1 sync=Synced
-t+10x3s replicas=1 sync=Synced
-t+11x3s replicas=1 sync=Synced
-t+12x3s replicas=1 sync=Synced
-## lookup probe
-Pushed: 127.0.0.1:5000/charts/lookupprobe:0.1.0
-Digest: sha256:6da35d474630000867c596496cb135f51c7fe5db297df06018f42cad74d45aa5
-NAME: lp
-LAST DEPLOYED: Thu Oct  8 11:58:23 2026
-NAMESPACE: hfd-25-lp
+#2 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
+#2 ...
+
+#3 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#3 DONE 0.2s
+
+#2 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
+#2 DONE 0.3s
+
+#4 [internal] load .dockerignore
+#4 DONE 0.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
+#5 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.0s done
+#5 DONE 0.0s
+
+#6 [builder 1/6] FROM registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
+#6 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.0s done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 28.25kB done
+#7 DONE 0.0s
+
+#8 [runtime 2/6] WORKDIR /app
+#8 CACHED
+
+#9 [builder 5/6] COPY shipping-service/pyproject.toml /src/service/pyproject.toml
+#9 CACHED
+
+#10 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+#10 CACHED
+
+#11 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+#11 CACHED
+
+#12 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+#12 CACHED
+
+#13 [runtime 5/6] COPY shipping-service/ /app/
+#13 CACHED
+
+#14 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+#14 CACHED
+
+#15 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+#15 CACHED
+
+#16 [builder 4/6] COPY common /src/common
+#16 CACHED
+
+#17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
+#17 CACHED
+
+#18 exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:ac2cd575e5eb17d6172e2a77a94099ac903d80c1770bd98aeb3eb10d2f70f3ec done
+#18 exporting config sha256:d7577a9165c2732d167d639f1ad0b130db9a6ed6dab6eddc2c9002561802d5a3 done
+#18 exporting attestation manifest sha256:77c0a6b5ac0ee4ce34c1d92a50f725598490580216ef2535b51bcfc4279d410c 0.0s done
+#18 exporting manifest list sha256:cfe0ffd8f6042ba7233bcd75b75c2aec75adda2deff099ec567052bd3974e84c done
+#18 naming to docker.io/library/shipping-service:0.1.0 done
+#18 unpacking to docker.io/library/shipping-service:0.1.0 done
+#18 DONE 0.1s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/iw993wi7xw0kthgoj2vlmwnvx
+
+==> notification-service:0.1.0
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Containerfile
+#1 transferring dockerfile: 2.17kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#2 DONE 0.1s
+
+#3 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
+#3 DONE 0.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
+#5 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.0s done
+#5 DONE 0.0s
+
+#6 [builder 1/6] FROM registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
+#6 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.0s done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 10.71kB done
+#7 DONE 0.0s
+
+#8 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+#8 CACHED
+
+#9 [builder 4/6] COPY common /src/common
+#9 CACHED
+
+#10 [builder 5/6] COPY notification-service/pyproject.toml /src/service/pyproject.toml
+#10 CACHED
+
+#11 [runtime 2/6] WORKDIR /app
+#11 CACHED
+
+#12 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+#12 CACHED
+
+#13 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+#13 CACHED
+
+#14 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+#14 CACHED
+
+#15 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+#15 CACHED
+
+#16 [runtime 5/6] COPY notification-service/ /app/
+#16 CACHED
+
+#17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
+#17 CACHED
+
+#18 exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:9b7868487b929dac4e2855b558a0ed0c5dc4fa7d84c567df9ea5c3e725ad8a7a done
+#18 exporting config sha256:729ca706dc57d9db1ea09c441e64c81ccb956e853287c5c6b94bd53dac842f0b done
+#18 exporting attestation manifest sha256:83610e30635ce335250b0f208ed232e05d17a9b37d88822002468953dc1bd55a 0.0s done
+#18 exporting manifest list sha256:ce4f9dcc8b2cf0b64d13d1b5a270d9df8bd4a1c1d6744b866dee8d772874baf1 0.0s done
+#18 naming to docker.io/library/notification-service:0.1.0
+#18 naming to docker.io/library/notification-service:0.1.0 done
+#18 unpacking to docker.io/library/notification-service:0.1.0 done
+#18 DONE 0.1s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/f8t5z6335r7rxbufyxdj6apeg
+
+==> images in the profile:
+docker.io/library/shipping-service:0.1.0
+docker.io/library/notification-service:0.1.0
+==> install Argo CD
+Release "argocd" does not exist. Installing it now.
+NAME: argocd
+LAST DEPLOYED: Thu Oct  8 18:32:24 2026
+NAMESPACE: argocd
 STATUS: deployed
 REVISION: 1
 DESCRIPTION: Install complete
 TEST SUITE: None
-helm install result:
-{"kubeSystemNamespaceFound":"yes"}
-application.argoproj.io/lookupprobe created
-argo result:
-{"kubeSystemNamespaceFound":"no"}
+NOTES:
+In order to access the server UI you have the following options:
 
-# clean run, then full demo.sh rerun from scratch with the corrected key (exit 0, 6m51s)
-application.argoproj.io "platform" deleted
-These resources were kept due to the resource policy:
-[CustomResourceDefinition] applications.argoproj.io
-[CustomResourceDefinition] applicationsets.argoproj.io
-[CustomResourceDefinition] appprojects.argoproj.io
+1. kubectl port-forward service/argocd-server -n argocd 8080:443
 
-release "argocd" uninstalled
-namespace "argocd" deleted
-namespace "hfd-25" deleted
-./demo.sh clean  0.65s user 0.11s system 1% cpu 43.045 total
-    ok: argocd        127.0.0.1:8443 -> node:30443
-    stop with: scripts/tunnel.sh stop
+    and then open the browser on http://localhost:8080 and accept the certificate
+
+2. enable ingress in the values file `server.ingress.enabled` and either
+      - Add the annotation for ssl passthrough: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-1-ssl-passthrough
+      - Set the `configs.params."server.insecure"` in the values file and terminate SSL at your ingress: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-2-multiple-ingress-objects-and-hosts
+
+
+After reaching the UI the first time you can login with username: admin and the random password generated during the installation. You can find the password by running:
+
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+(You should delete the initial secret afterwards as suggested by the Getting Started Guide: https://argo-cd.readthedocs.io/en/stable/getting_started/#4-login-using-the-cli)
+==> package the umbrella and push it to the registry addon
 Pushed: 127.0.0.1:5000/charts/shipping-platform:1.0.0
-Digest: sha256:b6020ec8673be85dd3c00ffd6c206e1506aded4add4467e711ba3346c160e8bd
+Digest: sha256:9db79bdcf8a03d0d7f43ba9b1111ace3c17b75561e4af7aa3c12ac6fb1c7fb63
 ==> register the repository and create the Application
 secret/lab-registry created
 Warning: metadata.finalizers: "resources-finalizer.argocd.argoproj.io": prefer a domain-qualified finalizer name including a path (/) to avoid accidental conflicts with other finalizer writers
@@ -89,5 +205,100 @@ application.argoproj.io/platform condition met
 application.argoproj.io/platform condition met
 NAME       SYNC STATUS   HEALTH STATUS
 platform   Synced        Healthy
-Argo CD UI: https://127.0.0.1:8443 (admin / <password>)
-timeout 1500 ./demo.sh  6.79s user 1.62s system 2% cpu 6:51.60 total
+Argo CD UI: https://127.0.0.1:30443 (admin; password: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath={.data.password} | base64 -d)
+==> the Git-sourced Application: tag r1.0, path examples/25-gitops-argocd/charts/shipping-service
+Warning: metadata.finalizers: "resources-finalizer.argocd.argoproj.io": prefer a domain-qualified finalizer name including a path (/) to avoid accidental conflicts with other finalizer writers
+application.argoproj.io/shipping-git created
+application.argoproj.io/shipping-git condition met
+application.argoproj.io/shipping-git condition met
+c0eef4bf298636416b0e02bec59daeb1149c73a8
+NAME           SYNC STATUS   HEALTH STATUS
+shipping-git   Synced        Healthy
+==> no Helm release behind it:
+NAME	NAMESPACE	REVISION	UPDATED	STATUS	CHART	APP VERSION
+NAME                                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/shipping-shipping-service   1/1     1            1           3s
+
+NAME                                TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+service/shipping-shipping-service   NodePort   10.97.213.87   <none>        8080:30090/TCP   3s
+{"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"ACME-Post","storage":"memory","kafkaEnabled":false}
+==> change through the Application spec (a push to the tag would do the same): defaultCarrier -> GIT-Post
+application.argoproj.io/shipping-git patched
+{"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"GIT-Post","storage":"memory","kafkaEnabled":false}
+==> drift: scale the Deployment to 3 by hand; selfHeal restores 1
+deployment.apps/shipping-shipping-service scaled
+spec.replicas right after the edit: 3
+spec.replicas reverted to 1 after about 1 s
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+shipping-shipping-service   1/1     1            1           10s
+application.argoproj.io/shipping-git condition met
+==> the umbrella from the published Helm repository (no repository Secret, no path)
+Warning: metadata.finalizers: "resources-finalizer.argocd.argoproj.io": prefer a domain-qualified finalizer name including a path (/) to avoid accidental conflicts with other finalizer writers
+application.argoproj.io/platform-repo created
+application.argoproj.io/platform-repo condition met
+application.argoproj.io/platform-repo condition met
+NAME            SYNC STATUS   HEALTH STATUS
+platform-repo   Synced        Healthy
+https://patterncatalyst.github.io/helm-for-developers/charts shipping-platform 1.0.0
+==> no Helm release behind it:
+NAME	NAMESPACE	REVISION	UPDATED	STATUS	CHART	APP VERSION
+NAME                                             READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/platform-notification            1/1     1            1           47s
+deployment.apps/platform-shipping                1/1     1            1           47s
+deployment.apps/shipping-kafka-entity-operator   1/1     1            1           22s
+
+NAME                                  STATUS    COMPLETIONS   DURATION   AGE
+job.batch/platform-shipping-migrate   Running   0/1           0s         0s
+
+NAME                                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                               AGE
+service/platform-notification            NodePort    10.105.173.29    <none>        8080:30191/TCP                        47s
+service/platform-shipping                NodePort    10.96.110.66     <none>        8080:30190/TCP                        47s
+service/shipping-kafka-kafka-bootstrap   ClusterIP   10.109.105.101   <none>        9091/TCP,9092/TCP                     45s
+service/shipping-kafka-kafka-brokers     ClusterIP   None             <none>        9090/TCP,9091/TCP,8443/TCP,9092/TCP   45s
+service/shipping-postgres-r              ClusterIP   10.99.155.121    <none>        5432/TCP                              46s
+service/shipping-postgres-ro             ClusterIP   10.108.115.169   <none>        5432/TCP                              46s
+service/shipping-postgres-rw             ClusterIP   10.106.198.147   <none>        5432/TCP                              46s
+job.batch/platform-shipping-migrate condition met
+==> the migration Job ran as an Argo CD sync hook:
+Job/platform-shipping-migrate PostSync Running
+==> Kafka path: create, dispatch, then read the notification
+{"id":1,"orderId":34596,"address":"25 Repo Rd, Springfield","status":"DISPATCHED","createdAt":"2026-10-08T22:39:50.713801Z"}
+[{"receivedAt":"2026-10-08T22:39:50.743464+00:00","topic":"shipment.dispatched","partition":0,"offset":0,"event":{"orderId":34596,"shipmentId":1,"address":"25 Repo Rd, Springfield","status":"DISPATCHED","occurredAt":"2026-10-08T22:39:50.727248+00:00"}}]
+{"service":"platform-shipping","version":"0.1.0","environment":"dev","defaultCarrier":"REPO-Post","storage":"postgres","kafkaEnabled":true}
+==> change through the Application spec: defaultCarrier -> REPO-Post-2
+application.argoproj.io/platform-repo patched
+{"service":"platform-shipping","version":"0.1.0","environment":"dev","defaultCarrier":"REPO-Post-2","storage":"postgres","kafkaEnabled":true}
+==> drift: scale the Deployment to 3 by hand; selfHeal restores 1
+deployment.apps/platform-shipping scaled
+spec.replicas right after the edit: 3
+spec.replicas reverted to 1 after about 2 s
+application.argoproj.io/platform-repo condition met
+NAME            SYNC STATUS   HEALTH STATUS
+platform-repo   Synced        Healthy
+demo rc=0
+
+$ ./demo.sh clean   # exit 0
+application.argoproj.io/platform patched
+application.argoproj.io/platform-repo patched
+application.argoproj.io/shipping-git patched
+kafkatopic.kafka.strimzi.io "shipment.dispatched" deleted
+No resources found
+kafkatopic.kafka.strimzi.io "shipment.dispatched" deleted
+application.argoproj.io "platform" deleted
+application.argoproj.io "platform-repo" deleted
+application.argoproj.io "shipping-git" deleted
+These resources were kept due to the resource policy:
+[CustomResourceDefinition] applications.argoproj.io
+[CustomResourceDefinition] applicationsets.argoproj.io
+[CustomResourceDefinition] appprojects.argoproj.io
+
+release "argocd" uninstalled
+namespace "argocd" deleted
+namespace "hfd-25" deleted
+namespace "hfd-25-git" deleted
+namespace "hfd-25-repo" deleted
+customresourcedefinition.apiextensions.k8s.io "applications.argoproj.io" deleted
+customresourcedefinition.apiextensions.k8s.io "applicationsets.argoproj.io" deleted
+customresourcedefinition.apiextensions.k8s.io "appprojects.argoproj.io" deleted
+$ kubectl get ns | grep hfd-   # after clean
+(none)

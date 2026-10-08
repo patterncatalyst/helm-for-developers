@@ -55,7 +55,7 @@ It fails if `helm version --short` is not `v4.*`. The global Helm 3.18.3 at `~/.
 
 ### Host access
 
-NodePorts published to the host when the minikube profile is created (`minikube start --ports=<nodePort>:<nodePort>,...`, docker driver). Host port = NodePort, so `http://127.0.0.1:<nodePort>` reaches the service directly. No SSH tunnels, no `kubectl port-forward`, no `minikube tunnel`: tunnels disconnect. `scripts/forbidden-syntax.sh` fails on them. <!-- forbidden-ok -->
+NodePorts published to the host when the minikube profile is created (`minikube start --ports=127.0.0.1:<nodePort>:<nodePort>,...`, docker driver). Host port = NodePort, so `http://127.0.0.1:<nodePort>` reaches the service directly. Ports bind to loopback only: a bare `<p>:<p>` binds 0.0.0.0 and exposes Grafana, the registry and the apps to the LAN. No SSH tunnels, no `kubectl port-forward`, no `minikube tunnel`: tunnels disconnect. `scripts/forbidden-syntax.sh` fails on them. <!-- forbidden-ok -->
 
 The list is the `HFD_NODE_PORTS` array in `scripts/platform/lib.sh`. Ports are fixed at profile creation; adding one means recreating the profile with `scripts/platform/setup-profile.sh --replace --confirm=helm4dev`. `setup-profile.sh` refuses to reuse a profile whose published ports differ.
 

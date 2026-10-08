@@ -135,3 +135,74 @@ $ scripts/platform/setup-profile.sh   # profile now matches
 NAME       STATUS   ROLES           AGE     VERSION
 helm4dev   Ready    control-plane   4m54s   v1.35.1
 exit=0
+
+=== 2026-10-08 loopback re-publication (127.0.0.1:<p>:<p>) ===
+NOTE: supersedes the 0.0.0.0 note above. minikube --ports accepts the 127.0.0.1:p:p form.
+$ scripts/platform/setup-profile.sh   # against the 0.0.0.0-bound profile
+ERROR: profile helm4dev does not publish these ports on 127.0.0.1: 30080 30081 30082 30090 30190 30191 30300 30443 5000 
+  published:  
+  required:  5000 30080 30081 30082 30090 30190 30191 30300 30443 
+  Ports are fixed at profile creation. Recreate the profile:
+  scripts/platform/setup-profile.sh --replace --confirm=helm4dev
+rc=1
+
+$ scripts/platform/setup-profile.sh --replace --confirm=helm4dev   # trimmed
+==> Deleting profile helm4dev (--replace --confirm=helm4dev)
+==> Publishing NodePorts to 127.0.0.1: 127.0.0.1:5000:5000,127.0.0.1:30080:30080,127.0.0.1:30081:30081,127.0.0.1:30082:30082,127.0.0.1:30090:30090,127.0.0.1:30190:30190,127.0.0.1:30191:30191,127.0.0.1:30300:30300,127.0.0.1:30443:30443
+==> Starting helm4dev (12g RAM, 8 CPUs, 60g disk, docker driver, containerd runtime)
+==> Enabling the registry addon
+    ok: registry reachable from the host at 127.0.0.1:5000 (published node port)
+==> Verifying cluster health
+Profile helm4dev is ready (kubectl context: helm4dev).
+
+$ docker inspect -f '{{json .HostConfig.PortBindings}}' helm4dev
+{"22/tcp":[{"HostIp":"127.0.0.1","HostPort":""}],"2376/tcp":[{"HostIp":"127.0.0.1","HostPort":""}],"30080/tcp":[{"HostIp":"127.0.0.1","HostPort":"30080"}],"30081/tcp":[{"HostIp":"127.0.0.1","HostPort":"30081"}],"30082/tcp":[{"HostIp":"127.0.0.1","HostPort":"30082"}],"30090/tcp":[{"HostIp":"127.0.0.1","HostPort":"30090"}],"30190/tcp":[{"HostIp":"127.0.0.1","HostPort":"30190"}],"30191/tcp":[{"HostIp":"127.0.0.1","HostPort":"30191"}],"30300/tcp":[{"HostIp":"127.0.0.1","HostPort":"30300"}],"30443/tcp":[{"HostIp":"127.0.0.1","HostPort":"30443"}],"32443/tcp":[{"HostIp":"127.0.0.1","HostPort":""}],"5000/tcp":[{"HostIp":"127.0.0.1","HostPort":"5000"},{"HostIp":"127.0.0.1","HostPort":""}],"8443/tcp":[{"HostIp":"127.0.0.1","HostPort":""}]}
+
+$ bootstrap.sh; build-images.sh; build-images.sh push; cluster-status.sh   # exit 0, tail
+    ok: running
+
+==> Control plane
+    ok: API server /readyz
+    ok: control-plane pods Running
+
+==> Registry addon
+    ok: registry addon enabled
+
+==> Operators
+    ok: CloudNativePG operator (cnpg-system): pods Running
+    ok: Strimzi operator (strimzi): pods Running
+    ok: CRD clusters.postgresql.cnpg.io
+    ok: CRD kafkas.kafka.strimzi.io
+
+==> Observability
+    ok: LGTM (observability): pods Running
+
+==> Examples (hfd-* namespaces)
+
+==> Verdict
+    ok: platform healthy
+
+$ ss -ltn | grep HFD_NODE_PORTS; curl registry; curl grafana; setup-profile.sh
+LISTEN 0      4096            127.0.0.1:30443      0.0.0.0:*   
+LISTEN 0      4096            127.0.0.1:30300      0.0.0.0:*   
+LISTEN 0      4096            127.0.0.1:30090      0.0.0.0:*   
+LISTEN 0      4096            127.0.0.1:30081      0.0.0.0:*   
+LISTEN 0      4096            127.0.0.1:30080      0.0.0.0:*   
+LISTEN 0      4096            127.0.0.1:30082      0.0.0.0:*   
+LISTEN 0      4096            127.0.0.1:30191      0.0.0.0:*   
+LISTEN 0      4096            127.0.0.1:30190      0.0.0.0:*   
+LISTEN 0      4096            127.0.0.1:5000       0.0.0.0:*   
+---
+{"repositories":["notification-service","shipping-service"]}
+
+{
+  "commit": "2e2ef4e402f6169b8bd8eb4e8d6f56168bbf7855",
+  "database": "ok",
+  "version": "11.1.5"
+}---
+
+==> Profile helm4dev already running
+    ok: nothing to do
+NAME       STATUS   ROLES           AGE     VERSION
+helm4dev   Ready    control-plane   4m57s   v1.35.1
+rc=0

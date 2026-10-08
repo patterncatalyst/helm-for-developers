@@ -14,4 +14,4 @@ The full run needs the LGTM stack from `scripts/platform/setup-lgtm.sh`. It upgr
 
 ## Verification status
 
-`verified` on 2026-10-08 (`_plans/evidence/26-observability.txt`): the demo ran end to end, the dashboard loaded after the sidecar upgrade, and one trace holds spans from both services. The dashboard metric exists in Mimir but is labelled `job`, not `service_name`; the dashboard was corrected.
+`verified` on 2026-10-08 (`_plans/evidence/26-observability.txt`): the demo ran end to end, the dashboard loaded after the sidecar upgrade, and one trace holds spans from both services. The dashboard metric exists in Mimir but is labelled `job`, not `service_name`; the dashboard was corrected. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0; the trace held spans from both services, the TraceQL and Mimir polls succeeded (series found after 0 s), and the dashboard loaded. The release `platform` stays installed in `hfd-26` as the reference state, so `clean` was not run.

@@ -1,3 +1,6 @@
+# r1.1 re-run on 2026-10-08, helm4dev with NodePorts published on 127.0.0.1 (Helm 4.3.0)
+# Run 1: ./demo.sh (default). Run 2: REGISTRY_ADDON=1 ./demo.sh (pushes to 127.0.0.1:5000). Both exit 0; the second run is shown.
+$ ./demo.sh   # exit 0
 
 == dependency build
 Hang tight while we grab the latest from your chart repositories...
@@ -31,7 +34,7 @@ Charts:      1 passed, 1 total
 Test Suites: 4 passed, 4 total
 Tests:       25 passed, 25 total
 Snapshot:    0 passed, 0 total
-Time:        59.264428ms
+Time:        57.572562ms
 
 
 == package
@@ -41,11 +44,11 @@ Successfully packaged chart and saved it to: /home/rsedor/Dev/helm-for-developer
 == start local registries (docker)
 
 == push without --plain-http fails (registry speaks HTTP)
-Error: failed to perform "Exists" on destination: Head "https://127.0.0.1:5001/v2/charts/shipping-service/manifests/sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a": http: server gave HTTP response to HTTPS client
+Error: failed to perform "Exists" on destination: Head "https://127.0.0.1:5001/v2/charts/shipping-service/manifests/sha256:348d363d079961e37c4804cb9359e3a6e576b7e405e8cabe8379610729188168": http: server gave HTTP response to HTTPS client
 
 == push with --plain-http
 Pushed: 127.0.0.1:5001/charts/shipping-service:1.0.0
-Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+Digest: sha256:348d363d079961e37c4804cb9359e3a6e576b7e405e8cabe8379610729188168
 {"repositories":["charts/shipping-service"]}
 
 {"name":"charts/shipping-service","tags":["1.0.0"]}
@@ -53,7 +56,7 @@ Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
 
 == show chart / pull by tag
 Pulled: 127.0.0.1:5001/charts/shipping-service:1.0.0
-Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+Digest: sha256:348d363d079961e37c4804cb9359e3a6e576b7e405e8cabe8379610729188168
 apiVersion: v2
 appVersion: 0.1.0
 dependencies:
@@ -63,32 +66,32 @@ dependencies:
 description: Shipping data product. FastAPI service that creates and dispatches shipments
   and publishes ShipmentDispatched events.
 Pulled: 127.0.0.1:5001/charts/shipping-service:1.0.0
-Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+Digest: sha256:348d363d079961e37c4804cb9359e3a6e576b7e405e8cabe8379610729188168
 
 == the chart layer digest equals the sha256 of the .tgz (the manifest digest does not)
-f8d507c0004fb9f9f9c3418e7e2565d01ed00c4f8b05b28c5d2855e8ee90ccbd  /home/rsedor/Dev/helm-for-developers/examples/20-oci/.work/pull/shipping-service-1.0.0.tgz
-manifest digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+79ffaf39850f8ef9db88a6295fe430504f3ada29fd73eb2340f0c2c2170bc7cd  /home/rsedor/Dev/helm-for-developers/examples/20-oci/.work/pull/shipping-service-1.0.0.tgz
+manifest digest: sha256:348d363d079961e37c4804cb9359e3a6e576b7e405e8cabe8379610729188168
 
 == pull by digest
-Pulled: 127.0.0.1:5001/charts/shipping-service@sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
-Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+Pulled: 127.0.0.1:5001/charts/shipping-service@sha256:348d363d079961e37c4804cb9359e3a6e576b7e405e8cabe8379610729188168
+Digest: sha256:348d363d079961e37c4804cb9359e3a6e576b7e405e8cabe8379610729188168
 shipping-service-1.0.0.tgz
-shipping-service@sha256-d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a.tgz
+shipping-service@sha256-348d363d079961e37c4804cb9359e3a6e576b7e405e8cabe8379610729188168.tgz
 
 == authenticated registry: push without login fails, login, push
-Error: failed to perform "Exists" on destination: HEAD "http://127.0.0.1:5002/v2/charts/shipping-service/manifests/sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a": basic credential not found
+Error: failed to perform "Exists" on destination: HEAD "http://127.0.0.1:5002/v2/charts/shipping-service/manifests/sha256:348d363d079961e37c4804cb9359e3a6e576b7e405e8cabe8379610729188168": basic credential not found
 Login Succeeded
 Pushed: 127.0.0.1:5002/charts/shipping-service:1.0.0
-Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+Digest: sha256:348d363d079961e37c4804cb9359e3a6e576b7e405e8cabe8379610729188168
 Removing login credentials for 127.0.0.1:5002
 
 == OCI dependency: pc-lib comes from the registry instead of file://../pc-lib
 Pushed: 127.0.0.1:5001/charts/pc-lib:1.0.0
-Digest: sha256:45664d4f0fae347caf14c512c2d1981358ef7ca3a4fe56ac96dc962d268ceae1
+Digest: sha256:397e8aa1ac9115a5be6db5ae0b571a9c80a1f703733bf57a90b939e6542ebb1c
 Saving 1 charts
 Downloading pc-lib from repo oci://127.0.0.1:5001/charts
 Pulled: 127.0.0.1:5001/charts/pc-lib:1.0.0
-Digest: sha256:45664d4f0fae347caf14c512c2d1981358ef7ca3a4fe56ac96dc962d268ceae1
+Digest: sha256:397e8aa1ac9115a5be6db5ae0b571a9c80a1f703733bf57a90b939e6542ebb1c
 Deleting outdated charts
 NAME  	VERSION	REPOSITORY                 	STATUS
 pc-lib	1.0.0  	oci://127.0.0.1:5001/charts	ok    
@@ -96,10 +99,10 @@ pc-lib	1.0.0  	oci://127.0.0.1:5001/charts	ok
 
 == install by digest
 Release "shipping" does not exist. Installing it now.
-Pulled: 127.0.0.1:5001/charts/shipping-service@sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
-Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
+Pulled: 127.0.0.1:5001/charts/shipping-service@sha256:348d363d079961e37c4804cb9359e3a6e576b7e405e8cabe8379610729188168
+Digest: sha256:348d363d079961e37c4804cb9359e3a6e576b7e405e8cabe8379610729188168
 NAME: shipping
-LAST DEPLOYED: Thu Oct  8 11:31:06 2026
+LAST DEPLOYED: Thu Oct  8 18:26:17 2026
 NAMESPACE: hfd-20
 STATUS: deployed
 REVISION: 1
@@ -114,38 +117,19 @@ Reach the service:
 Run the chart test:
   [host]$ helm test shipping -n hfd-20
 NAME    	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART                 	APP VERSION
-shipping	hfd-20   	1       	2026-10-08 11:31:06.293157182 -0400 EDT	deployed	shipping-service-1.0.0	0.1.0      
+shipping	hfd-20   	1       	2026-10-08 18:26:17.298766675 -0400 EDT	deployed	shipping-service-1.0.0	0.1.0      
 
-== minikube registry addon (tunnel 127.0.0.1:5000)
-    ok: registry      127.0.0.1:5000 -> node:5000
-    stop with: scripts/tunnel.sh stop
+== minikube registry addon (published port 127.0.0.1:5000)
 Pushed: 127.0.0.1:5000/charts/shipping-service:1.0.0
-Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
-{"repositories":["charts/shipping-service"]}
+Digest: sha256:348d363d079961e37c4804cb9359e3a6e576b7e405e8cabe8379610729188168
+{"repositories":["charts/shipping-service","notification-service","shipping-service"]}
 
 Registries stay up for inspection. Run ./demo.sh clean to remove them.
+demo rc=0
 
-## S7 extra: addon registry, template + install by digest
-{"name":"charts/shipping-service","tags":["1.0.0"]}
-
-Pulled: 127.0.0.1:5000/charts/shipping-service@sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
-Digest: sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
-4
-STATUS: pending-upgrade
-REVISION: 2
-Pulled: 127.0.0.1:5000/charts/shipping-service@sha256:d3392d33581449eb6399683537c1577e5793b96f898cde2322aa75c5d8f1b25a
-STATUS: deployed
-NAME                                        READY   STATUS    RESTARTS   AGE
-shipping-shipping-service-75db87b89-v4rpz   1/1     Running   0          3s
-CHART: shipping-service
-VERSION: 1.0.0
-APP_VERSION: 0.1.0
-{"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"ACME-Post","storage":"memory","kafkaEnabled":false}
-    stopped registry (pid 1738048)
-    stopped shipping (pid 1738679)
-    stopped 2 tunnel(s)
-
-## S7 extra: tag moves, digest does not
-Digest: sha256:8a8973a424c24bd1b92c53ee0186f5e1a8a8af8dac211ed67644cb65c4055558
-appVersion: 9.9.9
-appVersion: 0.1.0
+$ ./demo.sh clean   # exit 0
+release "shipping" uninstalled
+namespace "hfd-20" deleted
+Removing login credentials for 127.0.0.1:5002
+$ kubectl get ns | grep hfd-   # after clean
+(none)

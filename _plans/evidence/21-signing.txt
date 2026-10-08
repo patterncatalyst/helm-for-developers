@@ -1,3 +1,5 @@
+# r1.1 re-run on 2026-10-08, helm4dev with NodePorts published on 127.0.0.1 (Helm 4.3.0)
+$ ./demo.sh   # exit 0
 
 == dependency build
 Hang tight while we grab the latest from your chart repositories...
@@ -31,11 +33,11 @@ Charts:      1 passed, 1 total
 Test Suites: 4 passed, 4 total
 Tests:       25 passed, 25 total
 Snapshot:    0 passed, 0 total
-Time:        60.081013ms
+Time:        58.192658ms
 
 
 == throwaway GPG key in /home/rsedor/Dev/helm-for-developers/.tools/gnupg
-gpg: revocation certificate stored as '/home/rsedor/Dev/helm-for-developers/.tools/gnupg/openpgp-revocs.d/19A1449A6F1689891E99B998C2916464491D113E.rev'
+gpg: revocation certificate stored as '/home/rsedor/Dev/helm-for-developers/.tools/gnupg/openpgp-revocs.d/5C8806E8A82BEB633E686D01347E76042118BA20.rev'
 
 == helm package --sign against the default (kbx) keyring fails
 Error: provided key is not a private key. Try providing a keyring with secret keys
@@ -45,41 +47,41 @@ Successfully packaged chart and saved it to: /home/rsedor/Dev/helm-for-developer
 shipping-service-1.0.0.tgz
 shipping-service-1.0.0.tgz.prov
 files:
-  shipping-service-1.0.0.tgz: sha256:f8d507c0004fb9f9f9c3418e7e2565d01ed00c4f8b05b28c5d2855e8ee90ccbd
+  shipping-service-1.0.0.tgz: sha256:79ffaf39850f8ef9db88a6295fe430504f3ada29fd73eb2340f0c2c2170bc7cd
 
 -----BEGIN PGP SIGNATURE-----
 
 == helm verify
 Signed by: HFD Throwaway Signer <signer@hfd.invalid>
-Using Key With Fingerprint: 19A1449A6F1689891E99B998C2916464491D113E
-Chart Hash Verified: sha256:f8d507c0004fb9f9f9c3418e7e2565d01ed00c4f8b05b28c5d2855e8ee90ccbd
+Using Key With Fingerprint: 5C8806E8A82BEB633E686D01347E76042118BA20
+Chart Hash Verified: sha256:79ffaf39850f8ef9db88a6295fe430504f3ada29fd73eb2340f0c2c2170bc7cd
 
 == tamper: change one value inside the archive, keep the old .prov
-Error: sha256 sum does not match for shipping-service-1.0.0.tgz: "sha256:f8d507c0004fb9f9f9c3418e7e2565d01ed00c4f8b05b28c5d2855e8ee90ccbd" != "sha256:ab39f0ea73598ed7bf735fd99d75f4f9a21c2cc2a43319d024979a7763d8da54"
+Error: sha256 sum does not match for shipping-service-1.0.0.tgz: "sha256:79ffaf39850f8ef9db88a6295fe430504f3ada29fd73eb2340f0c2c2170bc7cd" != "sha256:f9f2b9af0a1a0a38c57f93705a35c99e2bc6201048bbb83af313e96f2b95f5bb"
 
 == start local registry (docker)
 
 == helm push uploads the .prov as a second layer
 Pushed: 127.0.0.1:5001/signed/shipping-service:1.0.0
-Digest: sha256:971c0b4c1df8072cd7b000854104f77edcc0271694a936be0dc4fa4d1f509c4b
-application/vnd.cncf.helm.chart.provenance.v1.prov
+Digest: sha256:a79f22df3ae16f6ebd8c39848e2538ab7e3da412b3bf029e5ccc96afc94a50c5
 application/vnd.cncf.helm.chart.content.v1.tar+gzip
+application/vnd.cncf.helm.chart.provenance.v1.prov
 
 == helm pull --verify
 Pulled: 127.0.0.1:5001/signed/shipping-service:1.0.0
-Digest: sha256:971c0b4c1df8072cd7b000854104f77edcc0271694a936be0dc4fa4d1f509c4b
+Digest: sha256:a79f22df3ae16f6ebd8c39848e2538ab7e3da412b3bf029e5ccc96afc94a50c5
 Pulled: 127.0.0.1:5001/signed/shipping-service:1.0.0
-Digest: sha256:971c0b4c1df8072cd7b000854104f77edcc0271694a936be0dc4fa4d1f509c4b
+Digest: sha256:a79f22df3ae16f6ebd8c39848e2538ab7e3da412b3bf029e5ccc96afc94a50c5
 Signed by: HFD Throwaway Signer <signer@hfd.invalid>
-Using Key With Fingerprint: 19A1449A6F1689891E99B998C2916464491D113E
-Chart Hash Verified: sha256:f8d507c0004fb9f9f9c3418e7e2565d01ed00c4f8b05b28c5d2855e8ee90ccbd
+Using Key With Fingerprint: 5C8806E8A82BEB633E686D01347E76042118BA20
+Chart Hash Verified: sha256:79ffaf39850f8ef9db88a6295fe430504f3ada29fd73eb2340f0c2c2170bc7cd
 
 == an unsigned chart in the same registry is refused by --verify
 Successfully packaged chart and saved it to: /home/rsedor/Dev/helm-for-developers/examples/21-signing/.work/unsigned/shipping-service-1.0.5.tgz
 Pushed: 127.0.0.1:5001/unsigned/shipping-service:1.0.5
-Digest: sha256:2804e13bc24b02ec5e083c0e872e25b08c3f58df85412ddd7ba6b0f27d023565
+Digest: sha256:7212583df15c8e7370409af9a9aa9d65c5766b02fcf6afffdd1c8191cb734d4e
 Pulled: 127.0.0.1:5001/unsigned/shipping-service:1.0.5
-Digest: sha256:2804e13bc24b02ec5e083c0e872e25b08c3f58df85412ddd7ba6b0f27d023565
+Digest: sha256:7212583df15c8e7370409af9a9aa9d65c5766b02fcf6afffdd1c8191cb734d4e
 Error: failed to fetch provenance "oci://127.0.0.1:5001/unsigned/shipping-service:1.0.5.prov"
 
 == cosign: key pair, sign by digest, verify
@@ -90,47 +92,47 @@ Signing artifact...
 Pushing signature to: 127.0.0.1:5001/signed/shipping-service
 WARNING: Skipping tlog verification is an insecure practice that lacks transparency and auditability verification for the signature.
 
-Verification for 127.0.0.1:5001/signed/shipping-service@sha256:971c0b4c1df8072cd7b000854104f77edcc0271694a936be0dc4fa4d1f509c4b --
+Verification for 127.0.0.1:5001/signed/shipping-service@sha256:a79f22df3ae16f6ebd8c39848e2538ab7e3da412b3bf029e5ccc96afc94a50c5 --
 The following checks were performed on each of these signatures:
   - The cosign claims were validated
   - Existence of the claims in the transparency log was verified offline
   - The signatures were verified against the specified public key
 
-[{"critical":{"identity":{"docker-reference":"127.0.0.1:5001/signed/shipping-service@sha256:971c0b4c1df8072cd7b000854104f77edcc0271694a936be0dc4fa4d1f509c4b"},"image":{"docker-manifest-digest":"sha256:971c0b4c1df8072cd7b000854104f77edcc0271694a936be0dc4fa4d1f509c4b"},"type":"https://sigstore.dev/cosign/sign/v1"},"optional":{}}]
+[{"critical":{"identity":{"docker-reference":"127.0.0.1:5001/signed/shipping-service@sha256:a79f22df3ae16f6ebd8c39848e2538ab7e3da412b3bf029e5ccc96afc94a50c5"},"image":{"docker-manifest-digest":"sha256:a79f22df3ae16f6ebd8c39848e2538ab7e3da412b3bf029e5ccc96afc94a50c5"},"type":"https://sigstore.dev/cosign/sign/v1"},"optional":{}}]
 
 == tamper the tag: push different content to 1.0.0
 Pushed: 127.0.0.1:5001/signed/shipping-service:1.0.0
-Digest: sha256:eb29bddf736041991a44acf8806e17c0b74830e10a1375dc08c8add1c46258a5
+Digest: sha256:4f6ebeda8a2a0a403d230e97cb469faa5c1aae963307e08d19d62329dfb31d8a
 WARNING: Skipping tlog verification is an insecure practice that lacks transparency and auditability verification for the signature.
 Error: no signatures found
 error during command execution: no signatures found
 Pulled: 127.0.0.1:5001/signed/shipping-service:1.0.0
-Digest: sha256:eb29bddf736041991a44acf8806e17c0b74830e10a1375dc08c8add1c46258a5
+Digest: sha256:4f6ebeda8a2a0a403d230e97cb469faa5c1aae963307e08d19d62329dfb31d8a
 Pulled: 127.0.0.1:5001/signed/shipping-service:1.0.0
-Digest: sha256:eb29bddf736041991a44acf8806e17c0b74830e10a1375dc08c8add1c46258a5
-Error: sha256 sum does not match for shipping-service-1.0.0.tgz: "sha256:f8d507c0004fb9f9f9c3418e7e2565d01ed00c4f8b05b28c5d2855e8ee90ccbd" != "sha256:ab39f0ea73598ed7bf735fd99d75f4f9a21c2cc2a43319d024979a7763d8da54"
+Digest: sha256:4f6ebeda8a2a0a403d230e97cb469faa5c1aae963307e08d19d62329dfb31d8a
+Error: sha256 sum does not match for shipping-service-1.0.0.tgz: "sha256:79ffaf39850f8ef9db88a6295fe430504f3ada29fd73eb2340f0c2c2170bc7cd" != "sha256:f9f2b9af0a1a0a38c57f93705a35c99e2bc6201048bbb83af313e96f2b95f5bb"
 
 == the original digest still verifies
 WARNING: Skipping tlog verification is an insecure practice that lacks transparency and auditability verification for the signature.
 
-Verification for 127.0.0.1:5001/signed/shipping-service@sha256:971c0b4c1df8072cd7b000854104f77edcc0271694a936be0dc4fa4d1f509c4b --
+Verification for 127.0.0.1:5001/signed/shipping-service@sha256:a79f22df3ae16f6ebd8c39848e2538ab7e3da412b3bf029e5ccc96afc94a50c5 --
 The following checks were performed on each of these signatures:
   - The cosign claims were validated
   - Existence of the claims in the transparency log was verified offline
   - The signatures were verified against the specified public key
 
-[{"critical":{"identity":{"docker-reference":"127.0.0.1:5001/signed/shipping-service@sha256:971c0b4c1df8072cd7b000854104f77edcc0271694a936be0dc4fa4d1f509c4b"},"image":{"docker-manifest-digest":"sha256:971c0b4c1df8072cd7b000854104f77edcc0271694a936be0dc4fa4d1f509c4b"},"type":"https://sigstore.dev/cosign/sign/v1"},"optional":{}}]
+[{"critical":{"identity":{"docker-reference":"127.0.0.1:5001/signed/shipping-service@sha256:a79f22df3ae16f6ebd8c39848e2538ab7e3da412b3bf029e5ccc96afc94a50c5"},"image":{"docker-manifest-digest":"sha256:a79f22df3ae16f6ebd8c39848e2538ab7e3da412b3bf029e5ccc96afc94a50c5"},"type":"https://sigstore.dev/cosign/sign/v1"},"optional":{}}]
 
 == install with --verify (re-push the good chart first so tag 1.0.0 is signed again)
 Pushed: 127.0.0.1:5001/signed/shipping-service:1.0.0
-Digest: sha256:971c0b4c1df8072cd7b000854104f77edcc0271694a936be0dc4fa4d1f509c4b
+Digest: sha256:a79f22df3ae16f6ebd8c39848e2538ab7e3da412b3bf029e5ccc96afc94a50c5
 Release "shipping" does not exist. Installing it now.
 Pulled: 127.0.0.1:5001/signed/shipping-service:1.0.0
-Digest: sha256:971c0b4c1df8072cd7b000854104f77edcc0271694a936be0dc4fa4d1f509c4b
+Digest: sha256:a79f22df3ae16f6ebd8c39848e2538ab7e3da412b3bf029e5ccc96afc94a50c5
 Pulled: 127.0.0.1:5001/signed/shipping-service:1.0.0
-Digest: sha256:971c0b4c1df8072cd7b000854104f77edcc0271694a936be0dc4fa4d1f509c4b
+Digest: sha256:a79f22df3ae16f6ebd8c39848e2538ab7e3da412b3bf029e5ccc96afc94a50c5
 NAME: shipping
-LAST DEPLOYED: Thu Oct  8 11:33:24 2026
+LAST DEPLOYED: Thu Oct  8 18:25:52 2026
 NAMESPACE: hfd-21
 STATUS: deployed
 REVISION: 1
@@ -145,11 +147,11 @@ Reach the service:
 Run the chart test:
   [host]$ helm test shipping -n hfd-21
 NAME    	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART                 	APP VERSION
-shipping	hfd-21   	1       	2026-10-08 11:33:24.812131584 -0400 EDT	deployed	shipping-service-1.0.0	0.1.0      
+shipping	hfd-21   	1       	2026-10-08 18:25:52.878243585 -0400 EDT	deployed	shipping-service-1.0.0	0.1.0      
 
 == content cache: a byte-identical unsigned copy passes install --verify only while the cache holds the .prov
 Pushed: 127.0.0.1:5001/unsigned-copy/shipping-service:1.0.0
-Digest: sha256:ff6b50dfd2447211aa7eb2a7077bbe7d4d66d5b08e1380a002e46b96153484e0
+Digest: sha256:5c5257ac1dfda8c2bee9dbd236e1a4db3785319c838efb484f4180235b2e6a26
 pull --verify, warm cache (expected: fails):
 Error: failed to fetch provenance "oci://127.0.0.1:5001/unsigned-copy/shipping-service:1.0.0.prov"
 install --verify, warm cache (expected: passes):
@@ -157,10 +159,10 @@ STATUS: pending-install
 install --verify, empty cache (expected: fails):
 Error: INSTALLATION FAILED: failed to fetch provenance "oci://127.0.0.1:5001/unsigned-copy/shipping-service:1.0.0.prov"
 The registry stays up for inspection. Run ./demo.sh clean to remove it, the throwaway GPG key and .work/.
+demo rc=0
 
-## S7 extra: signed install serves traffic
-{"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"ACME-Post","storage":"memory","kafkaEnabled":false}
-    stopped shipping (pid 1743145)
-    stopped 1 tunnel(s)
-NAME                                        READY   STATUS    RESTARTS   AGE
-shipping-shipping-service-75db87b89-22k2x   1/1     Running   0          5s
+$ ./demo.sh clean   # exit 0
+release "shipping" uninstalled
+namespace "hfd-21" deleted
+$ kubectl get ns | grep hfd-   # after clean
+(none)

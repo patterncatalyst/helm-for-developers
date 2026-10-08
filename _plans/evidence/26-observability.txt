@@ -1,40 +1,227 @@
-# 26 observability, 2026-10-08, Helm 4.3.0, Grafana chart 8.5.0
-# before searchNamespace=ALL (platform installed in hfd-26, dashboard ConfigMap platform-dashboard present)
-## default sidecar env
-grafana-sc-dashboard: METHOD=WATCH LABEL=grafana_dashboard LABEL_VALUE=1 FOLDER=/tmp/dashboards RESOURCE=both FOLDER_ANNOTATION=grafana_folder REQ_USERNAME= REQ_PASSWORD= REQ_URL=http://localhost:3000
-grafana-sc-datasources: METHOD=WATCH LABEL=grafana_datasource LABEL_VALUE=1 FOLDER=/etc/grafana/provisioning/datasources RESOURCE=both REQ_USERNAME= REQ_PASSWORD= REQ_URL=http://localhost:3000/api/adm
-grafana: POD_IP= GF_SECURITY_ADMIN_USER= GF_SECURITY_ADMIN_PASSWORD= GF_PATHS_DATA=/var/lib/grafana/ GF_PATHS_LOGS=/var/log/grafana GF_PATHS_PLUGINS=/var/lib/grafana/plugins GF_PATHS_PROVISIONING=/etc/grafana/provisioning 
-NAME                 DATA   AGE
-platform-dashboard   1      50s
-    ok: grafana       127.0.0.1:3000 -> node:30300
-    stop with: scripts/tunnel.sh stop
-## search BEFORE searchNamespace=ALL
-[]
-# demo.sh first run (rc=0) tail
-==> create and dispatch a shipment
-==> TraceQL through Grafana: dispatch spans of platform-shipping
-   trace cec24ef2a72170e9dde7bbb392b2ec74 POST /api/shipments/{shipment_id}/dispatch
-==> dashboard loaded by the sidecar
-    Shipping platform (platform) folder: Shipping
-./demo.sh  5.61s user 1.58s system 22% cpu 32.196 total
+# r1.1 re-run on 2026-10-08, helm4dev with NodePorts published on 127.0.0.1 (Helm 4.3.0)
+$ ./demo.sh   # exit 0, left installed (release platform, namespace hfd-26)
+==> lint --strict and unit tests
+Tests:       23 passed, 23 total
+Snapshot:    0 passed, 0 total
+Time:        115.537502ms
 
-# trace with both services (dispatch with bearer token; the demo's first version omitted the header, got 401, so the 'trace' it found had only shipping spans)
-trace 3371ca4df584085be655212bd76d03ab: platform-notification process shipment.dispatched; platform-shipping POST .../dispatch (1), http send (2), SELECT (3), UPDATE (1); notification log: shipment 2 for order 2602 dispatched trace_id 3371ca4d...
-# metrics in Mimir: http_server_duration_milliseconds_{count,sum,bucket} exist; series labels: http_method, http_target, http_status_code, job='shipping/platform-shipping' (no service_name label). Dashboard fixed to sum by (job) ... {job=~".*/platform-.*"}
-# Loki: labels deployment_environment, service_instance_id, service_name, service_namespace; service_name values platform-notification, platform-shipping
-# final demo.sh run (rc=0)
+==> template with values-dev and kubeconform
+Summary: 16 resources found parsing stdin - Valid: 12, Invalid: 0, Errors: 0, Skipped: 4
+==> OTel environment injected by pc-lib.otelEnv (telemetry on in dev)
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT	              value: "http://otel-collector.observability.svc.cluster.local:4318"
+            - name: OTEL_SDK_DISABLED	              value: "false"
+            - name: OTEL_SERVICE_NAME	              value: "platform-notification"
+            - name: OTEL_SERVICE_NAME	              value: "platform-shipping"
+==> telemetry stays off with no endpoint (default values)
+==> dashboard ConfigMap carries the sidecar label and parses as JSON
+    platform-dashboard -> Shipping platform (platform) (3 panels)
+offline: OK
+==> engine=docker mode=build tag=0.1.0
+
+==> shipping-service:0.1.0
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Containerfile
+#1 transferring dockerfile: 2.17kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
+#2 ...
+
+#3 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#3 DONE 0.3s
+
+#2 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
+#2 DONE 0.3s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
+#5 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.0s done
+#5 DONE 0.0s
+
+#6 [builder 1/6] FROM registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
+#6 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.0s done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 28.25kB done
+#7 DONE 0.0s
+
+#8 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+#8 CACHED
+
+#9 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+#9 CACHED
+
+#10 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+#10 CACHED
+
+#11 [builder 5/6] COPY shipping-service/pyproject.toml /src/service/pyproject.toml
+#11 CACHED
+
+#12 [runtime 5/6] COPY shipping-service/ /app/
+#12 CACHED
+
+#13 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+#13 CACHED
+
+#14 [runtime 2/6] WORKDIR /app
+#14 CACHED
+
+#15 [builder 4/6] COPY common /src/common
+#15 CACHED
+
+#16 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+#16 CACHED
+
+#17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
+#17 CACHED
+
+#18 exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:ac2cd575e5eb17d6172e2a77a94099ac903d80c1770bd98aeb3eb10d2f70f3ec done
+#18 exporting config sha256:d7577a9165c2732d167d639f1ad0b130db9a6ed6dab6eddc2c9002561802d5a3 done
+#18 exporting attestation manifest sha256:9d991ccb2af3d2d64e7a4fd2ad9e749468e95d69eb1f9d75735986ee60b2f314 0.0s done
+#18 exporting manifest list sha256:33f0b1f3cd3f80dede84971c9ddc5cff596f4699abda60f8b1c06bac7ccc0dc5
+#18 exporting manifest list sha256:33f0b1f3cd3f80dede84971c9ddc5cff596f4699abda60f8b1c06bac7ccc0dc5 0.0s done
+#18 naming to docker.io/library/shipping-service:0.1.0 done
+#18 unpacking to docker.io/library/shipping-service:0.1.0 done
+#18 DONE 0.1s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/5cbrxwgekmzg61uxm691jfus5
+
+==> notification-service:0.1.0
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Containerfile
+#1 transferring dockerfile: 2.17kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for registry.access.redhat.com/ubi10/ubi-minimal:latest
+#2 DONE 0.1s
+
+#3 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.23
+#3 DONE 0.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 DONE 0.0s
+
+#6 [builder 1/6] FROM registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23
+#6 resolve registry.access.redhat.com/ubi10/ubi-minimal:latest@sha256:bcecd3e74c9d03eb1a596c6c8f366775a289d422ac5925ec1539924d762ebf23 0.0s done
+#6 DONE 0.0s
+
+#7 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21
+#7 resolve ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 0.0s done
+#7 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 10.71kB done
+#5 DONE 0.0s
+
+#8 [builder 5/6] COPY notification-service/pyproject.toml /src/service/pyproject.toml
+#8 CACHED
+
+#9 [builder 2/6] COPY --from=uv /uv /usr/local/bin/uv
+#9 CACHED
+
+#10 [runtime 3/6] COPY --from=builder /opt/python /opt/python
+#10 CACHED
+
+#11 [runtime 2/6] WORKDIR /app
+#11 CACHED
+
+#12 [builder 6/6] RUN uv pip install --python /opt/venv/bin/python -r /src/service/pyproject.toml /src/common
+#12 CACHED
+
+#13 [builder 3/6] RUN uv python install 3.14  && uv venv /opt/venv --python 3.14
+#13 CACHED
+
+#14 [builder 4/6] COPY common /src/common
+#14 CACHED
+
+#15 [runtime 4/6] COPY --from=builder /opt/venv /opt/venv
+#15 CACHED
+
+#16 [runtime 5/6] COPY notification-service/ /app/
+#16 CACHED
+
+#17 [runtime 6/6] RUN rm -rf /app/tests /app/pyproject.toml
+#17 CACHED
+
+#18 exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:9b7868487b929dac4e2855b558a0ed0c5dc4fa7d84c567df9ea5c3e725ad8a7a done
+#18 exporting config sha256:729ca706dc57d9db1ea09c441e64c81ccb956e853287c5c6b94bd53dac842f0b done
+#18 exporting attestation manifest sha256:53b9b5856349d3d0c99823a0d976fce46ca145f29dbcdaa163a526ed0b210025 0.0s done
+#18 exporting manifest list sha256:8fb93514c9703763ef2f70c0ceda8c1360831d17a361c39377ffad7ddd042142 0.0s done
+#18 naming to docker.io/library/notification-service:0.1.0 done
+#18 unpacking to docker.io/library/notification-service:0.1.0 done
+#18 DONE 0.1s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/w8yq805n63efk3zvfzwp4bouw
+
+==> images in the profile:
+docker.io/library/shipping-service:0.1.0
+docker.io/library/notification-service:0.1.0
+==> let the Grafana sidecar watch every namespace (default: its own)
+Release "grafana" has been upgraded. Happy Helming!
+NAME: grafana
+LAST DEPLOYED: Thu Oct  8 18:41:10 2026
+NAMESPACE: observability
+STATUS: deployed
+REVISION: 2
+DESCRIPTION: Upgrade complete
+NOTES:
+1. Get your 'admin' user password by running:
+
+   kubectl get secret --namespace observability grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+
+2. The Grafana server can be accessed via port 80 on the following DNS name from within your cluster:
+
+   grafana.observability.svc.cluster.local
+
+   Get the Grafana URL to visit by running these commands in the same shell:
+     export NODE_PORT=$(kubectl get --namespace observability -o jsonpath="{.spec.ports[0].nodePort}" services grafana)
+     export NODE_IP=$(kubectl get nodes --namespace observability -o jsonpath="{.items[0].status.addresses[0].address}")
+     echo http://$NODE_IP:$NODE_PORT
+
+3. Login with the password from step 1 and the username: admin
+==> install the umbrella with telemetry on
+Release "platform" does not exist. Installing it now.
+NAME: platform
+LAST DEPLOYED: Thu Oct  8 18:41:14 2026
+NAMESPACE: hfd-26
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+NOTES:
+shipping-platform 1.0.0 installed as release "platform" in namespace hfd-26 (environment dev).
+
+Components: shipping, notification, kafka, db
+Reach the services:
+  [host]$ kubectl -n hfd-26 get svc
+
+Run the release tests:
+  [host]$ helm test platform -n hfd-26
+==> create and dispatch a shipment
 ==> the trace holds spans from both services
-   trace c9c4224ba771cdc27068cb46abe2cf7f services: ['platform-notification', 'platform-shipping']
+   trace found after 0 s
+   trace f9626a49d3d9235fb4e701635a02e5e services: ['platform-notification', 'platform-shipping']
 ==> TraceQL through Grafana: dispatch spans of platform-shipping
-   trace c9c4224ba771cdc27068cb46abe2cf7f POST /api/shipments/{shipment_id}/dispatch
-   trace 3371ca4df584085be655212bd76d03ab POST /api/shipments/{shipment_id}/dispatch
-   trace 1bf2421de455fdf6c13a43c05f78720a POST /api/shipments/{shipment_id}/dispatch
-   trace cec24ef2a72170e9dde7bbb392b2ec74 POST /api/shipments/{shipment_id}/dispatch
-==> request-rate panel query returns series in Mimir
+   trace f9626a49d3d9235fb4e701635a02e5e POST /api/shipments/{shipment_id}/dispatch
+   trace 2d4728ab0b7776ed32d0dc04f16168cb POST /api/shipments/{shipment_id}/dispatch
+==> request-rate panel query returns series in Mimir (polls up to 180 s)
     {'job': 'notification/platform-notification'}
     {'job': 'shipping/platform-shipping'}
+   series found after 0 s (0 retries)
 ==> dashboard loaded by the sidecar
     Shipping platform (platform) folder: Shipping
-./demo.sh  5.51s user 1.55s system 20% cpu 34.831 total
-# grafana sidecar after upgrade: grafana-sc-dashboard NAMESPACE=ALL; dashboard API: folder Shipping, panel 1 expr sum by (job) (...)
-# helm test platform -n hfd-26: 3 x Phase: Succeeded; helm unittest charts/shipping-platform and the example copy: 23 tests passed
+./demo.sh  10.50s user 1.88s system 17% cpu 1:11.88 total

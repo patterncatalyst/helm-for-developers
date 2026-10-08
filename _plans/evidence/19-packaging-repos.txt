@@ -1,3 +1,5 @@
+# r1.1 re-run on 2026-10-08, helm4dev with NodePorts published on 127.0.0.1 (Helm 4.3.0)
+$ ./demo.sh   # exit 0
 
 == dependency build (pc-lib from file://../pc-lib)
 Hang tight while we grab the latest from your chart repositories...
@@ -31,7 +33,7 @@ Charts:      1 passed, 1 total
 Test Suites: 4 passed, 4 total
 Tests:       25 passed, 25 total
 Snapshot:    0 passed, 0 total
-Time:        72.009057ms
+Time:        57.954945ms
 
 
 == package 1.0.0 into /home/rsedor/Dev/helm-for-developers/examples/19-packaging-repos/.work/repo
@@ -41,15 +43,15 @@ Successfully packaged chart and saved it to: /home/rsedor/Dev/helm-for-developer
 == repo index
     appVersion: 0.1.0
       version: 1.0.0
-    digest: bdb4ff6ac5025ec0c45d84d7e0376794a7b2cd653484c5c21a3f6dbe781695ff
+    digest: 6aaa82a4cb115a8a3099a77e9afd01f04ca56d82b6ffa52060e5b7fb4b6c964f
     - http://127.0.0.1:8088/shipping-service-1.1.0-rc.1.tgz
     version: 1.1.0-rc.1
     appVersion: 0.1.0
       version: 1.0.0
-    digest: f8d507c0004fb9f9f9c3418e7e2565d01ed00c4f8b05b28c5d2855e8ee90ccbd
+    digest: 79ffaf39850f8ef9db88a6295fe430504f3ada29fd73eb2340f0c2c2170bc7cd
     - http://127.0.0.1:8088/shipping-service-1.0.0.tgz
     version: 1.0.0
-f8d507c0004fb9f9f9c3418e7e2565d01ed00c4f8b05b28c5d2855e8ee90ccbd  /home/rsedor/Dev/helm-for-developers/examples/19-packaging-repos/.work/repo/shipping-service-1.0.0.tgz
+79ffaf39850f8ef9db88a6295fe430504f3ada29fd73eb2340f0c2c2170bc7cd  /home/rsedor/Dev/helm-for-developers/examples/19-packaging-repos/.work/repo/shipping-service-1.0.0.tgz
 
 == serve the repository on 127.0.0.1:8088
 "hfd-local" has been added to your repositories
@@ -66,7 +68,7 @@ shipping-service-1.0.0.tgz
 == install from the repository
 Release "shipping" does not exist. Installing it now.
 NAME: shipping
-LAST DEPLOYED: Thu Oct  8 11:30:17 2026
+LAST DEPLOYED: Thu Oct  8 18:25:24 2026
 NAMESPACE: hfd-19
 STATUS: deployed
 REVISION: 1
@@ -81,43 +83,13 @@ Reach the service:
 Run the chart test:
   [host]$ helm test shipping -n hfd-19
 NAME    	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART                 	APP VERSION
-shipping	hfd-19   	1       	2026-10-08 11:30:17.775523159 -0400 EDT	deployed	shipping-service-1.0.0	0.1.0      
-Reach it: scripts/tunnel.sh start shipping, then curl http://127.0.0.1:8080/api/info
+shipping	hfd-19   	1       	2026-10-08 18:25:24.433403293 -0400 EDT	deployed	shipping-service-1.0.0	0.1.0      
+Reach it: curl http://127.0.0.1:30080/api/info
+demo rc=0
 
-## S7 extra: live
-{"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"ACME-Post","storage":"memory","kafkaEnabled":false}
-NAME: shipping
-CHART: shipping-service
-VERSION: 1.0.0
-APP_VERSION: 0.1.0
-NAMESPACE: hfd-19
-NAME                                        READY   STATUS    RESTARTS   AGE
-shipping-shipping-service-75db87b89-tq657   1/1     Running   0          11s
-## digest
-    digest: bdb4ff6ac5025ec0c45d84d7e0376794a7b2cd653484c5c21a3f6dbe781695ff
-    digest: f8d507c0004fb9f9f9c3418e7e2565d01ed00c4f8b05b28c5d2855e8ee90ccbd
-f8d507c0004fb9f9f9c3418e7e2565d01ed00c4f8b05b28c5d2855e8ee90ccbd  .work/repo/shipping-service-1.0.0.tgz
-## v-prefixed/short versions
-Error: found in Chart.yaml, but missing in charts/ directory: pc-lib
-Error: found in Chart.yaml, but missing in charts/ directory: pc-lib
-## pull -d missing
-Error: open /tmp/tmp.jQtgzlrk7j/nope/shipping-service-1.0.0.tgz1336304763: no such file or directory
-## tar
-shipping-service/templates/tests/test-connection.yaml
-## package w/o dependency-update, no charts/*.tgz (rerun with sibling pc-lib)
-Error: found in Chart.yaml, but missing in charts/ directory: pc-lib
-## --version 1.0.1 --app-version 0.1.1
-Successfully packaged chart and saved it to: /tmp/tmp.m4pn3cZTd2/shipping-service-1.0.1.tgz
-          image: "shipping-service:0.1.1"
-## 1.0 and v1.0.2
-Successfully packaged chart and saved it to: /tmp/tmp.m4pn3cZTd2/shipping-service-1.0.tgz
-Successfully packaged chart and saved it to: /tmp/tmp.m4pn3cZTd2/shipping-service-v1.0.2.tgz
-/tmp/tmp.m4pn3cZTd2/shipping-service-1.0.1.tgz
-/tmp/tmp.m4pn3cZTd2/shipping-service-1.0.tgz
-/tmp/tmp.m4pn3cZTd2/shipping-service-v1.0.2.tgz
-      version: 1.0.0
-    version: v1.0.2
-      version: 1.0.0
-    version: 1.0.1
-      version: 1.0.0
-    version: "1.0"
+$ ./demo.sh clean   # exit 0
+release "shipping" uninstalled
+namespace "hfd-19" deleted
+"hfd-local" has been removed from your repositories
+$ kubectl get ns | grep hfd-   # after clean
+(none)

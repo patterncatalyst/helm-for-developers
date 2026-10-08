@@ -230,3 +230,4 @@ Run the release tests:
 ==> dashboard loaded by the sidecar
     Shipping platform (platform) folder: Shipping
 exit: 0
+# 2026-10-08, loopback-bound profile: ./demo.sh exit 0 (output in 26-observability.txt); release platform left installed in hfd-26

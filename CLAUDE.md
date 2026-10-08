@@ -16,7 +16,7 @@ A Jekyll/GitHub Pages tutorial, "Helm for Developers", in the lgtm-jekyll house 
 - Write in the lgtm-professional-voice register. The banned vocabulary list is in `CONTRIBUTING.md`.
 - Wrap literal `{{ }}` in `{% raw %}...{% endraw %}`. `_plans/*.md` use `render_with_liquid: false`.
 - Commits follow Conventional Commits with `§NN`, `demo-NN` or `r1.0` scopes. No AI attribution trailers. Do not push or add a remote without the owner's confirmation.
-- Host access is NodePorts published at profile creation (`minikube start --ports=`, `HFD_NODE_PORTS` in `scripts/platform/lib.sh`); host port = NodePort. Never use SSH tunnels, `kubectl port-forward` or `minikube tunnel` (they disconnect). Adding a port means recreating the profile. <!-- forbidden-ok -->
+- Host access is NodePorts published at profile creation (`minikube start --ports=127.0.0.1:<p>:<p>`, loopback only, never 0.0.0.0; `HFD_NODE_PORTS` in `scripts/platform/lib.sh`); host port = NodePort. Never use SSH tunnels, `kubectl port-forward` or `minikube tunnel` (they disconnect). Adding a port means recreating the profile. <!-- forbidden-ok -->
 - Do not touch the `datamesh` minikube profile; this project uses `helm4dev`.
 
 ## Commands

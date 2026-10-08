@@ -74,7 +74,8 @@ live() {
     kubectl -n argocd wait application/platform --for=jsonpath='{.status.sync.status}'=Synced --timeout=15m
     kubectl -n argocd wait application/platform --for=jsonpath='{.status.health.status}'=Healthy --timeout=15m
     kubectl -n argocd get application platform
-    echo "Argo CD UI: https://127.0.0.1:30443 (admin / $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d))"
+    # Print how to get the password, never the password itself: transcripts end up in evidence files.
+    echo "Argo CD UI: https://127.0.0.1:30443 (admin; password: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)"
 }
 
 # Probe a published NodePort from the host. Retry covers pods that are not Ready yet.
@@ -121,6 +122,8 @@ helmrepo_app() {
     echo "==> no Helm release behind it:"
     helm list -n "$ns"
     kubectl -n "$ns" get deploy,job,svc
+    # The PostSync migration Job can still be running when the Application turns Healthy.
+    kubectl -n "$ns" wait --for=condition=complete job/platform-shipping-migrate --timeout=5m
     echo "==> the migration Job ran as an Argo CD sync hook:"
     kubectl -n argocd get application platform-repo \
         -o jsonpath='{range .status.operationState.syncResult.resources[*]}{.kind}/{.name} {.hookType} {.hookPhase}{"\n"}{end}' | grep -E 'PreSync|Sync |PostSync'

@@ -24,4 +24,4 @@ The registries use plain HTTP, so every command that talks to them carries `--pl
 
 ## Verification status
 
-`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/20-oci.txt`. `REGISTRY_ADDON=1 ./demo.sh` exits 0: push, pull by tag and digest, authenticated registry, OCI dependency, install by digest, and the push to the minikube registry addon through the published registry port. The registry containers were removed afterwards.
+`verified` on 2026-10-08 (Helm 4.3.0, minikube `helm4dev`), evidence `_plans/evidence/20-oci.txt`. `REGISTRY_ADDON=1 ./demo.sh` exits 0: push, pull by tag and digest, authenticated registry, OCI dependency, install by digest, and the push to the minikube registry addon through the published registry port. The registry containers were removed afterwards. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; with `REGISTRY_ADDON=1` the chart also pushed to the registry addon at `127.0.0.1:5000`.
