@@ -2,7 +2,7 @@
 #
 # examples/27-openshift-crc/demo.sh
 #
-# Verified on OpenShift Local 2.64.0 (OpenShift 4.22.14), 2026-10-08.
+# Verified on OpenShift Local 2.64.0 (OpenShift 4.22.14), 2026-10-08 (Strimzi 1.2.0 and Streams 3.2.1).
 #
 #   ./demo.sh            full run: build and push images, install, test, show Routes
 #   ./demo.sh offline    dependency build, lint, template (both profiles), kubeconform.

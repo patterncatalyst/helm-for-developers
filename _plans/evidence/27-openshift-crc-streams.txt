@@ -1,0 +1,174 @@
+# Streams for Apache Kafka on OpenShift Local, 2026-10-08. Passwords and tokens not recorded.
+$ crc version
+CRC version: 2.64.0+458092
+OpenShift version: 4.22.14
+MicroShift version: 4.22.13
+$ oc get catalogsource -n openshift-marketplace (before; redhat-operators was TRANSIENT_FAILURE after VM restart, packagemanifest list missing it; fixed by deleting its pod)
+$ oc get packagemanifest amq-streams -o jsonpath=channels
+amq-streams-2.2.x -> amqstreams.v2.2.2-2
+amq-streams-2.3.x -> amqstreams.v2.3.0-4
+amq-streams-2.4.x -> amqstreams.v2.4.0-3
+amq-streams-2.5.x -> amqstreams.v2.5.2-8
+amq-streams-2.6.x -> amqstreams.v2.6.0-2
+amq-streams-2.7.x -> amqstreams.v2.7.0-7
+amq-streams-2.8.x -> amqstreams.v2.8.0-0-0.1738265624.p
+amq-streams-2.9.x -> amqstreams.v2.9.4-7
+amq-streams-2.x -> amqstreams.v2.9.4-7
+amq-streams-3.0.x -> amqstreams.v3.0.1-7
+amq-streams-3.1.x -> amqstreams.v3.1.0-14
+amq-streams-3.2.x -> amqstreams.v3.2.1-14
+amq-streams-3.x -> amqstreams.v3.2.1-14
+amq-streams-lts -> amqstreams.v2.5.2-8
+stable -> amqstreams.v3.2.1-14
+default=stable
+$ oc delete kafkatopic --all -n hfd-ocp --wait
+kafkatopic.kafka.strimzi.io "shipment.dispatched" deleted from hfd-ocp namespace
+$ helm uninstall platform -n hfd-ocp --wait
+release "platform" uninstalled
+$ oc delete subscription strimzi-kafka-operator; oc delete csv strimzi-cluster-operator.v1.2.0 -n openshift-operators
+subscription.operators.coreos.com "strimzi-kafka-operator" deleted from openshift-operators namespace
+clusterserviceversion.operators.coreos.com "strimzi-cluster-operator.v1.2.0" deleted from openshift-operators namespace
+# CRDs outlive the CSV (no ownerReferences, labelled for the removed Subscription); no Kafka CRs remain
+$ oc get crd kafkas.kafka.strimzi.io -o jsonpath=versions
+v1
+$ oc delete crd (strimzi.io CRDs left by community Strimzi)
+customresourcedefinition.apiextensions.k8s.io "kafkabridges.kafka.strimzi.io" deleted
+customresourcedefinition.apiextensions.k8s.io "kafkaconnectors.kafka.strimzi.io" deleted
+customresourcedefinition.apiextensions.k8s.io "kafkaconnects.kafka.strimzi.io" deleted
+customresourcedefinition.apiextensions.k8s.io "kafkamirrormaker2s.kafka.strimzi.io" deleted
+customresourcedefinition.apiextensions.k8s.io "kafkanodepools.kafka.strimzi.io" deleted
+customresourcedefinition.apiextensions.k8s.io "kafkarebalances.kafka.strimzi.io" deleted
+customresourcedefinition.apiextensions.k8s.io "kafkas.kafka.strimzi.io" deleted
+customresourcedefinition.apiextensions.k8s.io "kafkatopics.kafka.strimzi.io" deleted
+customresourcedefinition.apiextensions.k8s.io "kafkausers.kafka.strimzi.io" deleted
+customresourcedefinition.apiextensions.k8s.io "strimzipodsets.core.strimzi.io" deleted
+$ oc apply Subscription amq-streams (redhat-operators, channel stable)
+subscription.operators.coreos.com/amq-streams created
+$ oc get subscription,csv -n openshift-operators
+NAME                                               PACKAGE          SOURCE                CHANNEL
+subscription.operators.coreos.com/amq-streams      amq-streams      redhat-operators      stable
+subscription.operators.coreos.com/cloudnative-pg   cloudnative-pg   certified-operators   stable-v1
+
+NAME                                                                DISPLAY                    VERSION    RELEASE   REPLACES                 PHASE
+clusterserviceversion.operators.coreos.com/amqstreams.v3.2.1-14     Streams for Apache Kafka   3.2.1-14             amqstreams.v3.2.1-11     Succeeded
+clusterserviceversion.operators.coreos.com/cloudnative-pg.v1.30.1   CloudNativePG              1.30.1               cloudnative-pg.v1.30.0   Succeeded
+$ oc get crd kafkas.kafka.strimzi.io ... versions
+kafkas.kafka.strimzi.io: v1 served=true storage=false; v1beta2 served=true storage=true; 
+kafkanodepools.kafka.strimzi.io: v1 served=true storage=false; v1beta2 served=true storage=true; 
+kafkatopics.kafka.strimzi.io: v1 served=true storage=false; v1beta2 served=true storage=true; v1beta1 served=true storage=false; v1alpha1 served=true storage=false; 
+{"app":"strimzi","olm.managed":"true","operators.coreos.com/amq-streams.openshift-operators":"","strimzi.io/crd-install":"true"}
+NAME                                     READY   UP-TO-DATE   AVAILABLE   AGE
+amq-streams-cluster-operator-v3.2.1-14   1/1     1            1           63s
+cnpg-controller-manager                  1/1     1            1           3h20m
+
+# ---- PROFILE=full ./verify-crc.sh (chart default kafka.strimzi.io/v1, Streams 3.2.1-14) ----
+PASS  helm is 4.x (v4.3.0+gbec5b06)
+PASS  crc status: OpenShift Running
+PASS  oc whoami (kubeadmin)
+PASS  oc new-project hfd-ocp (idempotent)
+PASS  image push to the internal registry
+PASS  ImageStream shipping-service has tag 0.1.0
+PASS  ImageStream notification-service has tag 0.1.0
+PASS  helm upgrade --install platform (full profile) --wait --rollback-on-failure
+PASS  pod/platform-notification-6f795cb545-kdw75 Ready, openshift.io/scc=restricted-v2
+PASS  pod/platform-shipping-6665cbb97c-sm6s8 Ready, openshift.io/scc=restricted-v2
+PASS  uid inside pod/platform-notification-6f795cb545-kdw75 is 1000650000 (not 1001, not 0)
+PASS  uid inside pod/platform-shipping-6665cbb97c-sm6s8 is 1000650000 (not 1001, not 0)
+PASS  Route platform-shipping host: platform-shipping-hfd-ocp.apps-crc.testing
+PASS  Route host resolves
+PASS  curl -k https://platform-shipping-hfd-ocp.apps-crc.testing/api/info -> 200 ({"service":"platform-shipping","version":"0.1.0","environment":"openshift","defaultCarrier":"ACME-Post","storage":"postgres","kafkaEnabled":true})
+PASS  plain HTTP redirects to HTTPS (HTTP 302)
+PASS  helm test platform
+
+verify-crc: all checks passed
+PROFILE=full ./verify-crc.sh  23.66s user 8.99s system 36% cpu 1:29.28 total
+exit=0
+
+# ---- v1beta2 path on Streams (CRD serves v1 and v1beta2): upgrade with --set kafka.strimzi.apiVersion=kafka.strimzi.io/v1beta2 ----
+I1008 16:47:40.927894 2777564 warnings.go:107] "Warning: Version v1beta2 of the Kafka API is deprecated. Please use the v1 version instead."
+I1008 16:47:40.929697 2777564 warnings.go:107] "Warning: Version v1beta2 of the KafkaNodePool API is deprecated. Please use the v1 version instead."
+I1008 16:47:40.931166 2777564 warnings.go:107] "Warning: Version v1beta2 of the KafkaTopic API is deprecated. Please use the v1 version instead."
+I1008 16:47:40.994053 2777564 warnings.go:107] "Warning: Version v1beta2 of the Kafka API is deprecated. Please use the v1 version instead."
+I1008 16:47:41.000441 2777564 warnings.go:107] "Warning: Version v1beta2 of the Kafka API is deprecated. Please use the v1 version instead."
+I1008 16:47:41.003006 2777564 warnings.go:107] "Warning: Version v1beta2 of the KafkaNodePool API is deprecated. Please use the v1 version instead."
+I1008 16:47:41.008068 2777564 warnings.go:107] "Warning: Version v1beta2 of the KafkaNodePool API is deprecated. Please use the v1 version instead."
+I1008 16:47:41.009878 2777564 warnings.go:107] "Warning: Version v1beta2 of the KafkaTopic API is deprecated. Please use the v1 version instead."
+I1008 16:47:41.016821 2777564 warnings.go:107] "Warning: Version v1beta2 of the KafkaTopic API is deprecated. Please use the v1 version instead."
+Release "platform" has been upgraded. Happy Helming!
+NAME: platform
+LAST DEPLOYED: Thu Oct  8 16:47:40 2026
+NAMESPACE: hfd-ocp
+STATUS: deployed
+REVISION: 2
+DESCRIPTION: Upgrade complete
+NOTES:
+shipping-platform 1.0.0 installed as release "platform" in namespace hfd-ocp (environment openshift).
+
+Components: shipping, notification, kafka, db
+Routes:
+  [host]$ oc -n hfd-ocp get routes
+
+Run the release tests:
+  [host]$ helm test platform -n hfd-ocp
+exit=0
+NAME                                    READY   WARNINGS   KAFKA VERSION   METADATA VERSION
+kafka.kafka.strimzi.io/shipping-kafka   True    True       4.2.0           4.2-IV1
+
+NAME                                  DESIRED REPLICAS   ROLES                     NODEIDS
+kafkanodepool.kafka.strimzi.io/dual   1                  ["controller","broker"]   [0]
+
+NAME                                              CLUSTER          PARTITIONS   REPLICATION FACTOR   READY
+kafkatopic.kafka.strimzi.io/shipment.dispatched   shipping-kafka   1            1                    True
+$ oc get kafka shipping-kafka -o jsonpath=conditions (v1beta2 render)
+Warning=True KafkaStorage: A Kafka cluster with a single broker node and ephemeral storage will lose topic messages after any restart or rolling update.
+Warning=True KafkaStorage: A Kafka cluster with a single controller node and ephemeral storage will lose data after any restart or rolling update.
+Ready=True : 
+{"meta.helm.sh/release-name":"platform","meta.helm.sh/release-namespace":"hfd-ocp","strimzi.io/kraft":"enabled","strimzi.io/node-pools":"enabled"}
+
+# ---- final: back to the chart default (v1); CONSOLE_CHECK=1 PROFILE=full ./verify-crc.sh (script now includes Kafka POST/dispatch/notification) ----
+PASS  helm is 4.x (v4.3.0+gbec5b06)
+PASS  crc status: OpenShift Running
+PASS  oc whoami (kubeadmin)
+PASS  oc new-project hfd-ocp (idempotent)
+PASS  image push to the internal registry
+PASS  ImageStream shipping-service has tag 0.1.0
+PASS  ImageStream notification-service has tag 0.1.0
+PASS  helm upgrade --install platform (full profile) --wait --rollback-on-failure
+PASS  pod/platform-notification-6f795cb545-kdw75 Ready, openshift.io/scc=restricted-v2
+PASS  pod/platform-shipping-6665cbb97c-sm6s8 Ready, openshift.io/scc=restricted-v2
+PASS  uid inside pod/platform-notification-6f795cb545-kdw75 is 1000650000 (not 1001, not 0)
+PASS  uid inside pod/platform-shipping-6665cbb97c-sm6s8 is 1000650000 (not 1001, not 0)
+PASS  Route platform-shipping host: platform-shipping-hfd-ocp.apps-crc.testing
+PASS  Route host resolves
+PASS  curl -k https://platform-shipping-hfd-ocp.apps-crc.testing/api/info -> 200 ({"service":"platform-shipping","version":"0.1.0","environment":"openshift","defaultCarrier":"ACME-Post","storage":"postgres","kafkaEnabled":true})
+PASS  plain HTTP redirects to HTTPS (HTTP 302)
+PASS  helm test platform
+PASS  POST /api/shipments without a token -> 401
+PASS  POST /api/shipments with the token -> shipment 1
+PASS  dispatch shipment 1 -> 200
+PASS  notification for order 32488 arrived through Kafka
+PASS  ProjectHelmChartRepository present in hfd-ocp
+PASS  console pod reads https://patterncatalyst.github.io/helm-for-developers/charts/index.yaml
+
+verify-crc: all checks passed
+exit=0
+kafka:
+  clusterName: shipping-kafka
+  exports:
+    kafka:
+NAME                                    READY   WARNINGS   KAFKA VERSION   METADATA VERSION
+kafka.kafka.strimzi.io/shipping-kafka   True    True       4.2.0           4.2-IV1
+
+NAME                                                  READY   STATUS    RESTARTS        AGE
+pod/platform-notification-6f795cb545-kdw75            1/1     Running   0               3m38s
+pod/platform-shipping-6665cbb97c-sm6s8                1/1     Running   3 (3m20s ago)   3m38s
+pod/shipping-kafka-dual-0                             1/1     Running   0               3m36s
+pod/shipping-kafka-entity-operator-55bd4f4bbd-9svp5   2/2     Running   0               3m1s
+pod/shipping-postgres-1                               1/1     Running   0               3m31s
+NAME                                               PACKAGE          SOURCE                CHANNEL
+subscription.operators.coreos.com/amq-streams      amq-streams      redhat-operators      stable
+subscription.operators.coreos.com/cloudnative-pg   cloudnative-pg   certified-operators   stable-v1
+
+NAME                                                                DISPLAY                    VERSION    RELEASE   REPLACES                 PHASE
+clusterserviceversion.operators.coreos.com/amqstreams.v3.2.1-14     Streams for Apache Kafka   3.2.1-14             amqstreams.v3.2.1-11     Succeeded
+clusterserviceversion.operators.coreos.com/cloudnative-pg.v1.30.1   CloudNativePG              1.30.1               cloudnative-pg.v1.30.0   Succeeded
