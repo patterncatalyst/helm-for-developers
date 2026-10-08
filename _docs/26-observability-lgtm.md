@@ -118,7 +118,7 @@ This ends the delivery chapters. The appendices cover OpenShift Local, the Helm 
 ## Further reading
 
 - OpenTelemetry SDK environment variables: <https://opentelemetry.io/docs/languages/sdk-configuration/general/>
-- Bilgin Ibryam and Roland Huß, *Kubernetes Patterns* (O'Reilly, 2023), ISBN 9781098131678. Used here for: the Sidecar pattern as the model for the Grafana dashboard loader and for observability context.
+- Bilgin Ibryam and Roland Huß, *Kubernetes Patterns, 2nd ed.* (O'Reilly, 2023), ISBN 9781098131678. Used here for: the Sidecar pattern as the model for the Grafana dashboard loader and for observability context.
 
 ---
 

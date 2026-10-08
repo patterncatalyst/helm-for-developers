@@ -140,7 +140,7 @@ Chapter 09 adds the first dependency: a Postgres subchart, and the Secret wiring
 
 ## Further reading
 
-- Bilgin Ibryam, Roland Huß, *Kubernetes Patterns* (O'Reilly, 2023), ISBN 9781098131678. Used here for: the Configuration Resource and Immutable Configuration patterns.
+- Bilgin Ibryam and Roland Huß, *Kubernetes Patterns, 2nd ed.* (O'Reilly, 2023), ISBN 9781098131678. Used here for: the Configuration Resource and Immutable Configuration patterns.
 - Helm project, "Chart Development Tips and Tricks" (automatic rollout on ConfigMap change), https://helm.sh/docs/howto/charts_tips_and_tricks/.
 - Helm project, template function list (`lookup`, `dig`, `randAlphaNum`), https://helm.sh/docs/chart_template_guide/function_list/.
 

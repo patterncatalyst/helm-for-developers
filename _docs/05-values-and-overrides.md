@@ -77,7 +77,7 @@ Every value is a promise to keep supporting it. Expose a setting when operators 
 
 ## Values across upgrades
 
-The `helm upgrade` command starts from the new chart's defaults, not from the previous release. Flags given last time are gone unless you repeat them. Three flags change that:
+When an upgrade passes any `-f` or `--set*` flag, Helm starts from the new chart's defaults plus the values you give it, not from the previous release, so flags given last time are gone unless you repeat them. When an upgrade passes no value flags at all, Helm reuses the previous release's values. Three flags make the choice explicit:
 
 - `--reuse-values` reuses the last release's values and merges your new flags over them. New defaults added to the chart in the meantime are not picked up, which is the usual surprise.
 - `--reset-values` discards the previous release's values and uses only the new chart's defaults plus this command's flags.
@@ -103,8 +103,9 @@ A rejected value fails before rendering, with a path into the values:
 
 ```text
 [ERROR] values.yaml: - at '': additional properties 'replicas' not allowed
-- at '/replicaCount': got string, want integer
 ```
+
+A wrong type reports the path of the offending key, for example `- at '/replicaCount': got string, want integer`.
 
 ## Cross-check
 
@@ -115,7 +116,7 @@ Render the same override two ways and compare: once with `--set replicaCount=5` 
 - `values.yaml` is the chart's interface: group related keys, comment them, and keep per-environment differences in small override files.
 - The schema runs on the merged values and, with `additionalProperties: false`, catches typos and wrong types before rendering.
 - Precedence is chart defaults, then `-f` files in order, then `--set*` flags. Choose the `--set` variant by how the value must be typed.
-- An upgrade forgets previous flags unless you repeat the files or use `--reuse-values` or `--reset-then-reuse-values`.
+- An upgrade that passes any value flag forgets the previous release's flags unless you repeat the files or use `--reuse-values` or `--reset-then-reuse-values`. An upgrade with no value flags reuses them.
 
 Chapter 06 opens the templates and explains the functions already used here: `toYaml`, `nindent`, `quote` and `default`.
 
@@ -127,4 +128,4 @@ Chapter 06 opens the templates and explains the functions already used here: `to
 
 ---
 
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/05-values.txt`. Observed on Helm 4.3.0: the prod upgrade gave 3 replicas, `helm get values --all` showed the merged values, `--reset-then-reuse-values` kept the overrides and took a new chart default while `--reuse-values` did not, and the `--set` family and schema checks behaved as described.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/05-values.txt`. Observed on Helm 4.3.0: the prod upgrade gave 3 replicas, `helm get values --all` showed the merged values, `--reset-then-reuse-values` kept the overrides and took a new chart default while `--reuse-values` did not, and the `--set` family and schema checks behaved as described. The rule that a bare `helm upgrade` reuses the last release's values was not run; it follows the upgrade code path in the Helm 4.3.0 binary.*

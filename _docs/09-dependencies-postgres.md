@@ -84,6 +84,8 @@ The offline run builds the dependency, lints both value sets, renders memory mod
 
 The live run installs release `shipping` into `hfd-09` with `--wait`, so Helm blocks until the Deployment is ready. It then runs `python -m app.migrate` inside the app container by hand, opens the tunnel, and creates a shipment through `http://127.0.0.1:8080/api/shipments`. The manual migration is a stand-in that chapter 11 replaces.
 
+Each dependency also carries a `version` constraint. The constraint accepts ranges such as `~0.4.0` or `>=0.4.0 <0.5.0`, and `helm dependency update` resolves it to the newest matching version that the repository offers. With a `file://` repository there is exactly one candidate, the chart in that directory, so the constraint is a check: if the sibling's own `Chart.yaml` declares a version outside the range, `update` and `build` fail instead of packing a mismatch. Pin an exact version for charts you release together and use a range for third-party charts where you want patch updates, then rely on `Chart.lock` to make the choice repeatable.
+
 ## Cross-check
 
 The most common surprise with `file://` dependencies: Helm renders the packaged copy in `charts/`, not the directory you are editing. Change `shipping-postgres/templates/cluster.yaml`, run `helm template`, and the old output comes back until you run `helm dependency build` again. `demo.sh` rebuilds at the start of every mode for that reason.
@@ -108,7 +110,7 @@ Chapter 10 looks at what happens when the CRD behind that `Cluster` is missing, 
 
 ## Further reading
 
-- Matt Butcher, Matt Farina, and Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: chart dependencies, subchart values scoping and `global`.
+- Matt Butcher, Matt Farina, Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: chart dependencies, subchart values scoping and `global`.
 - Andrew Block and Austin Dewey, *Managing Kubernetes Resources Using Helm, 2nd ed.* (Packt, 2022), ISBN 9781803242897. Used here for: chart dependencies and conditional subcharts.
 - Bilgin Ibryam and Roland Huß, *Kubernetes Patterns, 2nd ed.* (O'Reilly, 2023), ISBN 9781098131678. Used here for: the Operator pattern behind the CloudNativePG `Cluster`.
 

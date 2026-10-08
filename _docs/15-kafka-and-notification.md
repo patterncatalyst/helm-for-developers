@@ -127,7 +127,7 @@ Chapter 16 combines the four charts into one release.
 ## Further reading
 
 - [Strimzi overview](https://strimzi.io/docs/operators/latest/overview.html): the Kafka, KafkaNodePool and KafkaTopic resources and the operators that reconcile them.
-- Bilgin Ibryam, Roland Huß, *Kubernetes Patterns* (O'Reilly, 2023), ISBN 9781098131678. Used here for: the Operator pattern, a controller reconciling a custom resource.
+- Bilgin Ibryam and Roland Huß, *Kubernetes Patterns, 2nd ed.* (O'Reilly, 2023), ISBN 9781098131678. Used here for: the Operator pattern, a controller reconciling a custom resource.
 
 ---
 

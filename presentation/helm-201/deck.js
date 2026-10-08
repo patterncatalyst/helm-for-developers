@@ -111,15 +111,15 @@ diagramSlide("TESTING · DEBUGGING", "The debug ladder", "h201-debug-ladder",
 codeSlide("TESTING · DEBUGGING", "Diff and server dry-run", "bash · helm 4.3",
   code(`
 # Rung 4: compare two chart directories locally (helm-diff plugin)
-helm diff local charts/shipping-service /tmp/changed
+[host]$ helm diff local charts/shipping-service /tmp/changed
 # Rung 5: resolve kinds and run lookup against the API server
-helm upgrade shipping charts/shipping-service -n hfd-13 \\
-  --dry-run=server
+[host]$ helm upgrade shipping charts/shipping-service -n hfd-13 \\
+          --dry-run=server
 # Rung 6: what an upgrade would change in the live release
-helm diff upgrade shipping charts/shipping-service -n hfd-13 \\
-  --set replicaCount=2
+[host]$ helm diff upgrade shipping charts/shipping-service -n hfd-13 \\
+          --set replicaCount=2
 # Rung 7: the stored manifest, fed back to the schema check
-helm get manifest shipping -n hfd-13 | kubeconform -strict -summary
+[host]$ helm get manifest shipping -n hfd-13 | kubeconform -strict -summary
 `),
   "From examples/13-debugging. --dry-run=server resolves kinds and runs lookup; it does not schema-validate fields on 4.3.0.",
   N("The cluster-facing rungs. `--dry-run=server` connects to the API server, resolves every kind against it and runs `lookup`, which catches unknown kinds. On Helm 4.3.0 it does not schema-validate fields: a string containerPort, an unknown field, negative replicas and a Pod Security violation all pass. For field validation pipe `helm template` into `kubectl apply --server-side --dry-run=server -f -`, which rejects them. `helm diff` is a plugin that compares rendered output against another chart directory or the live release. `helm get manifest` closes the loop by feeding the stored manifest back into kubeconform.",
@@ -169,19 +169,19 @@ tableSlide("TESTING · DEBUGGING", "chart-testing and kubeconform",
 codeSlide("TESTING · DEBUGGING", "Chart CI pipeline", "bash · ci",
   code(`
 # Stage 1: static checks, no cluster, every push
-helm lint --strict charts/shipping-service
-helm unittest charts/shipping-service
-helm template shipping charts/shipping-service \\
-  -f charts/shipping-service/ci/ci-values.yaml \\
-  | kubeconform -strict -summary
-ct lint --config ct.yaml --all
+[host]$ helm lint --strict charts/shipping-service
+[host]$ helm unittest charts/shipping-service
+[host]$ helm template shipping charts/shipping-service \\
+          -f charts/shipping-service/ci/ci-values.yaml \\
+          | kubeconform -strict -summary
+[host]$ ct lint --config ct.yaml --all
 # Stage 2: install test on a throwaway cluster
-ct install --charts charts/shipping-service \\
-  --helm-extra-args '--timeout 3m'
+[host]$ ct install --charts charts/shipping-service \\
+          --helm-extra-args '--timeout 3m'
 # Stage 3: publish on a version tag
-helm package charts/shipping-service --dependency-update -d dist
-helm push dist/shipping-service-1.0.0.tgz \\
-  oci://registry.example.com/charts
+[host]$ helm package charts/shipping-service --dependency-update -d dist
+[host]$ helm push dist/shipping-service-1.0.0.tgz \\
+          oci://registry.example.com/charts
 `),
   "Run from examples/14-chart-testing. Three stages: static checks on every push, an install test, and publication on a tag.",
   N("The pipeline is the chapter 14 commands in order, with publication from chapter 20 appended. Stage one is cheap and runs on every push. Stage two needs a cluster, so it runs in a job that provisions one. Stage three runs only on a version tag. The same script runs locally, which is the point: the pipeline adds no check a developer cannot run.",
@@ -273,9 +273,9 @@ codeSlide("MULTI-SERVICE", "Capabilities guards", "go template",
 {{- end }}
 
 # Offline there is no cluster to ask: supply the API yourself
-helm template platform charts/shipping-platform -n hfd-ocp \\
-  --api-versions route.openshift.io/v1
-helm template platform charts/shipping-platform -n hfd-ocp
+[host]$ helm template platform charts/shipping-platform -n hfd-ocp \\
+          --api-versions route.openshift.io/v1
+[host]$ helm template platform charts/shipping-platform -n hfd-ocp
 `),
   "Has asks the cluster at install time; helm template needs --api-versions (examples/27-openshift-crc).",
   N("`.Capabilities.APIVersions.Has` reports which APIs the target cluster serves. The first guard turns a missing operator into a message that names the fix instead of an opaque apply error. The second makes a Route render only on OpenShift, so the same umbrella installs on minikube unchanged. Offline, `helm template` has no cluster, so `--api-versions` supplies the answer; without it the Route is absent, and the example asserts both outcomes.",
@@ -291,14 +291,14 @@ diagramSlide("MULTI-SERVICE", "Library charts", "h201-library-charts",
 codeSlide("MULTI-SERVICE", "Starters and golden paths", "bash · helm create",
   code(`
 # A starter is a chart directory; <CHARTNAME> becomes the new name
-helm create --starter pc-fastapi charts/inventory-service
-helm dependency build charts/inventory-service
-helm lint --strict charts/inventory-service
-helm template inventory charts/inventory-service \\
-  | kubeconform -strict -summary
-helm upgrade --install inventory charts/inventory-service \\
-  -n hfd-18 --create-namespace
-helm test inventory -n hfd-18
+[host]$ helm create --starter pc-fastapi charts/inventory-service
+[host]$ helm dependency build charts/inventory-service
+[host]$ helm lint --strict charts/inventory-service
+[host]$ helm template inventory charts/inventory-service \\
+          | kubeconform -strict -summary
+[host]$ helm upgrade --install inventory charts/inventory-service \\
+          -n hfd-18 --create-namespace
+[host]$ helm test inventory -n hfd-18
 # Starters live in HELM_DATA_HOME/starters or at an absolute path
 `),
   "Run from examples/18-starters. The starter is the first commit; the library, schema and ci/ values carry the guardrails.",
@@ -317,11 +317,11 @@ version: 1.0.0        # the chart: templates, values keys, dependencies
 appVersion: "0.1.0"   # the application the chart deploys; default image tag
 
 # CI stamps both without editing the file
-helm package charts/shipping-service \\
-  --version 1.0.1 --app-version 0.1.1 -d .work/repo
+[host]$ helm package charts/shipping-service \\
+          --version 1.0.1 --app-version 0.1.1 -d .work/repo
 # Pre-releases are valid SemVer and hidden from search until --devel
-helm package charts/shipping-service --version 1.1.0-rc.1 -d .work/repo
-helm search repo hfd-local --devel
+[host]$ helm package charts/shipping-service --version 1.1.0-rc.1 -d .work/repo
+[host]$ helm search repo hfd-local --devel
 `),
   "Bump major for a removed or changed values key, minor for additions, patch for fixes.",
   N("Two numbers that move independently. `version` is SemVer for the chart: major when a values key a consumer sets disappears or changes meaning, minor for an added template or optional value, patch for a fix. `appVersion` describes the software inside and is the default image tag. Helm's version parser is lenient and accepts 1.0 or v1.0.2; use three-part numbers without a v so ordering, ranges and tooling behave.",
@@ -348,14 +348,14 @@ diagramSlide("DISTRIBUTION", "Push and pull with OCI", "h201-oci-flow",
 codeSlide("DISTRIBUTION", "Provenance files", "bash · helm package --sign",
   code(`
 # Sign at package time; the key must come from a secret keyring file
-helm package charts/shipping-service --dependency-update --sign \\
-  --key "HFD Throwaway Signer" --keyring .work/keys/secring.gpg \\
-  -d .work/signed
+[host]$ helm package charts/shipping-service --dependency-update --sign \\
+          --key "HFD Throwaway Signer" --keyring .work/keys/secring.gpg \\
+          -d .work/signed
 # Verify the tarball against its .prov file
-helm verify .work/signed/shipping-service-1.0.0.tgz
+[host]$ helm verify .work/signed/shipping-service-1.0.0.tgz
 # Verify while pulling from an OCI registry
-helm pull oci://127.0.0.1:5001/signed/shipping-service \\
-  --version 1.0.0 --plain-http --verify -d .work/pull
+[host]$ helm pull oci://127.0.0.1:5001/signed/shipping-service \\
+          --version 1.0.0 --plain-http --verify -d .work/pull
 `),
   "From examples/21-signing. A .prov file holds a PGP signature over the chart's hash; tampering fails verification.",
   N("Helm's native provenance is a PGP signature. `helm package --sign` writes a .prov file next to the tarball containing the chart metadata and its sha256, signed with the key. `helm verify` recomputes the hash and checks the signature. In the example a modified tarball fails with a sha256 mismatch. Keys here are throwaway keys in a project-local GNUPGHOME; production keys belong in a managed keyring or hardware token.",
@@ -365,12 +365,12 @@ helm pull oci://127.0.0.1:5001/signed/shipping-service \\
 codeSlide("DISTRIBUTION", "Cosign for OCI charts", "bash · cosign",
   code(`
 # A second mechanism: sign the OCI manifest digest, not the tarball
-cosign sign --key .work/cosign/cosign.key --yes --allow-http-registry \\
-  --use-signing-config=false --tlog-upload=false \\
-  127.0.0.1:5001/signed/shipping-service@sha256:<digest>
-cosign verify --key .work/cosign/cosign.pub --allow-http-registry \\
-  --insecure-ignore-tlog \\
-  127.0.0.1:5001/signed/shipping-service@sha256:<digest>
+[host]$ cosign sign --key .work/cosign/cosign.key --yes --allow-http-registry \\
+          --use-signing-config=false --tlog-upload=false \\
+          127.0.0.1:5001/signed/shipping-service@sha256:<digest>
+[host]$ cosign verify --key .work/cosign/cosign.pub --allow-http-registry \\
+          --insecure-ignore-tlog \\
+          127.0.0.1:5001/signed/shipping-service@sha256:<digest>
 # Keyless signing and the transparency log are the default in production:
 # omit --key, --use-signing-config=false and --tlog-upload=false
 `),
@@ -419,8 +419,8 @@ codeSlide("EXTENDING HELM", "Wasm plugin entry point", "go and bash",
 func helmPluginMain() uint32 { ...; return 0 }
 
 # build the module Helm loads as plugin.wasm
-GOOS=wasip1 GOARCH=wasm go build \\
-  -buildmode=c-shared -o plugin.wasm .
+[host]$ GOOS=wasip1 GOARCH=wasm go build \\
+          -buildmode=c-shared -o plugin.wasm .
 
 # run it: helm wasm-hello Helm4
 `),
@@ -530,9 +530,9 @@ leadSlide("OPENSHIFT", "SCCs and arbitrary UIDs",
 codeSlide("OPENSHIFT", "OpenShift overrides", "bash and yaml · helm",
   code(`
 # Same chart as minikube, with the OpenShift overrides
-helm upgrade --install platform charts/shipping-platform -n hfd-ocp \\
-  -f values-openshift.yaml -f values-openshift-minimal.yaml \\
-  --wait --rollback-on-failure
+[crc-host]$ helm upgrade --install platform charts/shipping-platform -n hfd-ocp \\
+          -f values-openshift.yaml -f values-openshift-minimal.yaml \\
+          --wait --rollback-on-failure
 # values-openshift.yaml
 global:
   environment: openshift
@@ -556,10 +556,10 @@ metadata:
   namespace: hfd-ocp
 spec:
   connectionConfig:
-    url: https://patterncatalyst.github.io/helm-for-developers
+    url: https://<your-chart-repo-host>/charts
 `),
-  "The console installs charts from a repository registered per project; the index must be published at that URL.",
-  N("A `ProjectHelmChartRepository` makes a chart repository visible in the Developer console's Helm catalog for one project. On OpenShift Local 2.64.0 the resource was accepted and listed by `oc get`. The console view was not opened, and the index URL returned 404 at verification time because the repository index is not published yet, so the listing could not populate.",
+  "The console installs charts from a repository registered per project; replace the placeholder URL with a repository that publishes an index.yaml.",
+  N("A `ProjectHelmChartRepository` makes a chart repository visible in the Developer console's Helm catalog for one project. On OpenShift Local 2.64.0 the resource was accepted and listed by `oc get`. The console view was not opened, and the URL tried returned 404 because no index was published there, so the listing could not populate. The URL on the slide is a placeholder for your own repository.",
     "`oc get projecthelmchartrepository -n hfd-ocp` on a CRC host; the console view needs a published index.",
     "the YAML on this slide and the chapter 27 section on the Developer console."));
 

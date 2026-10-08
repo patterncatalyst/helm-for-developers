@@ -29,7 +29,7 @@ Because hooks are not in the release manifest, `helm get manifest` omits them. `
 
 In Helm 4, `--wait` takes a strategy: `watcher` (the default when you pass `--wait` alone) uses kstatus to wait until resources report ready, `hookOnly` is the default when you omit the flag and waits only for hooks, and `legacy` keeps the Helm 3 polling. [HIP-0022](https://github.com/helm/community/blob/main/hips/hip-0022.md) describes the kstatus design, and `--rollback-on-failure` implies `watcher`. The order of events matters here: with a `post-install` hook, Helm applies the resources, **waits for them to be ready, and only then** runs the hook.
 
-That order creates a deadlock when readiness depends on the hook. The shipping service reports ready on `/healthz`, which checks the database and returns 503 until the tables exist. With `--wait`, the Deployment never becomes ready, so the hook never starts, so the tables never appear. The umbrella chart of chapter 16 hit exactly this, and the log of that run records the outcome after the full eight-minute timeout:
+That order creates a deadlock when readiness depends on the hook. The shipping service reports ready on `/healthz`, which checks the database and returns 503 until the tables exist. With `--wait`, the Deployment never becomes ready, so the hook never starts, so the tables never appear. The umbrella chart of chapter 16 hit exactly this. The log below comes from the same chart installed into `hfd-26` for chapter 26 with `--timeout 8m`, and records the outcome after the full eight minutes:
 
 ```text
 Error: release platform failed, and has been uninstalled due to rollback-on-failure being set: resource Deployment/hfd-26/platform-shipping not ready. status: InProgress, message: Available: 0/1
@@ -97,7 +97,7 @@ LAST SEEN   TYPE     REASON             OBJECT                          MESSAGE
 11m         Normal   Completed          job/platform-shipping-migrate   Job completed
 ```
 
-The standalone run behaves the same way: the install Job created two pods (`9xxcn`, then `fxcpq`), and the second completed. Watching a repeat install showed why. The first pod's log ended with `ConnectionRefusedError: [Errno 111] Connect call failed ('10.106.152.53', 5432)`: Helm's wait treated the CNPG `Cluster` as ready before the PostgreSQL instance accepted connections, the migration container failed, and the Job's `backoffLimit: 3` started a second pod that logged `migrate applied V1__create_shipments.sql` and `V2__unique_order_id.sql`. The retry is the Job's backoff, not an error to fix. The events below span the end of the install and the following upgrade with `warm.enabled=true`; in the upgrade Helm ran the migration Job (weight 0) before the warm Job (weight 10):
+The standalone run behaves the same way: the install Job created two pods (`9xxcn`, then `fxcpq`), and the second completed. Watching a repeat install showed why. The first pod's log ended with `ConnectionRefusedError: [Errno 111] Connect call failed ('10.106.152.53', 5432)`: the likely cause, inferred from the timing and not observed directly, is that Helm's wait treated the CNPG `Cluster` as ready before the PostgreSQL instance accepted connections; the migration container failed, and the Job's `backoffLimit: 3` started a second pod that logged `migrate applied V1__create_shipments.sql` and `V2__unique_order_id.sql`. The retry is the Job's backoff, not an error to fix. The events below span the end of the install and the following upgrade with `warm.enabled=true`; in the upgrade Helm ran the migration Job (weight 0) before the warm Job (weight 10):
 
 ```text
 LAST SEEN   TYPE     REASON             OBJECT                                  MESSAGE
@@ -126,7 +126,7 @@ Chapter 12 uses the same chart to walk the failure paths of `helm upgrade`.
 
 ## Further reading
 
-- Matt Butcher, Matt Farina, and Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: the hook lifecycle model, weights and delete policies as concepts.
+- Matt Butcher, Matt Farina, Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: the hook lifecycle model, weights and delete policies as concepts.
 - William Denniss, *Kubernetes for Developers* (Manning, 2024), ISBN 9781617297175. Used here for: Kubernetes Jobs and completion semantics.
 - Bilgin Ibryam and Roland Huß, *Kubernetes Patterns, 2nd ed.* (O'Reilly, 2023), ISBN 9781098131678. Used here for: the Init Container pattern.
 - Helm project, [Chart hooks](https://helm.sh/docs/topics/charts_hooks/). Used here for: hook phases, weights and delete policies.

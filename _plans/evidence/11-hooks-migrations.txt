@@ -159,9 +159,3 @@ error: error from server (NotFound): pods "shipping-shipping-service-migrate-zm8
 second pod log:
 2026-10-08 15:00:36,629 migrate applied V1__create_shipments.sql
 2026-10-08 15:00:36,632 migrate applied V2__unique_order_id.sql
-2026-10-08 15:00:36,629 migrate applied V1__create_shipments.sql
-2026-10-08 15:00:36,632 migrate applied V2__unique_order_id.sql
-2026-10-08 15:00:36,629 migrate applied V1__create_shipments.sql
-2026-10-08 15:00:36,632 migrate applied V2__unique_order_id.sql
-2026-10-08 15:00:36,629 migrate applied V1__create_shipments.sql
-2026-10-08 15:00:36,632 migrate applied V2__unique_order_id.sql

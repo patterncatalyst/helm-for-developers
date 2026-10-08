@@ -16,7 +16,7 @@ g.emit(
     nodes=[
         {"x": 40, "y": 60, "w": 210, "h": 60, "style": "box", "lines": ["shipping-service-1.0.0.tgz", "helm package output"]},
         {"x": 40, "y": 170, "w": 210, "h": 60, "style": "accent", "lines": ["helm registry login", "credentials in registry/config.json"]},
-        {"x": 40, "y": 280, "w": 210, "h": 60, "style": "sub", "lines": ["minikube registry addon", "scripts/tunnel.sh -> 127.0.0.1:5000"]},
+        {"x": 40, "y": 280, "w": 210, "h": 60, "style": "sub", "lines": ["registry:2 container", "-p 127.0.0.1:5001:5000"]},
         {"x": 320, "y": 60, "w": 360, "h": 70, "style": "box", "lines": ["charts/shipping-service:1.0.0 (tag)", "manifest digest sha256:... (what you pin)"]},
         {"x": 320, "y": 160, "w": 170, "h": 70, "style": "info", "lines": ["config layer", "helm.config.v1+json"]},
         {"x": 510, "y": 160, "w": 170, "h": 70, "style": "info", "lines": ["chart layer", "helm.chart.content.v1 tgz"]},
@@ -27,8 +27,8 @@ g.emit(
     ],
     edges=[
         {"x1": 250, "y1": 90, "x2": 320, "y2": 95, "amber": True, "label": "helm push", "ly": -8},
-        {"x1": 250, "y1": 200, "x2": 320, "y2": 110, "dashed": True},
-        {"x1": 250, "y1": 310, "x2": 320, "y2": 120, "dashed": True},
+        {"x1": 250, "y1": 200, "x2": 320, "y2": 112, "dashed": True, "label": "authenticates", "lx": -20, "ly": -14},
+        {"x1": 250, "y1": 310, "x2": 298, "y2": 310, "dashed": True, "label": "serves", "lx": 0, "ly": -8},
         {"x1": 500, "y1": 130, "x2": 405, "y2": 160},
         {"x1": 600, "y1": 130, "x2": 595, "y2": 160},
         {"x1": 680, "y1": 95, "x2": 750, "y2": 90},

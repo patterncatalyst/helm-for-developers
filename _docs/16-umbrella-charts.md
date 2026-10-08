@@ -82,10 +82,10 @@ Within a release Helm sorts resources by kind, not by chart: Secrets, ConfigMaps
 
 The umbrella owns the CloudNativePG `Cluster`, so the `<cluster>-app` Secret that the migration Job reads does not exist before install. A `pre-install` hook would run before the Secret does. The umbrella therefore sets `shipping.migration.hooks: post-install,post-upgrade`, which the shipping template writes into the Job's `helm.sh/hook` annotation.
 
-That choice interacts with `--wait`. Post-install hooks run after Helm sees every resource ready. shipping's default readiness path, `/healthz`, fails until the tables exist, and the tables are created by the hook. In the first platform run the release waited on the pod and the hook waited on the release; after the full timeout Helm reported (the live run in `hfd-16` printed the same text with `hfd-16` in the name, after 3 minutes with `--timeout 3m`):
+That choice interacts with `--wait`. Post-install hooks run after Helm sees every resource ready. shipping's default readiness path, `/healthz`, fails until the tables exist, and the tables are created by the hook. In the first platform run the release waited on the pod and the hook waited on the release; after the full `--timeout 3m` Helm reported:
 
 ```text
-Error: release platform failed, and has been uninstalled due to rollback-on-failure being set: resource Deployment/hfd-26/platform-shipping not ready. status: InProgress, message: Available: 0/1
+Error: release platform failed, and has been uninstalled due to rollback-on-failure being set: resource Deployment/hfd-16/platform-shipping not ready. status: InProgress, message: Available: 0/1
 context deadline exceeded
 ```
 
@@ -114,7 +114,7 @@ Chapter 17 removes the helper code the two service charts still duplicate.
 ## Further reading
 
 - Matt Butcher, Matt Farina, Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: subcharts, global values and the dependency model.
-- Andrew Block, Austin Dewey, *Managing Kubernetes Resources Using Helm* (Packt, 2022), ISBN 9781803242897. Used here for: umbrella chart structure and subchart value overrides.
+- Andrew Block and Austin Dewey, *Managing Kubernetes Resources Using Helm, 2nd ed.* (Packt, 2022), ISBN 9781803242897. Used here for: umbrella chart structure and subchart value overrides.
 
 ---
 

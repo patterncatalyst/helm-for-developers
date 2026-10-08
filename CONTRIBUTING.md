@@ -12,7 +12,7 @@ This file records the project conventions. Chapters, examples, scripts and decks
 - `brand_emoji: "⎈"` (fall back to "🧭" if the font lacks it).
 - Accent color: default amber `#e8870c`.
 - License: Apache-2.0.
-- Hero eyebrow: "Helm 4 · Python 3.15 · FastAPI · minikube · OpenShift".
+- Hero eyebrow: "Helm 4 · Python 3.14 · FastAPI · minikube · OpenShift".
 
 ### Versions
 
@@ -125,7 +125,7 @@ Chapters 12, 13, 20, 21, 22, 23 and 28 are docs-only and contain no ISBN lines.
 
 ### Verification discipline
 
-Every claim starts `unverified`. A footer moves to `verified` only with an evidence file in `_plans/evidence/` recording the behavioral observation, not a clean exit. Chapter 27 stays `unverified` and states "untested on the authoring machine".
+Every claim starts `unverified`. A footer moves to `verified` only with an evidence file in `_plans/evidence/` recording the behavioral observation, not a clean exit. Chapter 27 is `verified` against OpenShift Local with evidence in `_plans/evidence/27-openshift-crc.txt`; any step the run did not exercise is listed in its footer.
 
 ## Decisions
 

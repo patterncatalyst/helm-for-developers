@@ -125,7 +125,7 @@ The last chapter in this part uses the same umbrella to follow a request through
 - Helm chart hooks: <https://helm.sh/docs/topics/charts_hooks/>
 - Billy Yuen et al., *GitOps and Kubernetes* (Manning, 2021), ISBN 9781617297274. Used here for: GitOps principles (declarative state, pull-based reconciliation, drift correction).
 - Mauricio Salatino, *Platform Engineering on Kubernetes* (Manning, 2024), ISBN 9781617299322. Used here for: continuous delivery as a platform capability.
-- Andrew Block and Austin Dewey, *Managing Kubernetes Resources Using Helm* (Packt, 2022), ISBN 9781803242897. Used here for: Argo CD concepts (applications and sync).
+- Andrew Block and Austin Dewey, *Managing Kubernetes Resources Using Helm, 2nd ed.* (Packt, 2022), ISBN 9781803242897. Used here for: Argo CD concepts (applications and sync).
 
 ---
 

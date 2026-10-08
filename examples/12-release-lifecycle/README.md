@@ -26,4 +26,4 @@ Snapshot after chapter 12: the chapter 11 charts plus an `extras.configMap` togg
 
 ## Verification status
 
-`verified` on 2026-10-08 (`_plans/evidence/12-release-lifecycle.txt`): all eleven steps ran end to end. Step 9 needs `--force-conflicts` with `--take-ownership` when another field manager owns differing fields, and step 10 needs `--server-side=false`.
+`verified` on 2026-10-08 (`_plans/evidence/12-release-lifecycle.txt`): all eleven steps ran end to end. Step 9 needs `--force-conflicts` with `--take-ownership` when another field manager owns differing fields (after adoption only the `meta.helm.sh` annotations were captured, not the label, the replaced data or `managedFields`), and step 10 needs `--server-side=false`.

@@ -65,7 +65,7 @@ That value equals the SHA-256 of the archive, the chart-layer digest from chapte
 
 ```text
 Signed by: HFD Throwaway Signer <signer@hfd.invalid>
-Using Key With Fingerprint: 636B6576F48C2360860908B57B7E2658C90A9C09
+Using Key With Fingerprint: 19A1449A6F1689891E99B998C2916464491D113E
 Chart Hash Verified: sha256:f8d507c0004fb9f9f9c3418e7e2565d01ed00c4f8b05b28c5d2855e8ee90ccbd
 ```
 
@@ -74,7 +74,7 @@ Use `--keyring` to verify against a key file a publisher gave you. Verifying a k
 **Tamper check.** `sign_and_verify` untars the archive, changes `ACME-Post` to `EVIL-Post` in `values.yaml`, repackages with `tar`, and runs `helm verify` against the old `.prov`:
 
 ```text
-Error: sha256 sum does not match for shipping-service-1.0.0.tgz: "sha256:f8d507c0..." != "sha256:98567611..."
+Error: sha256 sum does not match for shipping-service-1.0.0.tgz: "sha256:f8d507c0..." != "sha256:ab39f0ea..."
 ```
 
 The script treats a successful verify here as a failure and exits.
@@ -85,7 +85,7 @@ The script treats a successful verify here as a failure and exits.
 [host]$ helm pull oci://127.0.0.1:5001/signed/shipping-service --version 1.0.0 --plain-http --verify -d .work/pull
 ```
 
-An unsigned chart pushed to the same registry fails with `failed to fetch provenance "oci://127.0.0.1:5001/unsigned/shipping-service:1.0.5.prov"`. `helm install --verify` and `helm upgrade --install --verify` behave the same way, and the last demo step installs the signed chart that way. Helm 4 keeps a content cache for downloaded charts and provenance, keyed by the chart's digest, and `install --verify` consults it. In the 2026-10-08 run a byte-identical copy of the verified chart, pushed to another path with no `.prov` layer, failed `helm pull --verify` but passed `helm install --verify` while `HELM_CACHE_HOME` held the cached `.prov`; with an empty cache the same install failed with `failed to fetch provenance`. An unsigned chart with different bytes still failed. The demo sets a fresh `HELM_CACHE_HOME` for that reason, and its last step reproduces the effect. The signature attests to the bytes, which is accurate, but do not read a passing `--verify` as proof about the registry location.
+An unsigned chart pushed to the same registry fails with `failed to fetch provenance "oci://127.0.0.1:5001/unsigned/shipping-service:1.0.5.prov"`. `helm install --verify` and `helm upgrade --install --verify` behave the same way, and the last demo step installs the signed chart that way. Helm 4 keeps a content cache for downloaded charts and provenance, keyed by the chart's digest, and `install --verify` consults it. In the 2026-10-08 run a byte-identical copy of the verified chart, pushed to another path with no `.prov` layer, failed `helm pull --verify` but got through `helm install --verify --dry-run=client` (reaching `STATUS: pending-install`) while `HELM_CACHE_HOME` held the cached `.prov`; with an empty cache the same install failed with `failed to fetch provenance`. An unsigned chart with different bytes still failed. The demo sets a fresh `HELM_CACHE_HOME` for that reason, and its last step reproduces the effect. The signature attests to the bytes, which is accurate, but do not read a passing `--verify` as proof about the registry location.
 
 **cosign.** `cosign_flow` makes a key pair with an empty password and signs by digest, not by tag:
 
@@ -123,7 +123,7 @@ Each failure below was observed while writing the demo, and each message points 
 - **`failed to fetch provenance` on `install --verify` or `pull --verify`.** The registry artifact has no provenance layer, so the chart was pushed unsigned. Push the `.prov` next to the archive. Helm uploads it as the layer `application/vnd.cncf.helm.chart.provenance.v1.prov`, which `curl` against the manifest shows.
 - **`no signatures found` from `cosign verify` after a re-push.** A cosign signature binds to a manifest digest, not to a tag. Pushing different content to `1.0.0` creates a new digest with no signature, while the original digest still verifies. Verify by digest, and let admission policy reference digests rather than tags.
 
-A fifth observation matters for CI. A byte-identical unsigned copy of a chart that had already been verified once passed `helm install --verify` on a machine whose Helm cache still held that chart's `.prov` (it failed `helm pull --verify`, and failed `install --verify` with an empty cache; `./demo.sh` shows all three). The cache is keyed by chart digest, so the signature check is about the bytes, not about what the registry holds at that path. Do not rely on a cached verification as proof that a registry entry is signed. In a CI job, start from an empty `HELM_CACHE_HOME` so each verification reads what the registry holds.
+A fifth observation matters for CI. A byte-identical unsigned copy of a chart that had already been verified once got through `helm install --verify --dry-run=client` on a machine whose Helm cache still held that chart's `.prov` (it failed `helm pull --verify`, and failed `install --verify` with an empty cache; `./demo.sh` shows all three). The cache is keyed by chart digest, so the signature check is about the bytes, not about what the registry holds at that path. Do not rely on a cached verification as proof that a registry entry is signed. In a CI job, start from an empty `HELM_CACHE_HOME` so each verification reads what the registry holds.
 
 Registries on plain HTTP need extra cosign flags: `--allow-http-registry`, `--use-signing-config=false` and, for a throwaway key without a transparency log, `--tlog-upload=false` when signing and `--insecure-ignore-tlog` when verifying. Production signing against a TLS registry drops the first flag, and keyless signing replaces the key file with an identity token.
 
@@ -136,7 +136,7 @@ Verify the same artifact two independent ways. `helm pull --verify` checks the P
 - `helm package --sign` needs a legacy-format secret keyring with GnuPG 2; `helm verify` and `--verify` need only public keys.
 - A `.prov` signs the archive hash; `helm push` uploads it as a layer, and `helm pull --verify` and `install --verify` check it.
 - cosign signs the manifest digest of the OCI artifact; verify by digest, because tags move.
-- Tampering fails both checks, and Helm's digest-keyed cache can make `install --verify` accept a byte-identical unsigned copy.
+- Tampering fails both checks, and Helm's digest-keyed cache can make `install --verify` accept a byte-identical unsigned copy (observed with `--dry-run=client`).
 
 Chapter 22 changes direction and extends Helm itself with plugins.
 
@@ -149,4 +149,4 @@ Chapter 22 changes direction and extends Helm itself with plugins.
 
 ---
 
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/21-signing.txt`. Observed on Helm 4.3.0, cosign 3.1.3 and minikube: signing with the default keyring failed, the legacy keyring signed and `helm verify` passed, a tampered archive failed `sha256 sum does not match`, the `.prov` was uploaded as its own layer, `helm pull --verify` and `helm upgrade --install --verify` passed for the signed chart (Ready in `hfd-21`) and failed for an unsigned one, cosign signed and verified by digest and reported `no signatures found` for a moved tag, and the content-cache effect described above was reproduced with a warm cache and absent with an empty one. Keyless signing was not run.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/21-signing.txt`. Observed on Helm 4.3.0, cosign 3.1.3 and minikube: signing with the default keyring failed, the legacy keyring signed and `helm verify` passed, a tampered archive failed `sha256 sum does not match`, the `.prov` was uploaded as its own layer, `helm pull --verify` and `helm upgrade --install --verify` passed for the signed chart (Ready in `hfd-21`) and failed for an unsigned one, cosign signed and verified by digest and reported `no signatures found` for a moved tag, and the content-cache effect described above was reproduced as a client-side dry run, not a full install, with a warm cache and absent with an empty one. Keyless signing was not run.*

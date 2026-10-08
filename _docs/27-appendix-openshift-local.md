@@ -38,12 +38,11 @@ The reference charts avoid it by construction. `pc-lib` renders `runAsNonRoot: t
 uid=1000650000(1000650000) gid=0(root) groups=0(root),1000650000
 ```
 
-The root filesystem stays read-only, so the application writes only to `/tmp`:
+The container's `securityContext` keeps `readOnlyRootFilesystem: true`, so the application writes only to `/tmp`:
 
 ```
-[crc-host]$ oc exec -n hfd-ocp deploy/platform-shipping -- sh -c 'touch /x; touch /tmp/x && echo tmp-ok'
-touch: cannot touch '/x': Read-only file system
-tmp-ok
+[crc-host]$ oc get pod -n hfd-ocp -l app.kubernetes.io/name=shipping -o jsonpath='{.items[0].spec.containers[0].securityContext.readOnlyRootFilesystem}'
+true
 ```
 
 ## Route versus Ingress
@@ -82,7 +81,7 @@ Without `--api-versions` the same command prints no Route. The example's `demo.s
 2
 ```
 
-Offline rendering never asks the cluster, so it reports 0 even when you are logged in to CRC. A server dry run asks, and the cluster answers `route.openshift.io/v1`. Adding `--validate` to a template run also asks the cluster.
+Offline rendering never asks the cluster, so it reports 0 even when you are logged in to CRC. A server dry run asks, and the cluster answers `route.openshift.io/v1`. Running `helm template` with `--dry-run=server` also asks the cluster.
 
 ## How the code works
 
@@ -175,10 +174,10 @@ metadata:
   namespace: hfd-ocp
 spec:
   connectionConfig:
-    url: https://patterncatalyst.github.io/helm-for-developers
+    url: https://<your-chart-repo-host>/charts
 ```
 
-The URL must point at a classic repository with an `index.yaml`, the kind Chapter 19 builds. The console reads that index to list charts. The cluster accepted the resource (`oc apply` printed `projecthelmchartrepository.helm.openshift.io/hfd-charts created`, and `oc get projecthelmchartrepositories -n hfd-ocp` listed it), but the project's GitHub Pages repository was not published at the time, so `index.yaml` returned 404 and the Developer console listing was not opened. Whether the console can install from an OCI registry depends on your OpenShift release, so check the release documentation before relying on it.
+Replace the placeholder URL with a classic repository that serves an `index.yaml`, the kind Chapter 19 builds. The console reads that index to list charts. The cluster accepted the resource (`oc apply` printed `projecthelmchartrepository.helm.openshift.io/hfd-charts created`, and `oc get projecthelmchartrepositories -n hfd-ocp` listed it), but the URL tried returned 404 for `index.yaml` because no chart repository was published there, so the Developer console listing was not opened. Whether the console can install from an OCI registry depends on your OpenShift release, so check the release documentation before relying on it.
 
 Optionally, `[crc-host]$ oc set image-lookup shipping-service -n hfd-ocp` turns on local lookup for the ImageStream, so a short reference such as `shipping-service:0.1.0` resolves through the stream. A pod created with that short image reference ran with the image rewritten to `image-registry.openshift-image-registry.svc:5000/hfd-ocp/shipping-service@sha256:...`. The chart does not need it, because the values file uses the full registry path.
 

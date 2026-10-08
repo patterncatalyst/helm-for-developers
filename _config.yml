@@ -6,7 +6,7 @@
 
 # Site identity
 title: "Helm for Developers"
-description: "A chaptered, hands-on tutorial for Helm 4: one Python 3.15 FastAPI shipping application taken from raw manifests to a signed, GitOps-delivered chart on minikube and OpenShift."
+description: "A chaptered, hands-on tutorial for Helm 4: one Python 3.14 (3.15-ready) FastAPI shipping application taken from raw manifests to a signed, GitOps-delivered chart on minikube and OpenShift."
 brand_emoji: "⎈"   # Single emoji that appears next to the title in the header
 
 # GitHub identity for header link and example sourcing

@@ -149,7 +149,7 @@ Next, the same archive moves into an OCI registry, where the version is a tag an
 
 ## Further reading
 
-- Butcher, Farina, Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: the concept of a chart repository as an index plus archives.
+- Matt Butcher, Matt Farina, Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: the concept of a chart repository as an index plus archives.
 - Helm documentation, [The Chart Repository Guide](https://helm.sh/docs/topics/chart_repository/) and [`helm package`](https://helm.sh/docs/helm/helm_package/).
 - Helm documentation, [Charts: the Chart.yaml file](https://helm.sh/docs/topics/charts/) for `version` and `appVersion`.
 - [Semantic Versioning 2.0.0](https://semver.org/).

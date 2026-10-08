@@ -324,3 +324,8 @@ shipping-shipping-service-cdb85599c-mhnc4   0/1     ImagePullBackOff   0        
       Reason:        ImagePullBackOff
   Warning  Failed     25s (x5 over 99s)   kubelet            Error: ImagePullBackOff
   Warning  Failed     11s (x4 over 100s)  kubelet            Failed to pull image "shipping-service:9.9.9": failed to pull and unpack image "docker.io/library/shipping-service:9.9.9": failed to resolve reference "docker.io/library/shipping-service:9.9.9": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+
+--- repair-round capture 2026-10-08 (kubeconform without the CRDs-catalog location)
+$ helm template r charts/shipping-postgres | kubeconform -strict -summary
+stdin - Cluster shipping-postgres failed validation: could not find schema for Cluster
+Summary: 1 resource found parsing stdin - Valid: 0, Invalid: 0, Errors: 1, Skipped: 0

@@ -31,3 +31,6 @@ __pycache__/
 
 # OS cruft
 .DS_Store
+
+# Vendored dependency tarballs: rebuilt by helm dependency build in every demo
+examples/**/charts/*.tgz

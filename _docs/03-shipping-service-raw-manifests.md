@@ -103,10 +103,10 @@ Chapter 04 turns these three files into a chart named `shipping-service` and ins
 
 ## Further reading
 
-- Brendan Burns et al., *Kubernetes: Up and Running* (O'Reilly, 2022), ISBN 9781098110192. Used here for: Deployments, Services and ConfigMaps.
-- Bilgin Ibryam, Roland Huß, *Kubernetes Patterns* (O'Reilly, 2023), ISBN 9781098131678. Used here for: the Health Probe, Predictable Demands and Managed Lifecycle patterns.
+- Brendan Burns et al., *Kubernetes: Up and Running, 3rd ed.* (O'Reilly, 2022), ISBN 9781098110192. Used here for: Deployments, Services and ConfigMaps.
+- Bilgin Ibryam and Roland Huß, *Kubernetes Patterns, 2nd ed.* (O'Reilly, 2023), ISBN 9781098131678. Used here for: the Health Probe, Predictable Demands and Managed Lifecycle patterns.
 - William Denniss, *Kubernetes for Developers* (Manning, 2024), ISBN 9781617297175. Used here for: containerizing an application and configuring probes.
-- Benjamin Muschko, *Certified Kubernetes Application Developer (CKAD) Study Guide* (O'Reilly, 2024), ISBN 9781098152857. Used here for: securityContext settings and probes.
+- Benjamin Muschko, *Certified Kubernetes Application Developer (CKAD) Study Guide, 2nd ed.* (O'Reilly, 2024), ISBN 9781098152857. Used here for: securityContext settings and probes.
 
 ---
 

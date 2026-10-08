@@ -5,7 +5,7 @@
 <rect x="50" y="60" width="190" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
 <text x="145.0" y="93.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Render and apply</text>
 <text x="145.0" y="110.0" font-size="11.5" fill="#555555" text-anchor="middle">server-side apply, hooks</text>
-<rect x="300" y="60" width="190" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<rect x="290" y="60" width="210" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
 <text x="395.0" y="93.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Wait</text>
 <text x="395.0" y="110.0" font-size="11.5" fill="#555555" text-anchor="middle">--wait=watcher | hookOnly | legacy</text>
 <rect x="550" y="60" width="160" height="70" rx="9" fill="#eef4fb" stroke="#2f6db5" stroke-width="2"/>
@@ -32,16 +32,17 @@
 <rect x="760" y="340" width="150" height="70" rx="9" fill="#f4f4f4" stroke="#888888" stroke-width="1.5"/>
 <text x="835.0" y="373.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">--history-max</text>
 <text x="835.0" y="390.0" font-size="11.5" fill="#555555" text-anchor="middle">prunes old revisions</text>
-<path d="M240,95 L300,95" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
-<path d="M490,95 L550,95" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
-<text x="520.0" y="87.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">ok</text>
-<text x="520.0" y="87.0" font-size="11" fill="#555" text-anchor="middle">ok</text>
+<path d="M240,95 L290,95" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M500,95 L550,95" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="525.0" y="87.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">ok</text>
+<text x="525.0" y="87.0" font-size="11" fill="#555" text-anchor="middle">ok</text>
 <path d="M710,95 L760,95" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M395,130 L395,190" fill="none" stroke="#b8650a" stroke-width="2" marker-end="url(#am)"/>
 <text x="429.0" y="160.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">not ready</text>
 <text x="429.0" y="160.0" font-size="11" fill="#b8650a" text-anchor="middle">not ready</text>
 <path d="M145,130 L145,190" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
-<path d="M300,225 L240,225" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
+<text x="175.0" y="160.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">at apply</text>
+<text x="175.0" y="160.0" font-size="11" fill="#555" text-anchor="middle">at apply</text>
 <path d="M345,260 L145,340" fill="none" stroke="#b8650a" stroke-width="2" marker-end="url(#am)"/>
 <path d="M395,260 L395,340" fill="none" stroke="#b8650a" stroke-width="2" marker-end="url(#am)"/>
 <path d="M490,375 L550,375" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>

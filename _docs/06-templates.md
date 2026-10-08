@@ -136,7 +136,7 @@ Chapter 07 moves the repeated names and labels into named templates and adds `NO
 ## Further reading
 
 - Matt Butcher, Matt Farina, Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: Go templates, built-in objects and control structures.
-- Andrew Block, Austin Dewey, *Managing Kubernetes Resources Using Helm* (Packt, 2022), ISBN 9781803242897. Used here for: templating functions and flow control.
+- Andrew Block and Austin Dewey, *Managing Kubernetes Resources Using Helm, 2nd ed.* (Packt, 2022), ISBN 9781803242897. Used here for: templating functions and flow control.
 - Helm project, "Chart Template Guide", https://helm.sh/docs/chart_template_guide/.
 
 ---

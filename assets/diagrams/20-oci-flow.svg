@@ -13,8 +13,8 @@
 <text x="145.0" y="198.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">helm registry login</text>
 <text x="145.0" y="215.0" font-size="11.5" fill="#555555" text-anchor="middle">credentials in registry/config.json</text>
 <rect x="40" y="280" width="210" height="60" rx="9" fill="#ffffff" stroke="#999999" stroke-width="1.5"/>
-<text x="145.0" y="308.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">minikube registry addon</text>
-<text x="145.0" y="325.0" font-size="11.5" fill="#555555" text-anchor="middle">scripts/tunnel.sh -&gt; 127.0.0.1:5000</text>
+<text x="145.0" y="308.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">registry:2 container</text>
+<text x="145.0" y="325.0" font-size="11.5" fill="#555555" text-anchor="middle">-p 127.0.0.1:5001:5000</text>
 <rect x="320" y="60" width="360" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
 <text x="500.0" y="93.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">charts/shipping-service:1.0.0 (tag)</text>
 <text x="500.0" y="110.0" font-size="11.5" fill="#555555" text-anchor="middle">manifest digest sha256:... (what you pin)</text>
@@ -39,8 +39,12 @@
 <path d="M250,90 L320,95" fill="none" stroke="#b8650a" stroke-width="2" marker-end="url(#am)"/>
 <text x="291.0" y="84.5" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">helm push</text>
 <text x="291.0" y="84.5" font-size="11" fill="#b8650a" text-anchor="middle">helm push</text>
-<path d="M250,200 L320,110" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
-<path d="M250,310 L320,120" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
+<path d="M250,200 L320,112" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
+<text x="265.0" y="142.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">authenticates</text>
+<text x="265.0" y="142.0" font-size="11" fill="#555" text-anchor="middle">authenticates</text>
+<path d="M250,310 L298,310" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
+<text x="274.0" y="302.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">serves</text>
+<text x="274.0" y="302.0" font-size="11" fill="#555" text-anchor="middle">serves</text>
 <path d="M500,130 L405,160" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M600,130 L595,160" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M680,95 L750,90" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>

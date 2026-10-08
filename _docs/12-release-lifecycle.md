@@ -41,7 +41,7 @@ The chart is chapter 11's, plus `templates/extra-configmap.yaml`: a second Confi
 
 ## Observed failure path
 
-The umbrella run recorded the negative control for step 3 in `_plans/evidence/golden-08-negative-control.txt`. It upgraded release `platform` with a nonexistent image tag:
+The umbrella-chart run in Chapter 16 recorded the negative control for step 3. It upgraded release `platform` with a nonexistent image tag:
 
 ```text
 $ helm upgrade platform charts/shipping-platform -n hfd-26 -f values-dev.yaml --set shipping.image.tag=doesnotexist --wait --timeout 90s --rollback-on-failure
@@ -62,7 +62,7 @@ REVISION  STATUS      DESCRIPTION
 
 Three things stand out. The failed attempt keeps its own revision, 4. The rollback is a new revision, 5, whose description is `Rollback to 3`, not a return to revision 3. And the live image afterwards was `shipping-service:0.1.0` while the API still answered, because the old ReplicaSet kept serving during the whole failure.
 
-The standalone `./demo.sh` run (`_plans/evidence/12-release-lifecycle.txt`) produced the same failure text for release `shipping` and the same row pattern: revision 3 `failed`, revision 4 `Rollback to 2`. Step 4 then left revision 5 `failed` and `kubectl get configmap shipping-shipping-service-extra` returned `NotFound`. Step 5's `helm rollback shipping 2` created revision 6 with the description `Rollback to 2`.
+The standalone `./demo.sh` run produced the same failure text for release `shipping` and the same row pattern: revision 3 `failed`, revision 4 `Rollback to 2`. Step 4 then left revision 5 `failed` and `kubectl get configmap shipping-shipping-service-extra` returned `NotFound`. Step 5's `helm rollback shipping 2` created revision 6 with the description `Rollback to 2`.
 
 The message misleads. Helm said `Pending termination: 1`, which is kstatus describing the Deployment, not the cause. The image-pull error is on the pod, so `kubectl describe pod` is the next command after any `--wait` failure.
 
@@ -88,7 +88,7 @@ Adding `--take-ownership` alone passed that check and stopped one layer down:
 Error: UPGRADE FAILED: conflict occurred while applying object hfd-12/shipping-shipping-service-extra /v1, Kind=ConfigMap: Apply failed with 1 conflict: conflict with "kubectl-create" using v1: .data.purpose
 ```
 
-`--take-ownership --force-conflicts` succeeded. The ConfigMap then carried the annotations `meta.helm.sh/release-name: shipping` and `meta.helm.sh/release-namespace: hfd-12`, the label `app.kubernetes.io/managed-by: Helm`, and the chart's `data.purpose` text in place of `precreated`. `managedFields` listed `helm Apply` and `kubectl-create Update`.
+`--take-ownership --force-conflicts` succeeded. The ConfigMap then carried the annotations `meta.helm.sh/release-name: shipping` and `meta.helm.sh/release-namespace: hfd-12`. The run did not capture the `app.kubernetes.io/managed-by` label, the replaced `data.purpose` text or the `managedFields` list. To see the final ownership of the fields, run `kubectl get configmap shipping-shipping-service-extra -n hfd-12 -o yaml --show-managed-fields` after the demo.
 
 Step 10 with `--force-replace` alone failed with `invalid operation: cannot use server-side apply and force replace together`. With `--server-side=false --force-replace` it succeeded, `helm get metadata` reported `APPLY_METHOD: client-side apply`, and the ConfigMap kept the same UID before and after. Replacement here is an update by `PUT`, not a delete and recreate, so the object keeps its identity.
 
@@ -129,4 +129,4 @@ Chapter 13 turns from running releases to debugging charts before they run.
 
 ---
 
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/12-release-lifecycle.txt`. Observed on Helm 4.3.0: steps 1 to 11 ran end to end. `--rollback-on-failure` left a `failed` revision then a `Rollback to 2` revision, `--cleanup-on-fail` removed only the new ConfigMap, the Secret decoded to JSON, the field-manager conflict, the ownership refusal and the adoption (with `--force-conflicts`) were captured, and `--force-replace` worked only with `--server-side=false`.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/12-release-lifecycle.txt`. Observed on Helm 4.3.0: steps 1 to 11 ran end to end. `--rollback-on-failure` left a `failed` revision then a `Rollback to 2` revision, `--cleanup-on-fail` removed only the new ConfigMap, the Secret decoded to JSON, the field-manager conflict, the ownership refusal and the adoption (with `--force-conflicts`, confirmed by the two `meta.helm.sh` annotations) were captured, and `--force-replace` worked only with `--server-side=false`.*

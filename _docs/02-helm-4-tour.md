@@ -122,7 +122,7 @@ Chapter 03 returns to the shipping service and deploys it as raw manifests, so t
 
 ## Further reading
 
-- Matt Butcher et al., *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: package-manager concepts, charts, releases and repositories.
+- Matt Butcher, Matt Farina, Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: package-manager concepts, charts, releases and repositories.
 - Helm project, [Helm 4 overview](https://helm.sh/docs/overview/) and [Helm 4 released](https://helm.sh/blog/helm-4-released/): the changes in the table above.
 - Helm project, [Using Helm](https://helm.sh/docs/intro/using_helm/): the install, list and uninstall workflow.
 

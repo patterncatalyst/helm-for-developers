@@ -91,7 +91,7 @@ Ask the cluster who installed the CRD and what it holds, independent of Helm:
 
 The second command prints `0`, matching the live CRD before the manual apply. The `managedFields` list shows which clients wrote the object, and after the `kubectl apply` step it gains a `kubectl-client-side-apply` entry.
 
-Observed after the full run on Helm 4.3.0 (`_plans/evidence/10-crds-operators.txt`):
+Observed after the full run on Helm 4.3.0:
 
 ```text
 managers: [helm, kube-apiserver, kubectl-client-side-apply]

@@ -80,7 +80,7 @@ def h101_revisions():
     s.arrow(780, 205, 860, 205, kind="neutral")
     s.panel(60, 410, 1120, 70)
     s.label(620, 440, "helm history lists 1 superseded, 2 superseded, 3 deployed", size=13, anchor="middle", color=PALETTE["neutral"])
-    s.label(620, 462, "--history-max (default 10) prunes the oldest", size=13, anchor="middle", color=PALETTE["neutral"])
+    s.label(620, 462, "--history-max (default 10) prunes the oldest", size=13, anchor="middle", mono=True, color=PALETTE["neutral"])
     s.write()
 
 

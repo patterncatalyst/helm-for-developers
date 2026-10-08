@@ -427,3 +427,11 @@ PASS  helm test platform
 
 verify-crc: all checks passed
 exit=0
+
+--- repair-round capture 2026-10-08 (read-only oc get against the running CRC cluster)
+$ oc get pod -n hfd-ocp -l app.kubernetes.io/name=shipping -o jsonpath={.items[0].spec.securityContext}
+{"fsGroup":1000650000,"runAsNonRoot":true,"seLinuxOptions":{"level":"s0:c26,c0"},"seccompProfile":{"type":"RuntimeDefault"}}
+$ oc get pod -n hfd-ocp -l app.kubernetes.io/name=shipping -o jsonpath={.items[0].spec.containers[0].securityContext}
+{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsNonRoot":true,"runAsUser":1000650000,"seccompProfile":{"type":"RuntimeDefault"}}
+$ oc get pod ... -o jsonpath={.items[0].spec.containers[0].securityContext.readOnlyRootFilesystem}
+true

@@ -144,7 +144,7 @@ Chapter 15 adds Kafka and a second service, and with them a second chart to test
 
 ## Further reading
 
-- Andrew Block and Austin Dewey, *Managing Kubernetes Resources Using Helm* (Packt, 2022), ISBN 9781803242897. Used here for: chart-testing concepts (what to test in a chart and at which layer).
+- Andrew Block and Austin Dewey, *Managing Kubernetes Resources Using Helm, 2nd ed.* (Packt, 2022), ISBN 9781803242897. Used here for: chart-testing concepts (what to test in a chart and at which layer).
 - [Chart tests](https://helm.sh/docs/topics/chart_tests/) and [helm test](https://helm.sh/docs/helm/helm_test/) in the Helm docs.
 - [helm-unittest](https://github.com/helm-unittest/helm-unittest) and [chart-testing](https://github.com/helm/chart-testing), including [ct lint](https://github.com/helm/chart-testing/blob/main/doc/ct_lint.md) and [ct install](https://github.com/helm/chart-testing/blob/main/doc/ct_install.md).
 

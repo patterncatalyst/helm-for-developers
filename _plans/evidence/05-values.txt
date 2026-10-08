@@ -106,3 +106,18 @@ Error: 1 chart(s) linted, 1 chart(s) failed
 
 
 Error: 1 chart(s) linted, 1 chart(s) failed
+
+--- repair-round capture 2026-10-08 (offline re-run, Helm 4.3.0)
+$ helm lint shipping-service --set replicas=3
+==> Linting shipping-service
+[INFO] Chart.yaml: icon is recommended
+[ERROR] values.yaml: - at '': additional properties 'replicas' not allowed
+
+[ERROR] templates/: values don't meet the specifications of the schema(s) in the following chart(s):
+shipping-service:
+- at '': additional properties 'replicas' not allowed
+
+
+Error: 1 chart(s) linted, 1 chart(s) failed
+$ helm template x shipping-service --set config.defaultCarrier=ACME,Post
+Error: failed parsing --set data: key "Post" has no value
