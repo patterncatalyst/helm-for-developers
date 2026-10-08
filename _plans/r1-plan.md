@@ -684,9 +684,9 @@ Sources consulted for version facts:
 | S5 | done (7/7 met) |
 | S6.0–S6.8 | done (+ repair pass) |
 | S7 | done (minikube; ch27 verified on CRC, see _plans/claims/s7-d.md) |
-| S8a/S8b | pending |
+| S8a/S8b | done |
 | S9 | done (hub branch, not pushed) |
-| S10 | pending |
+| S10 | done |
 | S11 | pending |
 | S12 | gated |
 
