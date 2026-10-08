@@ -15,7 +15,7 @@ spec:
     seccompProfile:
       type: RuntimeDefault
   containers:
-    - name: curl
+    - name: probe
       image: {{ .Values.tests.image | quote }}
       securityContext:
         allowPrivilegeEscalation: false
@@ -25,8 +25,10 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       command:
-        - sh
+        - python
         - -c
         - >-
-          curl -fsS --max-time 10 http://{{ include "shipping-platform.svcName" (dict "root" . "alias" "shipping") }}:{{ .Values.shipping.service.port | default 8080 }}/healthz
-          && curl -fsS --max-time 10 http://{{ include "shipping-platform.svcName" (dict "root" . "alias" "notification") }}:{{ .Values.notification.service.port | default 8080 }}/healthz
+          import urllib.request as u;
+          [u.urlopen(url, timeout=10).read() for url in (
+          "http://{{ include "shipping-platform.svcName" (dict "root" . "alias" "shipping") }}:{{ .Values.shipping.service.port | default 8080 }}/healthz",
+          "http://{{ include "shipping-platform.svcName" (dict "root" . "alias" "notification") }}:{{ .Values.notification.service.port | default 8080 }}/healthz")]

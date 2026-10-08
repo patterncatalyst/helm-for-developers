@@ -22,6 +22,13 @@ shipping:
   # install: run the migration after the resources are created.
   migration:
     hooks: post-install,post-upgrade
+  # Helm runs post-install hooks only after --wait sees every resource ready. The default
+  # readiness path (/healthz) fails until the migration has run, so the release would wait
+  # on the hook and the hook on the release. Gate readiness on process health (/health)
+  # here; the migration Job then runs and /healthz turns green on its own.
+  probes:
+    readiness:
+      path: /health
   service:
     type: ClusterIP
 
@@ -44,4 +51,6 @@ route:
     notification: ""
 
 tests:
-  image: registry.access.redhat.com/ubi10/ubi-minimal:latest
+  # Needs python and a numeric non-root USER (runAsNonRoot is verified by the kubelet),
+  # so it reuses the shipping image. Set global.imageRegistry-qualified refs here if needed.
+  image: shipping-service:0.1.0

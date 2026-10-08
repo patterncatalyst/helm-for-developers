@@ -1,0 +1,81 @@
+$ helm get hooks platform -n hfd-26
+---
+# Source: shipping-platform/charts/shipping/templates/migration-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: platform-shipping-migrate
+  labels:
+    helm.sh/chart: shipping-1.0.0
+    app.kubernetes.io/name: shipping
+    app.kubernetes.io/instance: platform
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: shipping-platform
+    app.kubernetes.io/component: migration
+  annotations:
+    "helm.sh/hook": "post-install,post-upgrade"
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: shipping
+        app.kubernetes.io/instance: platform
+        app.kubernetes.io/component: migration
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: migrate
+          image: "shipping-service:0.1.0"
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-m", "app.migrate"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: SHIPPING_STORAGE
+              value: "postgres"
+
+$ kubectl -n hfd-26 get jobs,pods
+NAME                                                  READY   STATUS    RESTARTS      AGE
+pod/platform-notification-688949d676-fpkr2            1/1     Running   0             52s
+pod/platform-shipping-987c9b68-7qc2g                  1/1     Running   3 (33s ago)   52s
+pod/shipping-kafka-dual-0                             1/1     Running   0             50s
+pod/shipping-kafka-entity-operator-7d498f5f75-v4qn5   2/2     Running   0             28s
+pod/shipping-postgres-1                               1/1     Running   0             47s
+
+(hook-succeeded delete policy removes the Job; evidence from events/logs)
+$ kubectl -n hfd-26 get events --field-selector involvedObject.name=platform-shipping-migrate
+LAST SEEN   TYPE     REASON             OBJECT                          MESSAGE
+11m         Normal   SuccessfulCreate   job/platform-shipping-migrate   Created pod: platform-shipping-migrate-zvgmf
+11m         Normal   SuccessfulCreate   job/platform-shipping-migrate   Created pod: platform-shipping-migrate-qfr5s
+11m         Normal   SuccessfulCreate   job/platform-shipping-migrate   Created pod: platform-shipping-migrate-6p94g
+11m         Normal   Completed          job/platform-shipping-migrate   Job completed
+7s          Normal   SuccessfulCreate   job/platform-shipping-migrate   Created pod: platform-shipping-migrate-kbtbd
+4s          Normal   Completed          job/platform-shipping-migrate   Job completed
+
+$ psql -d shipping -c 'select * from shipping.schema_migrations'
+ version |          applied_at           
+---------+-------------------------------
+       1 | 2026-10-08 14:04:01.336768+00
+       2 | 2026-10-08 14:04:01.339829+00
+(2 rows)
+
+
+$ in-pod GET /healthz (ready after migration) and the umbrella readinessProbe path (see fix 2 in report)
+b'{"status":"ready","service":"platform-shipping"}'
+{"failureThreshold":3,"httpGet":{"path":"/health","port":"http","scheme":"HTTP"},"periodSeconds":5,"successThreshold":1,"timeoutSeconds":1}

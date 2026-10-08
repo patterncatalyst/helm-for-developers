@@ -99,7 +99,7 @@
     "resources": {"type": "object"},
     "probes": {"type": "object"},
     "podAnnotations": {"type": "object"},
-    "tests": {"type": "object", "properties": {"image": {"type": "string", "minLength": 1}}},
+    "tests": {"type": "object", "properties": {"image": {"type": "string"}}},
     "enabled": {"type": "boolean"},
     "global": {"type": "object"},
     "pc-lib": {"type": "object"}

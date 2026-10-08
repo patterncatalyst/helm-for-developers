@@ -12,8 +12,13 @@ spec:
   securityContext:
     {{- include "pc-lib.podSecurityContext" . | nindent 4 }}
   containers:
-    - name: curl
-      image: {{ .Values.tests.image | quote }}
-      command: ["curl", "-fsS", "--max-time", "10", "http://{{ include "pc-lib.fullname" . }}:{{ .Values.service.port }}/healthz"]
+    - name: probe
+      image: {{ default (include "pc-lib.image" .) .Values.tests.image | quote }}
+      command:
+        - python
+        - -c
+        - >-
+          import urllib.request as u;
+          u.urlopen("http://{{ include "pc-lib.fullname" . }}:{{ .Values.service.port }}/healthz", timeout=10).read()
       securityContext:
         {{- include "pc-lib.containerSecurityContext" . | nindent 8 }}

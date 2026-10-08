@@ -94,6 +94,7 @@ probes:
 podAnnotations: {}
 
 tests:
-  image: registry.access.redhat.com/ubi10/ubi-minimal:latest
+  # Empty: probe from the chart's own image (numeric USER 1001, so runAsNonRoot verifies).
+  image: ""
 
 global: {}

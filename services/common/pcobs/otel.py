@@ -65,7 +65,11 @@ def setup(service_name: str, version: str = "0.1.0", environment: str = "local")
 
 
 def _instrument_asyncpg() -> None:
-    from opentelemetry.instrumentation.asyncpg import AsyncPGInstrumentor
+    try:
+        import asyncpg  # noqa: F401  (absent in services that do not use Postgres)
+        from opentelemetry.instrumentation.asyncpg import AsyncPGInstrumentor
+    except ImportError:
+        return
 
     AsyncPGInstrumentor().instrument()
 
