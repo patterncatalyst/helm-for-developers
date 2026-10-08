@@ -117,7 +117,7 @@ Chart-created Secrets put the token in values and in the release record. That is
 | [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) | An encrypted `SealedSecret` | In the cluster, by the controller | Same: the controller produces a Secret the chart references |
 | [SOPS with helm-secrets](https://github.com/jkroepke/helm-secrets) | Encrypted values files | On the client, before `helm` runs | A client-side plugin |
 
-The first three leave Helm unchanged and rely on `existingSecret`, which is why the pattern is worth building into every chart. The SOPS route is a Helm plugin. The helm-secrets README states support for Helm 3.9 and later and does not mention Helm 4, so its behavior under Helm 4's plugin system is not verified in this book. Check the plugin's release notes before depending on it, and see chapter 22 for how Helm 4 loads plugins.
+The first three leave Helm unchanged and rely on `existingSecret`, which is why the pattern is worth building into every chart. The SOPS route is a Helm plugin. The helm-secrets README states support for Helm 3.9 and later and does not mention Helm 4, so its behavior under Helm 4's plugin system is only partly verified in this book. On 2026-10-08 `helm plugin install https://github.com/jkroepke/helm-secrets` was refused with "plugin source does not support verification", and with `--verify=false` it installed on Helm 4.3.0 as plugin `secrets` 4.8.0-dev of type `getter/v1`. Decrypting a SOPS file was not tested. Check the plugin's release notes before depending on it, and see chapter 22 for how Helm 4 loads plugins.
 
 ## Cross-check
 
@@ -146,4 +146,4 @@ Chapter 09 adds the first dependency: a Postgres subchart, and the Secret wiring
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. A live run must confirm that a ConfigMap change replaces the pods, that writes return 401 without the token and succeed with it, that `auth.generate=true` keeps the same token across `helm upgrade`, and that `existingSecret` produces a working `secretKeyRef`.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/08-config-secrets.txt`. Observed on Helm 4.3.0: writes returned 401 without the token and 201 with it, a ConfigMap change replaced the pods, `auth.generate=true` kept the same token across an upgrade, `existingSecret` rendered no Secret and authenticated with its value, and `helm get values` printed the token. helm-secrets installed under Helm 4.3.0 with `--verify=false` but decrypting with SOPS was not tested.*

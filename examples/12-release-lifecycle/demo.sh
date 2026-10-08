@@ -79,15 +79,25 @@ full() {
     helm upgrade "$REL" "$CHART" -n "$NS" --wait --timeout 3m || echo "upgrade stopped on a field-manager conflict (rc=$?)"
     helm upgrade "$REL" "$CHART" -n "$NS" --force-conflicts --wait --timeout 3m
     kubectl -n "$NS" get deployment "$FULL" -o jsonpath='{.spec.replicas}{"\n"}'
+    kubectl -n "$NS" get deployment "$FULL" --show-managed-fields -o jsonpath='{range .metadata.managedFields[*]}{.manager} {.operation}{"\n"}{end}'
 
     step "9. adopt an object Helm did not create with --take-ownership"
     kubectl -n "$NS" create configmap "$FULL-extra" --from-literal=purpose=precreated
     helm upgrade "$REL" "$CHART" -n "$NS" --set extras.configMap=true --wait --timeout 3m || echo "upgrade refused to adopt (rc=$?)"
-    helm upgrade "$REL" "$CHART" -n "$NS" --set extras.configMap=true --take-ownership --wait --timeout 3m
+    # --take-ownership lifts the ownership-metadata check; the pre-created object's data is owned by
+    # another field manager (kubectl-create), so server-side apply also needs --force-conflicts.
+    helm upgrade "$REL" "$CHART" -n "$NS" --set extras.configMap=true --take-ownership --wait --timeout 3m || echo "take-ownership alone stopped on a field conflict (rc=$?)"
+    helm upgrade "$REL" "$CHART" -n "$NS" --set extras.configMap=true --take-ownership --force-conflicts --wait --timeout 3m
     kubectl -n "$NS" get configmap "$FULL-extra" -o jsonpath='{.metadata.annotations}{"\n"}'
 
-    step "10. --force-replace recreates objects instead of patching them"
-    helm upgrade "$REL" "$CHART" -n "$NS" --set extras.configMap=true --force-replace --wait --timeout 3m
+    step "10. --force-replace updates objects by replacement instead of patching them"
+    # Replacement is a client-side strategy: with server-side apply Helm 4 stops with
+    # "cannot use server-side apply and force replace together".
+    helm upgrade "$REL" "$CHART" -n "$NS" --set extras.configMap=true --force-replace --wait --timeout 3m || echo "force-replace with server-side apply is rejected (rc=$?)"
+    uid_before="$(kubectl -n "$NS" get configmap "$FULL-extra" -o jsonpath='{.metadata.uid}')"
+    helm upgrade "$REL" "$CHART" -n "$NS" --set extras.configMap=true --server-side=false --force-replace --wait --timeout 3m
+    helm get metadata "$REL" -n "$NS" | grep APPLY_METHOD
+    echo "ConfigMap uid before $uid_before, after $(kubectl -n "$NS" get configmap "$FULL-extra" -o jsonpath='{.metadata.uid}')"
 
     step "11. --history-max keeps the revision list short"
     helm history "$REL" -n "$NS"

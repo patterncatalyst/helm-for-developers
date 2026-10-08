@@ -91,6 +91,17 @@ Ask the cluster who installed the CRD and what it holds, independent of Helm:
 
 The second command prints `0`, matching the live CRD before the manual apply. The `managedFields` list shows which clients wrote the object, and after the `kubectl apply` step it gains a `kubectl-client-side-apply` entry.
 
+Observed after the full run on Helm 4.3.0 (`_plans/evidence/10-crds-operators.txt`):
+
+```text
+managers: [helm, kube-apiserver, kubectl-client-side-apply]
+helm                       -> Apply
+kube-apiserver             -> Update
+kubectl-client-side-apply  -> Update
+```
+
+`kubectl apply` on the CRD that Helm created succeeded without a field conflict. It printed one warning, `resource customresourcedefinitions/shippingroutes.shipping.patterncatalyst.io is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply`, then `configured`, and the property list gained `priority`.
+
 ## What you learned
 
 - Operators and their CRDs are platform-owned. An application chart ships custom resources, and ships a CRD only for an API it defines.
@@ -107,4 +118,4 @@ Chapter 11 adds the migration Job, and with it the first real conflict between H
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. A live run must confirm that `helm upgrade` leaves the CRD unchanged, `kubectl apply` updates it, and `helm uninstall` keeps the CRD and the sample object.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/10-crds-operators.txt`. Observed on Helm 4.3.0: `helm upgrade` left the CRD unchanged, `kubectl apply` updated it without a conflict and added `kubectl-client-side-apply` to `managedFields`, `helm uninstall` kept the CRD and the sample object, the lint guard printed `level=INFO msg="funcMap fail"` with 0 failures, and the guard passed on a cluster with the CNPG operator.*

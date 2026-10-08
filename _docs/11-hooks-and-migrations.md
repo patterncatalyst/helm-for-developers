@@ -36,7 +36,29 @@ Error: release platform failed, and has been uninstalled due to rollback-on-fail
 context deadline exceeded
 ```
 
-(`--rollback-on-failure` explains "uninstalled" on a first install. Chapter 12 covers it.) The fix was to point the readiness probe at `/health`, which does not touch the database. The other way out is a `pre-install` hook, which runs before the resources and so never waits on readiness. That works only when the database already exists. Here the `Cluster` and its `shipping-postgres-app` Secret are created by the same release, so a `pre-install` Job cannot start: its pod references a Secret that does not exist yet. `./demo.sh preinstall` reproduces that, and the Job waits until Helm's timeout.
+(`--rollback-on-failure` explains "uninstalled" on a first install. Chapter 12 covers it.) `./demo.sh deadlock` reproduces the same failure at example scale. It omits `--rollback-on-failure`, so the release stays in the `failed` state, and after 90 seconds it printed:
+
+```text
+Release "shipping" does not exist. Installing it now.
+Error: resource Deployment/hfd-11/shipping-shipping-service not ready. status: InProgress, message: Available: 0/1
+context deadline exceeded
+install failed as expected (rc=1)
+NAME                                         READY   STATUS    RESTARTS   AGE
+shipping-postgres-1                          1/1     Running   0          86s
+shipping-shipping-service-755c7f94cd-bksx4   0/1     Running   0          90s
+```
+
+`kubectl get jobs` returned nothing, because the hook never started, the namespace events showed `Readiness probe failed: HTTP probe failed with statuscode: 503`, and `helm status` reported `STATUS: failed`. The fix was to point the readiness probe at `/health`, which does not touch the database. The other way out is a `pre-install` hook, which runs before the resources and so never waits on readiness. That works only when the database already exists. Here the `Cluster` and its `shipping-postgres-app` Secret are created by the same release, so a `pre-install` Job cannot start: its pod references a Secret that does not exist yet. `./demo.sh preinstall` reproduces that, and the Job waits until Helm's timeout. After 90 seconds it printed:
+
+```text
+Error: failed pre-install: resource Job/hfd-11/shipping-shipping-service-migrate not ready. status: InProgress, message: Job in progress
+context deadline exceeded
+install failed as expected (rc=1)
+NAME                                      READY   STATUS                       RESTARTS   AGE
+shipping-shipping-service-migrate-fqcp9   0/1     CreateContainerConfigError   0          90s
+```
+
+The pod event names the cause: `Error: secret "shipping-postgres-app" not found`. No Deployment, Service or CNPG `Cluster` exists at that point, because a failed pre-install hook stops the release before it applies them, so the Secret never appears.
 
 | Placement | Works when | Breaks when |
 |---|---|---|
@@ -75,7 +97,19 @@ LAST SEEN   TYPE     REASON             OBJECT                          MESSAGE
 11m         Normal   Completed          job/platform-shipping-migrate   Job completed
 ```
 
-In that capture the Job created three pods before it completed, and the logs of the earlier pods were not kept, so the cause of the retries is not recorded. A later upgrade produced a second Job that completed after one pod. `shipping.schema_migrations` then lists versions 1 and 2. `./demo.sh deadlock` and `./demo.sh preinstall` each end with a timeout error after 90 seconds.
+The standalone run behaves the same way: the install Job created two pods (`9xxcn`, then `fxcpq`), and the second completed. Watching a repeat install showed why. The first pod's log ended with `ConnectionRefusedError: [Errno 111] Connect call failed ('10.106.152.53', 5432)`: Helm's wait treated the CNPG `Cluster` as ready before the PostgreSQL instance accepted connections, the migration container failed, and the Job's `backoffLimit: 3` started a second pod that logged `migrate applied V1__create_shipments.sql` and `V2__unique_order_id.sql`. The retry is the Job's backoff doing its job, not an error to fix. The events below span the end of the install and the following upgrade with `warm.enabled=true`; in the upgrade Helm ran the migration Job (weight 0) before the warm Job (weight 10):
+
+```text
+LAST SEEN   TYPE     REASON             OBJECT                                  MESSAGE
+10s         Normal   SuccessfulCreate   job/shipping-shipping-service-migrate   Created pod: shipping-shipping-service-migrate-fxcpq
+8s          Normal   Completed          job/shipping-shipping-service-migrate   Job completed
+7s          Normal   SuccessfulCreate   job/shipping-shipping-service-migrate   Created pod: shipping-shipping-service-migrate-g5qsw
+4s          Normal   Completed          job/shipping-shipping-service-migrate   Job completed
+4s          Normal   SuccessfulCreate   job/shipping-shipping-service-warm      Created pod: shipping-shipping-service-warm-nhqb6
+1s          Normal   Completed          job/shipping-shipping-service-warm      Job completed
+```
+
+The upgrade's migration Job completed after one pod. `shipping.schema_migrations` then lists versions 1 and 2.
 
 ## Cross-check
 
@@ -100,4 +134,4 @@ Chapter 12 uses the same chart to walk the failure paths of `helm upgrade`.
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. A live run must confirm the post-install migration succeeds under `--wait`, the warm hook runs after the migration, and `deadlock` and `preinstall` fail as described.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/11-hooks-migrations.txt`. Observed on Helm 4.3.0: the post-install migration succeeded under `--wait`, the Job was deleted on success and `shipping.schema_migrations` held versions 1 and 2, the warm hook ran after the migration, `deadlock` failed with `context deadline exceeded` and no Job, and `preinstall` failed with `secret "shipping-postgres-app" not found` (evidence also in `_plans/evidence/11-hooks-migrations-deadlock.txt` and `-preinstall.txt`).*

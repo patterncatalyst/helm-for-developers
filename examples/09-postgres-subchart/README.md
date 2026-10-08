@@ -31,4 +31,4 @@ The live run needs the helm4dev cluster with the CloudNativePG operator (`script
 
 ## Verification status
 
-`unverified`. A live run must confirm: the CNPG `Cluster` becomes healthy under `--wait`, the app pod starts against it, the manual migration succeeds, and `POST /api/shipments` returns 201 with the row stored in Postgres.
+`verified` on 2026-10-08 (`_plans/evidence/09-postgres-subchart.txt`): `--wait` succeeded with the CNPG `Cluster`, the pod authenticated with the generated `shipping-postgres-app` Secret, the manual migration and a POST stored a row, the `import-values` names matched the live Service and Secret, `helm lint` failed without `--set postgres.host`, and `helm template` rendered the packaged copy until `helm dependency build` was rerun.

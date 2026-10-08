@@ -127,4 +127,4 @@ Chapter 08 adds the configuration and secret handling that the service needs to 
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. A live run must confirm that `helm get notes` prints the notes, that the Service has one endpoint, and that all resources carry the recommended labels.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/07-helpers-notes.txt`. Observed on Helm 4.3.0: `helm get notes` printed the notes, the Service had one endpoint, every resource carried the recommended labels, a 54-character release name was rejected, and a chart `version` bump rolled the pods.*

@@ -16,4 +16,4 @@ The live run builds `shipping-service:0.1.0` with `scripts/build-images.sh` and 
 
 ## Verification status
 
-unverified. A live run must confirm: `kubectl apply` rolls out one ready pod and `/api/info` returns `storage: memory`.
+`verified` on 2026-10-08 (`_plans/evidence/03-raw-manifests.txt`): The manifests rolled out one ready pod, `/api/info` returned `storage: memory`, the pod ran with the non-root `securityContext` and a read-only root filesystem, and re-applying a changed image tag created a second ReplicaSet while the old one kept serving.

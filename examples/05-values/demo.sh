@@ -31,7 +31,7 @@ live() {
   helm list -n "$NS"
   kubectl -n "$NS" get deploy,svc,cm
   "$REPO_ROOT/scripts/tunnel.sh" start shipping
-  curl -s http://127.0.0.1:8080/api/info; echo
+  curl -s --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:8080/api/info; echo
   helm upgrade shipping "$CHART" -n "$NS" -f values-dev.yaml -f values-prod.yaml --wait
   helm get values shipping -n "$NS" --all | head -20
   helm upgrade shipping "$CHART" -n "$NS" --reset-then-reuse-values --set config.logLevel=ERROR --wait

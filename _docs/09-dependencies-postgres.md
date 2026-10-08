@@ -114,4 +114,4 @@ Chapter 10 looks at what happens when the CRD behind that `Cluster` is missing, 
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. A live run must confirm that `--wait` succeeds with the CNPG `Cluster`, that the pod authenticates with the generated Secret, and that the manual migration followed by a POST stores a row.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/09-postgres-subchart.txt`. Observed on Helm 4.3.0: `--wait` succeeded with the CNPG `Cluster`, the pod authenticated with the generated `shipping-postgres-app` Secret, the manual migration and a POST stored a row, the `import-values` names matched the live Service and Secret, `helm lint` failed without `--set postgres.host`, and `helm template` rendered the packaged copy until `helm dependency build` was rerun.*

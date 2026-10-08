@@ -50,7 +50,7 @@ full() {
     # in the app container, which already has the PG_* environment.
     kubectl -n "$NS" exec "deploy/$FULL" -- python -m app.migrate
     "$REPO_ROOT/scripts/tunnel.sh" start shipping
-    curl -s http://127.0.0.1:8080/api/info; echo
+    curl -s --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:8080/api/info; echo
     curl -s -X POST http://127.0.0.1:8080/api/shipments -H 'Content-Type: application/json' \
         -d '{"orderId": 1001, "address": "1 Main St, Springfield"}'; echo
     curl -s 'http://127.0.0.1:8080/api/shipments?orderId=1001'; echo

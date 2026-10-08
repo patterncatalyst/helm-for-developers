@@ -16,4 +16,4 @@ The live run builds `shipping-service:0.1.0` with `scripts/build-images.sh` and 
 
 ## Verification status
 
-unverified. A live run must confirm: layered `-f` files apply in order, and `helm get values --all` shows the merged result.
+`verified` on 2026-10-08 (`_plans/evidence/05-values.txt`): The prod upgrade gave 3 replicas, `helm get values --all` showed the merged values, `--reset-then-reuse-values` kept the overrides and took a new chart default while `--reuse-values` did not, and the `--set` family and schema checks behaved as described.

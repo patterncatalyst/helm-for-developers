@@ -119,7 +119,7 @@ Uninstalling removes the revision Secrets along with the workload. To keep them,
 [host]$ helm list -n hfd-04 --uninstalled
 ```
 
-The release then shows as `uninstalled` and `helm history` still works. Run `./demo.sh clean` to remove the release and namespace.
+The release then shows as `uninstalled` and `helm history` still works. On Helm 4.3.0 a plain `helm list -n hfd-04` also listed the uninstalled release in the live run, so do not rely on the default listing to hide it. Run `./demo.sh clean` to remove the release and namespace.
 
 ## Cross-check
 
@@ -148,4 +148,4 @@ Chapter 05 gives the chart a designed values interface, a schema and per-environ
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. A live run must confirm the three revisions in `helm history` (rollback creates revision 3), one `sh.helm.release.v1.shipping.vN` Secret per revision, and that `--keep-history` leaves an `uninstalled` release.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/04-first-chart.txt`. Observed on Helm 4.3.0: `helm history` showed revisions 1, 2 and 3 (3 = `Rollback to 1`), one `sh.helm.release.v1.shipping.vN` Secret per revision, `--keep-history` left an `uninstalled` release, the Deployment fields were owned by manager `helm` (apply), and the history cap held at 10.*

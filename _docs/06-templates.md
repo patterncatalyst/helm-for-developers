@@ -141,4 +141,4 @@ Chapter 07 moves the repeated names and labels into named templates and adds `NO
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. A live run must confirm that the `tpl` annotation reaches the running pod with the install namespace, and that `helm template --dry-run=server` returns the live object from `lookup`.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/06-templates.txt`. Observed on Helm 4.3.0: the `tpl` annotation reached the running pod with the install namespace, `required` fired only with schema validation skipped, and `lookup` returned an empty map under `helm template` and `--dry-run=client` but the live object under `--dry-run=server` (observed with the chapter 08 chart, `_plans/evidence/08-config-secrets.txt`).*

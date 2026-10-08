@@ -27,4 +27,4 @@ values-postgres.yaml                            post-install,post-upgrade hooks,
 
 ## Verification status
 
-`unverified`. A live run must confirm the successful post-install migration, the warm hook ordering after the migration (weight 0 before 10), and the exact failure of both `deadlock` and `preinstall`.
+`verified` on 2026-10-08 (`_plans/evidence/11-hooks-migrations.txt`): The post-install migration succeeded under `--wait`, the Job was deleted on success and `shipping.schema_migrations` held versions 1 and 2, the warm hook ran after the migration, `deadlock` failed with `context deadline exceeded` and no Job, and `preinstall` failed with `secret "shipping-postgres-app" not found` (evidence also in `_plans/evidence/11-hooks-migrations-deadlock.txt` and `-preinstall.txt`).

@@ -1,0 +1,85 @@
+$ ./demo.sh
+==> engine=docker mode=build tag=0.1.0
+==> shipping-service:0.1.0
+==> notification-service:0.1.0
+==> images in the profile:
+docker.io/library/shipping-service:0.1.0
+docker.io/library/notification-service:0.1.0
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "open-telemetry" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "grafana" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Deleting outdated charts
+--- install: Helm applies crds/ first
+Release "shipping" does not exist. Installing it now.
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 10:54:20 2026
+NAMESPACE: hfd-10
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+shipping-shipping-service 0.1.0 installed as release "shipping" in namespace hfd-10.
+Storage: memory
+Reach the service:
+  [host]$ kubectl -n hfd-10 get svc shipping-shipping-service
+NAME                                         CREATED AT
+shippingroutes.shipping.patterncatalyst.io   2026-10-08T14:54:20Z
+spec properties now: ['carrier', 'destination', 'origin']
+shippingroute.shipping.patterncatalyst.io/springfield-express created
+NAME                  CARRIER     DESTINATION
+springfield-express   ACME-Post   Springfield
+--- upgrade with a changed CRD: Helm does not touch it
+Release "shipping" has been upgraded. Happy Helming!
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 10:54:23 2026
+NAMESPACE: hfd-10
+STATUS: deployed
+REVISION: 2
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+NOTES:
+shipping-shipping-service 0.1.0 installed as release "shipping" in namespace hfd-10.
+Storage: memory
+Reach the service:
+  [host]$ kubectl -n hfd-10 get svc shipping-shipping-service
+spec properties after upgrade: ['carrier', 'destination', 'origin']
+--- the supported path for CRD changes is kubectl apply
+Warning: resource customresourcedefinitions/shippingroutes.shipping.patterncatalyst.io is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resou
+customresourcedefinition.apiextensions.k8s.io/shippingroutes.shipping.patterncatalyst.io configured
+spec properties after kubectl apply: ['carrier', 'destination', 'origin', 'priority']
+--- uninstall leaves the CRD and its custom resources
+release "shipping" uninstalled
+NAME                                         CREATED AT
+shippingroutes.shipping.patterncatalyst.io   2026-10-08T14:54:20Z
+NAME                  CARRIER     DESTINATION
+springfield-express   ACME-Post   Springfield
+remove everything with: ./demo.sh clean
+exit=0
+--- managedFields managers (after demo)
+helm kube-apiserver kubectl-client-side-apply
+helm Apply
+kube-apiserver Update
+kubectl-client-side-apply Update
+helm show crds | grep -c priority: 0
+--- lint with postgres values, no --set
+[INFO] Chart.yaml: icon is recommended
+[ERROR] values.yaml: - at '': 'allOf' failed
+  - at '/postgres': missing property 'host'
+
+
+Error: 1 chart(s) linted, 1 chart(s) failed
+--- live cluster with CNPG: helm template --dry-run=server, no --api-versions
+kind: Cluster
+--- helm template (client) without api-versions
+Error: execution error at (shipping-service/charts/shipping-postgres/templates/cluster.yaml:2:4): shipping-postgres needs the CloudNativePG operator: the API postgresql.cnpg.io/v1 is not served by this cluster. Install the operator (scripts/platform/bootstrap.sh), set requireOperator=false to skip this check, or pass --api-versions postgresql.cnpg.io/v1 to helm template.
+--- lint with postgres values and --set postgres.host (guard, API not declared to lint)
+level=INFO msg="funcMap fail" message="shipping-postgres needs the CloudNativePG operator: the API postgresql.cnpg.io/v1 is not served by this cluster. Install the operator (scripts/platform/bootstrap.sh), set requireOperator=false to skip this check, or pass --api-versions postgresql.cnpg.io/v1 to helm template."
+==> Linting shipping-service
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed

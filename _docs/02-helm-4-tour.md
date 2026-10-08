@@ -128,4 +128,4 @@ Chapter 03 returns to the shipping service and deploys it as raw manifests, so y
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. A live run must confirm the `deployed` status with two ready pods, the `sh.helm.release.v1.podinfo.v1` Secret, `podcli check http` succeeding in-pod, and removal of the Secret on uninstall.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/02-helm-tour.txt`. The install reached `deployed` with two ready pods, the `sh.helm.release.v1.podinfo.v1` Secret existed and was gone after uninstall, `podcli check http` returned 200 in-pod, and `helm get manifest` matched the live Deployment (2 replicas, image `ghcr.io/stefanprodan/podinfo:6.15.0`).*

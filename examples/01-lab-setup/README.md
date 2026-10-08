@@ -22,4 +22,4 @@ Python 3.14 note: the service images currently build on CPython 3.14.8 (fallback
 
 ## Verification status
 
-`unverified`. A live run must confirm the full run exits 0 from a deleted profile, that `cluster-status.sh` reports healthy, and that the global Helm 3 still reports its original version.
+Partially verified on 2026-10-08 (`_plans/evidence/01-lab-setup.txt`): preflight passes, `cluster-status.sh` reports healthy, global Helm 3 unchanged. The from-scratch run from a deleted profile was not repeated.

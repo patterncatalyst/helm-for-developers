@@ -1,0 +1,108 @@
+$ ./demo.sh  (second run, after adding curl retry; first run lost the race on the first curl, exit 56)
+==> Linting ./shipping-service
+[INFO] Chart.yaml: icon is recommended
+1 chart(s) linted, 0 chart(s) failed
+Summary: 3 resources found parsing stdin - Valid: 3, Invalid: 0, Errors: 0, Skipped: 0
+schema rejects bad type and unknown key
+  replicas: 5
+  LOG_LEVEL: "DEBUG"
+==> engine=docker mode=build tag=0.1.0
+==> shipping-service:0.1.0
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/8wwk9br88d1f24057ix31cmrp
+==> images in the profile:
+docker.io/library/shipping-service:0.1.0
+docker.io/library/notification-service:0.1.0
+Release "shipping" does not exist. Installing it now.
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 10:44:23 2026
+NAMESPACE: hfd-05
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NAME    	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART                 	APP VERSION
+shipping	hfd-05   	1       	2026-10-08 10:44:23.017989549 -0400 EDT	deployed	shipping-service-0.5.0	0.1.0      
+NAME                                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/shipping-shipping-service   1/1     1            1           3s
+NAME                                TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+service/shipping-shipping-service   NodePort   10.100.211.183   <none>        8080:30080/TCP   3s
+NAME                                  DATA   AGE
+configmap/kube-root-ca.crt            1      3s
+configmap/shipping-shipping-service   6      3s
+    ok: shipping      127.0.0.1:8080 -> node:30080
+    stop with: scripts/tunnel.sh stop
+{"service":"shipping-shipping-service","version":"0.1.0","environment":"dev","defaultCarrier":"ACME-Post","storage":"memory","kafkaEnabled":false}
+Release "shipping" has been upgraded. Happy Helming!
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 10:44:26 2026
+NAMESPACE: hfd-05
+STATUS: deployed
+REVISION: 2
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+COMPUTED VALUES:
+config:
+  defaultCarrier: ACME-Post
+  environment: prod
+  logLevel: WARNING
+  storage: memory
+containerPort: 8080
+image:
+  pullPolicy: IfNotPresent
+  repository: shipping-service
+  tag: ""
+probes:
+  liveness:
+    path: /health
+    periodSeconds: 10
+  readiness:
+    path: /healthz
+    periodSeconds: 5
+  startup:
+    failureThreshold: 30
+Release "shipping" has been upgraded. Happy Helming!
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 10:44:36 2026
+NAMESPACE: hfd-05
+STATUS: deployed
+REVISION: 3
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+exit=0
+--- after prod upgrade + reset-then-reuse
+replicas=3
+LOG_LEVEL=ERROR
+  logLevel: ERROR
+replicaCount: 3
+--- reuse-values vs new default
+reuse-values: brandNewDefault count in --all = 0
+reset-then-reuse: brandNewDefault: fresh
+replicas=3
+LOG_LEVEL=ERROR
+--- set flags
+shipping-service:
+- at '/image/tag': got number, want string
+
+          image: "shipping-service:12345"
+  SHIPPING_DEFAULT_CARRIER: "ACME,Post"
+  SHIPPING_DEFAULT_CARRIER: "line\n"
+  SHIPPING_STORAGE: "memory"
+--- schema draft
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+- at '/replicaCount': got string, want integer
+
+
+Error: 1 chart(s) linted, 1 chart(s) failed
+--- 2020-12 scratch chart
+  "$schema": "https://json-schema.org/2020-12/schema",
+shipping-service:
+failing loading "https://json-schema.org/2020-12/schema": HTTP request to https://json-schema.org/2020-12/schema returned status 404 (Not Found)
+
+Error: 1 chart(s) linted, 1 chart(s) failed
+--- 2020-12 canonical URI
+- at '/replicaCount': got string, want integer
+
+
+Error: 1 chart(s) linted, 1 chart(s) failed

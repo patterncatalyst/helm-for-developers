@@ -16,4 +16,4 @@ The live run builds `shipping-service:0.1.0` with `scripts/build-images.sh` and 
 
 ## Verification status
 
-unverified. A live run must confirm: writes return 401 without the token and 201 with it, a ConfigMap change replaces the pods, and a generated token survives `helm upgrade`.
+`verified` on 2026-10-08 (`_plans/evidence/08-config-secrets.txt`): Writes returned 401 without the token and 201 with it, a ConfigMap change replaced the pods, `auth.generate=true` kept the same token across an upgrade, `existingSecret` rendered no Secret and authenticated with its value, and `helm get values` printed the token. helm-secrets installed under Helm 4.3.0 with `--verify=false` but decrypting with SOPS was not tested.

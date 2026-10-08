@@ -52,7 +52,7 @@ full() {
     helm upgrade "$REL" "$CHART" -n "$NS" -f values-postgres.yaml --set warm.enabled=true --wait --timeout 5m
     kubectl -n "$NS" get events --field-selector "involvedObject.kind=Job" --sort-by=.lastTimestamp
     "$REPO_ROOT/scripts/tunnel.sh" start shipping
-    curl -s -X POST http://127.0.0.1:8080/api/shipments -H 'Content-Type: application/json' \
+    curl -s --retry 10 --retry-all-errors --retry-delay 1 -X POST http://127.0.0.1:8080/api/shipments -H 'Content-Type: application/json' \
         -d '{"orderId": 1001, "address": "1 Main St, Springfield"}'; echo
     echo "clean up with: ./demo.sh clean"
 }
@@ -73,7 +73,7 @@ preinstall() {
     # The pre-install hook runs before the CNPG Cluster and its -app Secret exist, so the
     # Job pod cannot start and Helm waits for the Job until the timeout.
     helm upgrade --install "$REL" "$CHART" -n "$NS" --create-namespace -f values-postgres.yaml \
-        --set migration.hooks=pre-install,pre-upgrade --timeout 90s || echo "install failed as expected (rc=$?)"
+        --set-literal migration.hooks=pre-install,pre-upgrade --timeout 90s || echo "install failed as expected (rc=$?)"
     kubectl -n "$NS" get pods
 }
 

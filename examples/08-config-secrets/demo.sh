@@ -41,7 +41,7 @@ live() {
   helm list -n "$NS"
   kubectl -n "$NS" get deploy,svc,cm
   "$REPO_ROOT/scripts/tunnel.sh" start shipping
-  curl -s http://127.0.0.1:8080/api/info; echo
+  curl -s --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:8080/api/info; echo
   # Writes need the dev token; reads do not.
   curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:8080/api/shipments -H 'Content-Type: application/json' -d '{"orderId":1,"address":"1 Main St"}'
   curl -s -X POST http://127.0.0.1:8080/api/shipments -H 'Authorization: Bearer dev-token' -H 'Content-Type: application/json' -d '{"orderId":1,"address":"1 Main St"}'; echo

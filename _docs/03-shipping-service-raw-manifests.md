@@ -110,4 +110,4 @@ Chapter 04 turns these three files into a chart named `shipping-service` and ins
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. A live run must confirm that the applied manifests roll out one ready pod, that `/api/info` reports `storage: memory`, and that the pod is admitted with the non-root security context.*
+*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/03-raw-manifests.txt`. Observed on Helm 4.3.0: the manifests rolled out one ready pod, `/api/info` returned `storage: memory`, the pod ran with the non-root `securityContext` and a read-only root filesystem, and re-applying a changed image tag created a second ReplicaSet while the old one kept serving.*

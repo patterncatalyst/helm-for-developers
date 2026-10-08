@@ -128,4 +128,4 @@ Chapter 02 uses this lab to install a public chart and tours what changed from H
 
 ---
 
-*Verification status: <span class="status status--unverified">unverified</span>. A live run must confirm a from-scratch `./demo.sh` exits 0, `cluster-status.sh` reports healthy, and the global Helm 3 is unchanged afterwards.*
+*Verification status: <span class="status status--unverified">partially verified</span> on 2026-10-08, evidence `_plans/evidence/01-lab-setup.txt`. Observed on the live `helm4dev` profile: `./demo.sh offline` preflight passes, `cluster-status.sh` reports the platform healthy, the global Helm still reports v3.18.3, `helm env` and `helm plugin list` match the text, and the service image runs Python 3.14.8. The from-scratch run (delete the profile, then `./demo.sh`) was not repeated.*

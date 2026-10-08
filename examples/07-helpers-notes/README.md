@@ -16,4 +16,4 @@ The live run builds `shipping-service:0.1.0` with `scripts/build-images.sh` and 
 
 ## Verification status
 
-unverified. A live run must confirm: `helm get notes` prints the NOTES and every resource carries the recommended labels.
+`verified` on 2026-10-08 (`_plans/evidence/07-helpers-notes.txt`): `helm get notes` printed the notes, the Service had one endpoint, every resource carried the recommended labels, a 54-character release name was rejected, and a chart `version` bump rolled the pods.

@@ -21,4 +21,4 @@ Installs the public `podinfo` chart from `oci://ghcr.io/stefanprodan/charts/podi
 
 ## Verification status
 
-`unverified`. A live run must confirm the install reaches `deployed` with two ready pods, that `podcli check http` succeeds inside a pod, and that uninstall removes the release Secret.
+`verified` on 2026-10-08 (`_plans/evidence/02-helm-tour.txt`): install reached `deployed` with two ready pods, `podcli check http` succeeded in-pod, uninstall removed the release Secret.

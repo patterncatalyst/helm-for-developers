@@ -60,7 +60,7 @@ full() {
     kubectl -n "$NS" get shippingroute
 
     echo "--- upgrade with a changed CRD: Helm does not touch it"
-    local work; work="$(mktemp -d)"; trap 'rm -rf "$work"' EXIT
+    work="$(mktemp -d)"; trap 'rm -rf "${work:-}"' EXIT
     cp -a "$CHART" shipping-postgres "$work/"
     cp shippingroute-v2.crd.yaml "$work/$CHART/crds/shippingroute.yaml"
     helm upgrade "$REL" "$work/$CHART" -n "$NS" --wait --timeout 5m

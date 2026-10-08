@@ -20,10 +20,10 @@ Snapshot after chapter 12: the chapter 11 charts plus an `extras.configMap` togg
 6. `helm get values|manifest|notes|metadata|hooks|all`.
 7. Decode the `sh.helm.release.v1.*` Secret by hand.
 8. Server-side apply conflict with another field manager, then `--force-conflicts`.
-9. Adopt a pre-existing ConfigMap with `--take-ownership`.
-10. `--force-replace`.
+9. Adopt a pre-existing ConfigMap with `--take-ownership --force-conflicts`.
+10. `--force-replace` (needs `--server-side=false`).
 11. The final `helm history`.
 
 ## Verification status
 
-`unverified`. A live run must confirm every step's outcome, in particular: the history rows after steps 3 and 4, that step 4 deletes only the new ConfigMap, the conflict message in step 8, and the refusal then adoption in step 9.
+`verified` on 2026-10-08 (`_plans/evidence/12-release-lifecycle.txt`): all eleven steps ran end to end. Step 9 needs `--force-conflicts` with `--take-ownership` when another field manager owns differing fields, and step 10 needs `--server-side=false`.

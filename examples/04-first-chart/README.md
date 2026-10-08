@@ -16,4 +16,4 @@ The live run builds `shipping-service:0.1.0` with `scripts/build-images.sh` and 
 
 ## Verification status
 
-unverified. A live run must confirm: install, upgrade to 2 replicas, rollback to revision 1, and one `sh.helm.release.v1.shipping.vN` Secret per revision.
+`verified` on 2026-10-08 (`_plans/evidence/04-first-chart.txt`): `helm history` showed revisions 1, 2 and 3 (3 = `Rollback to 1`), one `sh.helm.release.v1.shipping.vN` Secret per revision, `--keep-history` left an `uninstalled` release, the Deployment fields were owned by manager `helm` (apply), and the history cap held at 10.

@@ -1,0 +1,39 @@
+$ ./demo.sh preinstall
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "open-telemetry" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "grafana" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Deleting outdated charts
+Release "shipping" does not exist. Installing it now.
+Error: failed pre-install: resource Job/hfd-11/shipping-shipping-service-migrate not ready. status: InProgress, message: Job in progress
+context deadline exceeded
+install failed as expected (rc=1)
+NAME                                      READY   STATUS                       RESTARTS   AGE
+shipping-shipping-service-migrate-fqcp9   0/1     CreateContainerConfigError   0          90s
+exit=0
+--- jobs and pods
+NAME                                          STATUS    COMPLETIONS   DURATION   AGE
+job.batch/shipping-shipping-service-migrate   Running   0/1           90s        90s
+
+NAME                                          READY   STATUS                       RESTARTS   AGE
+pod/shipping-shipping-service-migrate-fqcp9   0/1     CreateContainerConfigError   0          90s
+--- events (namespace)
+LAST SEEN   TYPE      REASON             OBJECT                                        MESSAGE
+90s         Normal    Scheduled          pod/shipping-shipping-service-migrate-fqcp9   Successfully assigned hfd-11/shipping-shipping-service-migrate-fqcp9 to helm4dev
+90s         Normal    SuccessfulCreate   job/shipping-shipping-service-migrate         Created pod: shipping-shipping-service-migrate-fqcp9
+9s          Normal    Pulled             pod/shipping-shipping-service-migrate-fqcp9   Container image "shipping-service:0.1.0" already present on machine and can be accessed by the pod
+9s          Warning   Failed             pod/shipping-shipping-service-migrate-fqcp9   Error: secret "shipping-postgres-app" not found
+--- helm status
+NAME: shipping
+LAST DEPLOYED: Thu Oct  8 10:58:11 2026
+NAMESPACE: hfd-11
+STATUS: failed
+REVISION: 1
+DESCRIPTION: Release "shipping" failed: failed pre-install: resource Job/hfd-11/shipping-shipping-service-migrate not ready. status: InProgress, message: Job in progress
+context deadline exceeded
+TEST SUITE: None
+REVISION	UPDATED                 	STATUS	CHART                  	APP VERSION	DESCRIPTION                                                                                                                                                 
+1       	Thu Oct  8 10:58:11 2026	failed	shipping-service-0.11.0	0.1.0      	Release "shipping" failed: failed pre-install: resource Job/hfd-11/shipping-shipping-service-migrate not ready. status: InProgress, message: Job in progr...
