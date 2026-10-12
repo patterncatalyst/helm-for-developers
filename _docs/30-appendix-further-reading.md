@@ -8,13 +8,15 @@ duration: 10 minutes
 
 This page collects every book cited in the tutorial, one line each, and the official sources for everything Helm 4 changed. The split follows one rule. Books are cited for concepts Helm 4 left unchanged. Anything Helm 4 changed, which is most of what the command line does, comes from the official documentation.
 
+> **About these books.** These are books we recommend, not books we wrote. We cite them as pointers into the originals; we do not copy from them, and this material is not a substitute for reading them. If a title is useful to you, please go read it in full.
+
 ## Scope of the Helm books
 
 Two books are about Helm itself, and both were written for Helm 3. *Learning Helm* and *Managing Kubernetes Resources Using Helm* teach chart anatomy, values, templating, helpers, dependencies and library charts well, and those parts apply to Helm 4 unchanged. They predate Helm 4's flags and behavior, so do not use them for `--rollback-on-failure`, `--force-replace`, server-side apply, the kstatus wait, plugins, post-renderers, OCI commands or `helm registry login`. Use [chapter 28]({{ '/docs/28-appendix-helm3-to-helm4/' | relative_url }}) and the official sources below for those. *Managing Kubernetes Resources Using Helm* is also cited here for chart-testing and Argo CD concepts, not for commands.
 
 The *CKAD Study Guide* has a Helm section written for Helm 3, which is not cited. Its `securityContext` and probe material is cited. *Kubernetes: Up and Running* is cited for Kubernetes objects and not for its Helm section.
 
-## Books
+## References
 
 - Matt Butcher, Matt Farina, Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: chart anatomy, values, templating, helpers, dependencies, library charts, hooks and the repository concept.
 - Andrew Block and Austin Dewey, *Managing Kubernetes Resources Using Helm, 2nd ed.* (Packt, 2022), ISBN 9781803242897. Used here for: templating, dependencies, chart-testing concepts and Argo CD concepts.
