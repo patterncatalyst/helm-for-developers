@@ -13,7 +13,7 @@ The code is in `examples/21-signing/`. `./demo.sh offline` runs the lint, render
 {% include excalidraw.html
    file="21-trust-chain"
    alt="Diagram: two chains over the same chart. Top: the tgz is signed by helm package --sign into a .prov file and checked by helm verify. Bottom: the pushed OCI manifest digest is signed by cosign sign and checked by cosign verify"
-   caption="Figure 21.1 — Helm provenance covers the archive bytes; cosign covers the registry manifest digest" %}
+   caption="Figure 21.1: Helm provenance covers the archive bytes; cosign covers the registry manifest digest" %}
 
 ## Two signatures, two things covered
 

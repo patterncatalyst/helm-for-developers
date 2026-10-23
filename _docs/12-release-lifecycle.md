@@ -13,7 +13,7 @@ The code is in `examples/12-release-lifecycle/`. `./demo.sh offline` needs no cl
 {% include excalidraw.html
    file="12-upgrade-failure-paths"
    alt="Flowchart of helm upgrade: render and apply, then wait; success supersedes the old revision, a timeout marks the revision failed, and the failed path leads to cleanup-on-fail, rollback-on-failure or a manual rollback, with history-max pruning old revisions"
-   caption="Figure 12.1 — The paths out of a helm upgrade" %}
+   caption="Figure 12.1: The paths out of a helm upgrade" %}
 
 ## Revisions live in Secrets
 

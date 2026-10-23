@@ -13,7 +13,7 @@ The code is in `examples/19-packaging-repos/`. `./demo.sh offline` lints, render
 {% include excalidraw.html
    file="19-semver-chart-vs-app"
    alt="Diagram: Chart.yaml version, appVersion and dependencies feed helm package, which writes shipping-service-1.0.0.tgz; helm repo index builds index.yaml next to it and a python http.server serves both to helm repo add"
-   caption="Figure 19.1 — Chart.yaml fields into a package, an index and a served repository" %}
+   caption="Figure 19.1: Chart.yaml fields into a package, an index and a served repository" %}
 
 ## Two version numbers, two meanings
 

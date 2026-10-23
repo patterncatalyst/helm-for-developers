@@ -13,7 +13,7 @@ The code is in `examples/18-starters/`. The `demo.sh` there installs and runs it
 {% include excalidraw.html
    file="18-starter-flow"
    alt="Diagram: helm create --starter copies the pc-fastapi starter from the Helm data directory into charts/inventory-service, rewrites Chart.yaml, replaces the chart name placeholder and also copies pc-lib-dependency.yaml, which is appended to Chart.yaml before helm dependency build packs pc-lib"
-   caption="Figure 18.1 — From starter to a buildable chart" %}
+   caption="Figure 18.1: From starter to a buildable chart" %}
 
 ## How starters work
 

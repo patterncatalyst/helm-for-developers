@@ -13,7 +13,7 @@ The code is in `examples/16-umbrella/`. The `demo.sh` there installs and runs it
 {% include excalidraw.html
    file="16-umbrella-topology"
    alt="Diagram: the shipping-platform umbrella contains shipping and notification application subcharts and db and kafka infrastructure subcharts; global values flow to all of them and import-values carries the database host, Secret name and Kafka bootstrap address up into the application values"
-   caption="Figure 16.1 — The umbrella: aliases, switches, global values and imported values" %}
+   caption="Figure 16.1: The umbrella: aliases, switches, global values and imported values" %}
 
 ## What the umbrella adds
 

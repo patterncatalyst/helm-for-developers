@@ -13,7 +13,7 @@ The code is in `examples/20-oci/`. `./demo.sh offline` packages without a regist
 {% include excalidraw.html
    file="20-oci-flow"
    alt="Diagram: a packaged chart is pushed with helm push into an OCI registry, where a manifest points at a config layer and a chart layer and optionally a provenance layer; helm pull, helm install by digest and helm dependency update read it back"
-   caption="Figure 20.1 — What helm push stores in a registry and who reads it back" %}
+   caption="Figure 20.1: What helm push stores in a registry and who reads it back" %}
 
 ## What a registry holds
 
