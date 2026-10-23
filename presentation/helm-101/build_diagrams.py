@@ -1,5 +1,5 @@
 """
-build_diagrams.py — build deck diagrams (SVG + Excalidraw + PNG).
+build_diagrams.py: build deck diagrams (SVG + Excalidraw + PNG).
 
 Usage:
     python3 build_diagrams.py
