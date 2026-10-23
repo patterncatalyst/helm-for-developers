@@ -10,8 +10,8 @@ const {
   addStatusTable, addCaption, addCodeSlide, addSectionDivider, addNotes, patchSlide,
 } = H;
 
-const OUT = "Helm-101-r1.1.pptx";
-const REV = "r1.1";
+const OUT = "Helm-101-r1.2.pptx";
+const REV = "r1.2";
 
 const pres = newDeck();
 pres.title = "Helm for Developers 101";

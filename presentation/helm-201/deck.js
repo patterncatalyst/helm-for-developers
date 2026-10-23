@@ -10,8 +10,8 @@ const {
   addStatusTable, addCaption, addCodeSlide, addDiagramSlide, addSectionDivider, addNotes, patchSlide,
 } = H;
 
-const OUT = "Helm-201-r1.1.pptx";
-const REV = "r1.1";
+const OUT = "Helm-201-r1.2.pptx";
+const REV = "r1.2";
 
 const pres = newDeck();
 pres.title = "Helm for Developers 201";
@@ -38,7 +38,7 @@ function leadBullets(slide, items, opts = {}) {
   items.forEach((b) => {
     const para = { fontFace: FONT.body, fontSize, bullet: { code: "25CF", indent: 24 }, paraSpaceBefore: 4, paraSpaceAfter: 13 };
     runs.push({ text: b.lead, options: { ...para, bold: true, color: COLOR.ink } });
-    runs.push({ text: " — " + b.text, options: { fontFace: FONT.body, fontSize, color: COLOR.body, breakLine: true } });
+    runs.push({ text: ": " + b.text, options: { fontFace: FONT.body, fontSize, color: COLOR.body, breakLine: true } });
   });
   slide.addText(runs, { x, y, w, h, valign: "top", margin: 0, lineSpacingMultiple: 1.12 });
 }
