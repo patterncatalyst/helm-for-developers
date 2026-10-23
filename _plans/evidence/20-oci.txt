@@ -38,8 +38,8 @@ Time:        57.572562ms
 
 
 == package
-Successfully packaged chart and saved it to: /home/rsedor/Dev/helm-for-developers/examples/20-oci/.work/pkg/shipping-service-1.0.0.tgz
-Successfully packaged chart and saved it to: /home/rsedor/Dev/helm-for-developers/examples/20-oci/.work/pkg/pc-lib-1.0.0.tgz
+Successfully packaged chart and saved it to: <repo>/examples/20-oci/.work/pkg/shipping-service-1.0.0.tgz
+Successfully packaged chart and saved it to: <repo>/examples/20-oci/.work/pkg/pc-lib-1.0.0.tgz
 
 == start local registries (docker)
 
@@ -69,7 +69,7 @@ Pulled: 127.0.0.1:5001/charts/shipping-service:1.0.0
 Digest: sha256:348d363d079961e37c4804cb9359e3a6e576b7e405e8cabe8379610729188168
 
 == the chart layer digest equals the sha256 of the .tgz (the manifest digest does not)
-79ffaf39850f8ef9db88a6295fe430504f3ada29fd73eb2340f0c2c2170bc7cd  /home/rsedor/Dev/helm-for-developers/examples/20-oci/.work/pull/shipping-service-1.0.0.tgz
+79ffaf39850f8ef9db88a6295fe430504f3ada29fd73eb2340f0c2c2170bc7cd  <repo>/examples/20-oci/.work/pull/shipping-service-1.0.0.tgz
 manifest digest: sha256:348d363d079961e37c4804cb9359e3a6e576b7e405e8cabe8379610729188168
 
 == pull by digest

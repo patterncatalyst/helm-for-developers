@@ -11,7 +11,7 @@ OpenShift:       Running (v4.22.14)
 RAM Usage:       9.063GB of 20.96GB
 Disk Usage:      26.14GB of 85.29GB (Inside the CRC VM)
 Cache Usage:     28.81GB
-Cache Directory: /home/rsedor/.crc/cache
+Cache Directory: ~/.crc/cache
 $ oc get nodes
 NAME   STATUS   ROLES                         AGE   VERSION
 crc    Ready    control-plane,master,worker   23d   v1.35.6
@@ -335,11 +335,11 @@ pod/shipping-postgres-1                               1/1     Terminating   0   
 
 # ---- Kafka apiVersion check against the installed operator (Strimzi 1.2.0 serves v1 only) ----
 $ helm template ... --set kafka.strimzi.apiVersion=kafka.strimzi.io/v1beta2 | oc apply --dry-run=server -f -  (Kafka kinds only)
-resource mapping not found for name: "shipping-kafka" namespace: "" from "/tmp/claude-1000/-home-rsedor-Dev/0dea024d-0bf0-4ae5-bddd-7dec0cf60b22/scratchpad/kafka-v1beta2.yaml": no matches for kind "Kafka" in version "kafka.strimzi.io/v1beta2"
+resource mapping not found for name: "shipping-kafka" namespace: "" from "/tmp/claude-1000/-home-user-Dev/0dea024d-0bf0-4ae5-bddd-7dec0cf60b22/scratchpad/kafka-v1beta2.yaml": no matches for kind "Kafka" in version "kafka.strimzi.io/v1beta2"
 ensure CRDs are installed first
-resource mapping not found for name: "dual" namespace: "" from "/tmp/claude-1000/-home-rsedor-Dev/0dea024d-0bf0-4ae5-bddd-7dec0cf60b22/scratchpad/kafka-v1beta2.yaml": no matches for kind "KafkaNodePool" in version "kafka.strimzi.io/v1beta2"
+resource mapping not found for name: "dual" namespace: "" from "/tmp/claude-1000/-home-user-Dev/0dea024d-0bf0-4ae5-bddd-7dec0cf60b22/scratchpad/kafka-v1beta2.yaml": no matches for kind "KafkaNodePool" in version "kafka.strimzi.io/v1beta2"
 ensure CRDs are installed first
-resource mapping not found for name: "shipment.dispatched" namespace: "" from "/tmp/claude-1000/-home-rsedor-Dev/0dea024d-0bf0-4ae5-bddd-7dec0cf60b22/scratchpad/kafka-v1beta2.yaml": no matches for kind "KafkaTopic" in version "kafka.strimzi.io/v1beta2"
+resource mapping not found for name: "shipment.dispatched" namespace: "" from "/tmp/claude-1000/-home-user-Dev/0dea024d-0bf0-4ae5-bddd-7dec0cf60b22/scratchpad/kafka-v1beta2.yaml": no matches for kind "KafkaTopic" in version "kafka.strimzi.io/v1beta2"
 ensure CRDs are installed first
 $ oc get packagemanifest amq-streams (not installed): stable channel -> amqstreams.v3.2.1-14
 

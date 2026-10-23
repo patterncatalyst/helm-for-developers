@@ -17,7 +17,7 @@ All of this comes from read-only investigation done on 2026-10-08. The coordinat
 - podman 5.8.7.
 - docker 29.8.2 (real Docker).
 - node v22.22.2, with `pptxgenjs@4.0.1` installed globally.
-- gh 2.102.0, authenticated as **patterncatalyst**. Git identity is `PatternCatalyst <rsedor@patterncatalyst.io>`.
+- gh 2.102.0, authenticated as **patterncatalyst**. Git identity is `PatternCatalyst` with the project address.
 - go 1.26.8, gpg 2.4.9, skopeo.
 - soffice and pdftoppm. 24 Red Hat font files are installed.
 - ruby 4.0.7, bundler 4.0.20.
@@ -660,13 +660,13 @@ Sources consulted for version facts:
 - `gh release list` for helm/helm, chart-testing, helm-unittest, kubeconform, helm-diff, cosign
 
 ### Critical Files for Implementation
-- /home/rsedor/Dev/datamesh-reference-arch-python/examples/lgtm-datamesh/services/shipping-service/app/main.py (plus config.py, db.py)
-- /home/rsedor/Dev/observability-python-otel-lgtm/services/common/obs/otel.py (plus kafka.py, kafka_propagation.py, services/Containerfile)
-- /home/rsedor/Dev/datamesh-reference-arch-python/examples/lgtm-datamesh/charts/capstone/charts/{postgres,kafka,shipping-service}/templates/
-- /home/rsedor/Dev/modernizing-enterprise-applications/examples/06-shipping-service/src/main/resources/db/migration/V1__create_shipments_table.sql (plus Shipment.java, ShipmentDispatched.java)
-- /home/rsedor/Dev/patterncatalyst-workshops-tutorials-list/scripts/gen-books.py (plus _data/books.yml, _data/book_categories.yml, _data/sites.yml, CLAUDE.md)
-- /home/rsedor/.claude/skills/lgtm-minikube-stack/templates/bootstrap.sh.template (plus setup-profile, setup-postgres-operator, setup-kafka-operator, setup-lgtm.sh)
-- /home/rsedor/.claude/skills/lgtm-tutorial/references/chapter-template.md and /home/rsedor/.claude/skills/lgtm-jekyll/assets/site-template/
+- ~/Dev/datamesh-reference-arch-python/examples/lgtm-datamesh/services/shipping-service/app/main.py (plus config.py, db.py)
+- ~/Dev/observability-python-otel-lgtm/services/common/obs/otel.py (plus kafka.py, kafka_propagation.py, services/Containerfile)
+- ~/Dev/datamesh-reference-arch-python/examples/lgtm-datamesh/charts/capstone/charts/{postgres,kafka,shipping-service}/templates/
+- ~/Dev/modernizing-enterprise-applications/examples/06-shipping-service/src/main/resources/db/migration/V1__create_shipments_table.sql (plus Shipment.java, ShipmentDispatched.java)
+- ~/Dev/patterncatalyst-workshops-tutorials-list/scripts/gen-books.py (plus _data/books.yml, _data/book_categories.yml, _data/sites.yml, CLAUDE.md)
+- ~/.claude/skills/lgtm-minikube-stack/templates/bootstrap.sh.template (plus setup-profile, setup-postgres-operator, setup-kafka-operator, setup-lgtm.sh)
+- ~/.claude/skills/lgtm-tutorial/references/chapter-template.md and ~/.claude/skills/lgtm-jekyll/assets/site-template/
 
 ## User decisions (2026-10-08)
 1. Base image: UBI10 ubi-minimal + uv-installed CPython 3.15.0; fallbacks F1 (3.14 same build) then F2 (ubi9/python-314), recorded, never silent. No Docker Hub python base.

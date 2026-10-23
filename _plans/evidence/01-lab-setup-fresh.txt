@@ -5,7 +5,7 @@
 === scripts/platform/teardown.sh --yes (start 2026-10-08T16:02:05-04:00)
 * Deleting "helm4dev" in docker ...
 * Deleting container "helm4dev" ...
-* Removing /home/rsedor/.minikube/machines/helm4dev ...
+* Removing ~/.minikube/machines/helm4dev ...
 * Removed all traces of the "helm4dev" cluster.
 Profile helm4dev deleted.
 === rc=0 elapsed=5s
@@ -504,4 +504,4 @@ strimzi         strimzi-cluster-operator-b65c68c4b-k8f2p   1/1     Running     0
 === datamesh untouched (still Stopped above)
 === helm version / command -v helm
 v4.3.0+gbec5b06
-/home/rsedor/Dev/helm-for-developers/.tools/bin/helm
+<repo>/.tools/bin/helm

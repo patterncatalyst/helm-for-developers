@@ -36,14 +36,14 @@ Snapshot:    0 passed, 0 total
 Time:        58.192658ms
 
 
-== throwaway GPG key in /home/rsedor/Dev/helm-for-developers/.tools/gnupg
-gpg: revocation certificate stored as '/home/rsedor/Dev/helm-for-developers/.tools/gnupg/openpgp-revocs.d/5C8806E8A82BEB633E686D01347E76042118BA20.rev'
+== throwaway GPG key in <repo>/.tools/gnupg
+gpg: revocation certificate stored as '<repo>/.tools/gnupg/openpgp-revocs.d/5C8806E8A82BEB633E686D01347E76042118BA20.rev'
 
 == helm package --sign against the default (kbx) keyring fails
 Error: provided key is not a private key. Try providing a keyring with secret keys
 
 == helm package --sign with the legacy keyring
-Successfully packaged chart and saved it to: /home/rsedor/Dev/helm-for-developers/examples/21-signing/.work/signed/shipping-service-1.0.0.tgz
+Successfully packaged chart and saved it to: <repo>/examples/21-signing/.work/signed/shipping-service-1.0.0.tgz
 shipping-service-1.0.0.tgz
 shipping-service-1.0.0.tgz.prov
 files:
@@ -77,7 +77,7 @@ Using Key With Fingerprint: 5C8806E8A82BEB633E686D01347E76042118BA20
 Chart Hash Verified: sha256:79ffaf39850f8ef9db88a6295fe430504f3ada29fd73eb2340f0c2c2170bc7cd
 
 == an unsigned chart in the same registry is refused by --verify
-Successfully packaged chart and saved it to: /home/rsedor/Dev/helm-for-developers/examples/21-signing/.work/unsigned/shipping-service-1.0.5.tgz
+Successfully packaged chart and saved it to: <repo>/examples/21-signing/.work/unsigned/shipping-service-1.0.5.tgz
 Pushed: 127.0.0.1:5001/unsigned/shipping-service:1.0.5
 Digest: sha256:7212583df15c8e7370409af9a9aa9d65c5766b02fcf6afffdd1c8191cb734d4e
 Pulled: 127.0.0.1:5001/unsigned/shipping-service:1.0.5
