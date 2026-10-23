@@ -504,4 +504,4 @@ strimzi         strimzi-cluster-operator-b65c68c4b-k8f2p   1/1     Running     0
 === datamesh untouched (still Stopped above)
 === helm version / command -v helm
 v4.3.0+gbec5b06
-~/Dev/helm-for-developers/.tools/bin/helm
+<repo>/.tools/bin/helm

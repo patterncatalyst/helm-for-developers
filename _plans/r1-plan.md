@@ -17,7 +17,7 @@ All of this comes from read-only investigation done on 2026-10-08. The coordinat
 - podman 5.8.7.
 - docker 29.8.2 (real Docker).
 - node v22.22.2, with `pptxgenjs@4.0.1` installed globally.
-- gh 2.102.0, authenticated as **patterncatalyst**. Git identity is `PatternCatalyst <rsedor@patterncatalyst.io>`.
+- gh 2.102.0, authenticated as **patterncatalyst**. Git identity is `PatternCatalyst` with the project address.
 - go 1.26.8, gpg 2.4.9, skopeo.
 - soffice and pdftoppm. 24 Red Hat font files are installed.
 - ruby 4.0.7, bundler 4.0.20.

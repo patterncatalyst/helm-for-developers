@@ -1,0 +1,7 @@
+# Public-value exemptions only; nothing here identifies the development machine.
+skip = ["scripts/host_ids.py"]
+
+[allow]
+# Chart.yaml maintainers[].email is the project's published contact address
+# (the same address as the public git identity). Rewriting it would break it.
+account = ["charts/*/Chart.yaml", "examples/*Chart.yaml", "examples/*/Chart.yaml"]

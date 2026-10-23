@@ -36,9 +36,9 @@ Snapshot:    0 passed, 0 total
 Time:        57.954945ms
 
 
-== package 1.0.0 into ~/Dev/helm-for-developers/examples/19-packaging-repos/.work/repo
-Successfully packaged chart and saved it to: ~/Dev/helm-for-developers/examples/19-packaging-repos/.work/repo/shipping-service-1.0.0.tgz
-Successfully packaged chart and saved it to: ~/Dev/helm-for-developers/examples/19-packaging-repos/.work/repo/shipping-service-1.1.0-rc.1.tgz
+== package 1.0.0 into <repo>/examples/19-packaging-repos/.work/repo
+Successfully packaged chart and saved it to: <repo>/examples/19-packaging-repos/.work/repo/shipping-service-1.0.0.tgz
+Successfully packaged chart and saved it to: <repo>/examples/19-packaging-repos/.work/repo/shipping-service-1.1.0-rc.1.tgz
 
 == repo index
     appVersion: 0.1.0
@@ -51,7 +51,7 @@ Successfully packaged chart and saved it to: ~/Dev/helm-for-developers/examples/
     digest: 79ffaf39850f8ef9db88a6295fe430504f3ada29fd73eb2340f0c2c2170bc7cd
     - http://127.0.0.1:8088/shipping-service-1.0.0.tgz
     version: 1.0.0
-79ffaf39850f8ef9db88a6295fe430504f3ada29fd73eb2340f0c2c2170bc7cd  ~/Dev/helm-for-developers/examples/19-packaging-repos/.work/repo/shipping-service-1.0.0.tgz
+79ffaf39850f8ef9db88a6295fe430504f3ada29fd73eb2340f0c2c2170bc7cd  <repo>/examples/19-packaging-repos/.work/repo/shipping-service-1.0.0.tgz
 
 == serve the repository on 127.0.0.1:8088
 "hfd-local" has been added to your repositories

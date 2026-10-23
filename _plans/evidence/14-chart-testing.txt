@@ -100,7 +100,7 @@ Version increment checking disabled.
 Linting chart "shipping-service => (version: \"0.14.0\", path: \"/tmp/tmp.Ci8faOoOYg/charts/shipping-service\")"
 Validating /tmp/tmp.Ci8faOoOYg/charts/shipping-service/Chart.yaml...
 Validation failed!
-Error validating data '/tmp/tmp.Ci8faOoOYg/charts/shipping-service/Chart.yaml' with schema '~/Dev/helm-for-developers/.tools/ct/chart_schema.yaml'
+Error validating data '/tmp/tmp.Ci8faOoOYg/charts/shipping-service/Chart.yaml' with schema '<repo>/.tools/ct/chart_schema.yaml'
 	owner: Unexpected element
 
 ==> Build the image and install with the CI values

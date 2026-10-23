@@ -67,10 +67,10 @@ $ scripts/platform/cluster-status.sh
 --- global helm (no env.sh)
 v3.18.3+g6838ebc
 --- helm env
-HELM_CACHE_HOME="~/Dev/helm-for-developers/.tools/helm/cache"
-HELM_CONFIG_HOME="~/Dev/helm-for-developers/.tools/helm/config"
-HELM_DATA_HOME="~/Dev/helm-for-developers/.tools/helm/data"
-HELM_PLUGINS="~/Dev/helm-for-developers/.tools/helm/plugins"
+HELM_CACHE_HOME="<repo>/.tools/helm/cache"
+HELM_CONFIG_HOME="<repo>/.tools/helm/config"
+HELM_DATA_HOME="<repo>/.tools/helm/data"
+HELM_PLUGINS="<repo>/.tools/helm/plugins"
 NAME    	VERSION	TYPE  	APIVERSION	PROVENANCE	SOURCE 
 diff    	3.15.15	cli/v1	legacy    	unknown   	unknown
 unittest	1.2.1  	cli/v1	legacy    	unknown   	unknown

@@ -25,3 +25,15 @@ A Jekyll/GitHub Pages tutorial, "Helm for Developers", in the lgtm-jekyll house 
 bundle exec jekyll serve --baseurl ""
 scripts/validate-site.sh
 ```
+
+## Publishing rule: nothing identifies the machine or its owner
+
+The repo is public, so no tracked file may name the development machine, its owner or anything that helps locate or attack it later:
+
+- No absolute home-directory path (the Linux or macOS home tree), no account name, no hostname. Write `<repo>/...` or `~/...` (`~/.kube/config`, `~/.minikube/...`).
+- No laptop model (DMI `product_name` is `redacted`), no CPU model or model number. The CPU is a class ("Intel 8-core/16-thread laptop CPU").
+- No host kernel build number or build date: give `major.minor` and the preempt model.
+- No `/etc/machine-id`, DMI serial or UUID, MAC or IP address, `root=UUID=` or `BOOT_IMAGE`.
+- Captured output is scrubbed before it is committed: `python3 scripts/host_ids.py filter < raw.log > evidence.txt`, or `host_ids.py scrub <dir>` on a directory. Helm and kubectl print absolute paths (`helm package`, `helm env`, `make` directory lines), so evidence files need it.
+- `python3 scripts/host_ids.py check` runs in CI (`host-ids` workflow) and fails the build on a hit.
+- `.host-scrub.toml` holds the exemptions. Prefer `[allow_match]` (a public value, matched wherever it appears: a container image default account, a distribution kernel pin) over `[allow]` (whole files by path). The one path allow is `Chart.yaml`, whose `maintainers[].email` is the project's published contact address. Never put this machine's own values in that file.

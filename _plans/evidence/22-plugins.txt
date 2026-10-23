@@ -6,9 +6,9 @@ $ ./demo.sh   # exit 0
 
 1 chart(s) linted, 0 chart(s) failed
 == wasm-hello: build with GOOS=wasip1
-make: Entering directory '~/Dev/helm-for-developers/examples/22-plugins/plugins/wasm-hello'
+make: Entering directory '<repo>/examples/22-plugins/plugins/wasm-hello'
 make: Nothing to be done for 'build'.
-make: Leaving directory '~/Dev/helm-for-developers/examples/22-plugins/plugins/wasm-hello'
+make: Leaving directory '<repo>/examples/22-plugins/plugins/wasm-hello'
 == install both plugins from local directories
 Installing plugin from local directory (development mode)
 Installed plugin: shipping-env
