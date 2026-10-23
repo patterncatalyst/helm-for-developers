@@ -1,0 +1,27 @@
+name: host-ids
+
+# No tracked file may identify the development machine or its owner. No path filter:
+# the check covers every tracked file, so it runs on every pull request and push to main.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-ids:
+    name: host identifiers
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+
+      - name: Self-test and check
+        run: |
+          python3 scripts/host_ids.py self-test
+          python3 scripts/host_ids.py check
