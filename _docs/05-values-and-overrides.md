@@ -125,7 +125,3 @@ Chapter 06 opens the templates and explains the functions already used here: `to
 - Matt Butcher, Matt Farina, Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: the values concept and chart defaults versus overrides.
 - Helm project, "Values Files" and chart best practices, https://helm.sh/docs/chart_best_practices/values/.
 - Helm project, `helm upgrade` reference (`--reuse-values`, `--reset-values`, `--reset-then-reuse-values`), https://helm.sh/docs/helm/helm_upgrade/.
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/05-values.txt`. Observed on Helm 4.3.0: the prod upgrade gave 3 replicas, `helm get values --all` showed the merged values, `--reset-then-reuse-values` kept the overrides and took a new chart default while `--reuse-values` did not, and the `--set` family and schema checks behaved as described. The rule that a bare `helm upgrade` reuses the last release's values was not run; it follows the upgrade code path in the Helm 4.3.0 binary. Re-run on r1.1 with published NodePorts on 2026-10-08 (helm4dev recreated with `HFD_NODE_PORTS`, host requests at `http://127.0.0.1:30080`, no tunnel); the behaviour above held.*

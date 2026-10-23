@@ -160,7 +160,3 @@ Chapter 14 turns these one-off checks into repeatable ones: unit tests, `helm te
 - [helm lint](https://helm.sh/docs/helm/helm_lint/) for `--strict`, and [Debugging templates](https://helm.sh/docs/chart_template_guide/debugging/).
 - [Helm 4 announcement](https://helm.sh/blog/helm-4-released/) and [v4.0.0 release notes](https://github.com/helm/helm/releases/tag/v4.0.0).
 - [helm-diff](https://github.com/databus23/helm-diff), [kubeconform](https://github.com/yannh/kubeconform) and the [datree CRDs-catalog](https://github.com/datreeio/CRDs-catalog).
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/13-debugging.txt`. Observed on Helm 4.3.0 against minikube: `helm diff upgrade` showed the `replicaCount` and `LOG_LEVEL` changes, `helm get manifest` passed kubeconform and listed the same resources as `helm template`, a bad-tag `--wait` upgrade printed `Pending termination: 1` and `context deadline exceeded`, and the string `containerPort` passed both Helm dry-runs but failed `kubectl apply --server-side --dry-run=server`. Re-run on r1.1 on 2026-10-08 on the recreated helm4dev profile; this chapter makes no host requests, so only the cluster changed, and the behaviour above held.*

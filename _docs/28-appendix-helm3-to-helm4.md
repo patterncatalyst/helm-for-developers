@@ -87,7 +87,3 @@ Plugins written for Helm 3 that edit release records, such as the `helm-mapkubea
 - [Path to Releasing Helm v4](https://helm.sh/blog/path-to-helm-v4/): the release plan.
 - [Helm v4.0.0 release notes](https://github.com/helm/helm/releases/tag/v4.0.0): the major change list.
 - [HIP-0026](https://github.com/helm/community/blob/main/hips/hip-0026.md): the plugin system proposal.
-
----
-
-*Verification status: <span class="status status--unverified">unverified</span>. Flag names and defaults were read from Helm 4.3.0 `--help`. The claims about `--force-replace` deprecation warnings, release compatibility between clients, and Helm 3 plugins that edit release state have not been run.*

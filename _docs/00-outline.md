@@ -87,7 +87,3 @@ Chart versions are `0.<chapter>.0` per snapshot until chapter 19 releases `1.0.0
 ## Reading order
 
 Chapters 01 to 12 are the core and should be read in order. Chapters 13 and 14 apply to any chart. Chapters 15 to 18 build on the Postgres work in chapter 09. Chapters 19 to 21 need the umbrella chart from chapter 16. Chapters 22 and 23 are independent of the delivery chapters. Chapter 27 repeats the umbrella deployment on OpenShift Local.
-
-## Verification status
-
-Every chapter ends with a verification footer. A chapter is marked `verified` only after its example has run against a live cluster and the observed effect is recorded as evidence in the repository.

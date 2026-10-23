@@ -124,7 +124,3 @@ Chapter 08 adds the configuration and secret handling that the service needs to 
 
 - Matt Butcher, Matt Farina, Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: named templates, helpers and `_helpers.tpl` conventions.
 - Helm project, "Named Templates" and "Accessing Files Inside Templates", https://helm.sh/docs/chart_template_guide/named_templates/ and https://helm.sh/docs/chart_template_guide/accessing_files/.
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/07-helpers-notes.txt`. Observed on Helm 4.3.0: `helm get notes` printed the notes, the Service had one endpoint, every resource carried the recommended labels, a 54-character release name was rejected, and a chart `version` bump rolled the pods. Re-run on r1.1 with published NodePorts on 2026-10-08 (helm4dev recreated with `HFD_NODE_PORTS`, host requests at `http://127.0.0.1:30080`, no tunnel); the behaviour above held.*

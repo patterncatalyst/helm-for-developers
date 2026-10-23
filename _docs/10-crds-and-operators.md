@@ -115,7 +115,3 @@ Chapter 11 adds the migration Job, and with it the first conflict between Helm's
 - Bilgin Ibryam and Roland Huß, *Kubernetes Patterns, 2nd ed.* (O'Reilly, 2023), ISBN 9781098131678. Used here for: the Operator and Controller patterns and the custom resource model.
 - Helm project, [Custom Resource Definitions best practices](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/). Used here for: `crds/` install-only semantics and the separate-chart pattern.
 - Helm project, [Charts: Custom Resource Definitions](https://helm.sh/docs/topics/charts/#custom-resource-definitions-crds). Used here for: `crds/` limitations and `--skip-crds`.
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/10-crds-operators.txt`. Observed on Helm 4.3.0: `helm upgrade` left the CRD unchanged, `kubectl apply` updated it without a conflict and added `kubectl-client-side-apply` to `managedFields`, `helm uninstall` kept the CRD and the sample object, the lint guard printed `level=INFO msg="funcMap fail"` with 0 failures, and the guard passed on a cluster with the CNPG operator. Re-run on r1.1 on 2026-10-08 on the recreated helm4dev profile; this chapter makes no host requests, so only the cluster changed, and the behaviour above held.*

@@ -68,7 +68,3 @@ The application and several chart patterns are adapted from other Pattern Cataly
 | Promotion, GitOps, observability | 24 to 26 |
 | OpenShift | 27 |
 | Helm 3 to Helm 4 | 28 |
-
----
-
-*Verification status: <span class="status status--unverified">unverified</span>. The identifiers, titles, editions, publication years and author lists match the O'Reilly learning platform catalog entries for all nine books, checked 2026-10-08.*

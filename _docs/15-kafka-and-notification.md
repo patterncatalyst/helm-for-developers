@@ -130,7 +130,3 @@ Chapter 16 combines the four charts into one release.
 
 - [Strimzi overview](https://strimzi.io/docs/operators/latest/overview.html): the Kafka, KafkaNodePool and KafkaTopic resources and the operators that reconcile them.
 - Bilgin Ibryam and Roland Huß, *Kubernetes Patterns, 2nd ed.* (O'Reilly, 2023), ISBN 9781098131678. Used here for: the Operator pattern, a controller reconciling a custom resource.
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/15-kafka-notification.txt`. Observed on Helm 4.3.0, Strimzi 1.2.0 and minikube: the Kafka, KafkaNodePool and KafkaTopic reached Ready on `kafka.strimzi.io/v1`; the dispatched `shipmentId` 1 appeared in `/api/notifications` and in the consumer log; `helm test` passed for both services; a wrong bootstrap address left the new notification pod Running but 0/1 Ready; shipping restarted 3 times when installed concurrently with Kafka and 0 times when installed after it. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; the Strimzi Kafka path and `helm test` passed for both services.*
