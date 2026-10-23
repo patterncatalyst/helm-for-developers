@@ -132,6 +132,20 @@ Compare the rendered manifest with what Helm stored and with what the cluster se
 
 `helm get manifest` prints the YAML recorded in the latest revision. The `kubectl get` output lists the same three names. A resource that appears in one and not the other points to a template that rendered to an empty document or an object created outside Helm.
 
+## Build, run, observe
+
+```bash
+[host]$ cd examples/04-first-chart && ./demo.sh offline
+```
+
+`offline` lints the chart, renders it with `helm template`, validates the result with kubeconform, and prints the file list `helm create` would have generated for comparison, all with no cluster connection.
+
+```bash
+[host]$ ./demo.sh
+```
+
+With the lab from chapter 01 running, the live run installs `shipping` into `hfd-04`, upgrades it to two replicas and rolls it back to revision 1, leaving three revision Secrets (`sh.helm.release.v1.shipping.v1` through `v3`) and the Deployment back on one ready replica owned by field manager `helm`.
+
 ## What you learned
 
 - A chart is a directory: `Chart.yaml`, `values.yaml`, `templates/` and `.helmignore`. `helm create` generates a larger scaffold; a hand-built chart starts from your own manifests.
@@ -145,7 +159,3 @@ Chapter 05 gives the chart a designed values interface, a schema and per-environ
 - Matt Butcher, Matt Farina, Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: chart anatomy, the `Chart.yaml` fields and the `templates/` directory.
 - Helm project, "Charts" and "Advanced Helm Techniques" (release storage backends), https://helm.sh/docs/topics/charts/ and https://helm.sh/docs/topics/advanced/.
 - Helm project, `helm install` reference (`--wait` strategies), https://helm.sh/docs/helm/helm_install/.
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/04-first-chart.txt`. Observed on Helm 4.3.0: `helm history` showed revisions 1, 2 and 3 (3 = `Rollback to 1`), one `sh.helm.release.v1.shipping.vN` Secret per revision, `--keep-history` left an `uninstalled` release, the Deployment fields were owned by manager `helm` (apply), and the history cap held at 10. Re-run on r1.1 with published NodePorts on 2026-10-08 (helm4dev recreated with `HFD_NODE_PORTS`, host requests at `http://127.0.0.1:30080`, no tunnel); the behaviour above held.*

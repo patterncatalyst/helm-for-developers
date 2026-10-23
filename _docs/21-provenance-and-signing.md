@@ -146,7 +146,3 @@ Chapter 22 changes direction and extends Helm itself with plugins.
 - Helm documentation, [Use OCI-based registries](https://helm.sh/docs/topics/registries/).
 - Sigstore documentation, [Signing containers and OCI artifacts](https://docs.sigstore.dev/cosign/signing/signing_with_containers/) and [self-managed keys](https://docs.sigstore.dev/cosign/key_management/signing_with_self-managed_keys/).
 - Sigstore documentation, [Verifying signatures](https://docs.sigstore.dev/cosign/verifying/verify/).
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/21-signing.txt`. Observed on Helm 4.3.0, cosign 3.1.3 and minikube: signing with the default keyring failed, the legacy keyring signed and `helm verify` passed, a tampered archive failed `sha256 sum does not match`, the `.prov` was uploaded as its own layer, `helm pull --verify` and `helm upgrade --install --verify` passed for the signed chart (Ready in `hfd-21`) and failed for an unsigned one, cosign signed and verified by digest and reported `no signatures found` for a moved tag, and the content-cache effect described above was reproduced as a client-side dry run, not a full install, with a warm cache and absent with an empty one. Keyless signing was not run. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; the signing flows passed, including the content-cache caveat (the warm-cache `install --verify` passes, the empty-cache one fails).*

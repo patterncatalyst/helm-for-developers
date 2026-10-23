@@ -106,7 +106,3 @@ Chapter 04 turns these three files into a chart named `shipping-service` and ins
 - Bilgin Ibryam and Roland Huß, *Kubernetes Patterns, 2nd ed.* (O'Reilly, 2023), ISBN 9781098131678. Used here for: the Health Probe, Predictable Demands and Managed Lifecycle patterns.
 - William Denniss, *Kubernetes for Developers* (Manning, 2024), ISBN 9781617297175. Used here for: containerizing an application and configuring probes.
 - Benjamin Muschko, *Certified Kubernetes Application Developer (CKAD) Study Guide, 2nd ed.* (O'Reilly, 2024), ISBN 9781098152857. Used here for: securityContext settings and probes.
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/03-raw-manifests.txt`. Observed on Helm 4.3.0: the manifests rolled out one ready pod, `/api/info` returned `storage: memory`, the pod ran with the non-root `securityContext` and a read-only root filesystem, and re-applying a changed image tag created a second ReplicaSet while the old one kept serving. Re-run on r1.1 with published NodePorts on 2026-10-08 (helm4dev recreated with `HFD_NODE_PORTS`, host requests at `http://127.0.0.1:30080`, no tunnel); the behaviour above held.*

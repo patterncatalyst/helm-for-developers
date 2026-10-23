@@ -183,7 +183,3 @@ Flow control: `if`, `else if`, `else`, `with`, `range`, `define`, `template`, `b
 - [Helm documentation](https://helm.sh/docs/): the command reference and the chart template guide.
 - [Helm 4 overview](https://helm.sh/docs/overview/): what changed from Helm 3.
 - Chapter 28 in this tutorial, for the old-to-new flag map.
-
----
-
-*Verification status: <span class="status status--unverified">unverified</span>. Flag spellings come from Helm 4.3.0 `--help`. Examples were not each executed.*

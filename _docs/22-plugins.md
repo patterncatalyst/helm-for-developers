@@ -172,7 +172,3 @@ The next chapter uses the third plugin type to rewrite manifests after Helm rend
 - Helm plugins overview: <https://helm.sh/docs/plugins/overview/>
 - Using Helm plugins, including `--verify`: <https://helm.sh/docs/plugins/user/>
 - HIP-0026, the Wasm plugin system for Helm 4: <https://github.com/helm/community/blob/main/hips/hip-0026.md>
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/22-plugins.txt`. Observed on Helm 4.3.0: the demo ran end to end; `helm shipping-env shipping -n hfd-22` against a deployed release printed the same env list as the `--chart` form and matched `kubectl get deploy -o yaml`; Helm exported `HELM_BIN`, `HELM_NAMESPACE` and `HELM_PLUGIN_DIR` to the subprocess; `ignoreFlags: true` passed no arguments; `maxPages: 16` failed with the quoted error; `plugin.wasm` rebuilt from an empty `GOPATH`. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; plugins installed into isolated directories and the signature-policy checks passed.*

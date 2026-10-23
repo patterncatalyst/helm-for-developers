@@ -94,7 +94,3 @@ Chapter 19 packages these charts as `1.0.0` and serves them from a repository.
 
 - Oliver et al., *Effective Platform Engineering* (Manning, 2025), ISBN 9781633436497. Used here for: golden paths and self-service templates as platform products.
 - Mauricio Salatino, *Platform Engineering on Kubernetes* (Manning, 2024), ISBN 9781617299322. Used here for: platform capabilities that give teams a paved route to a running service.
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/18-starters.txt`. Observed on Helm 4.3.0 and minikube: `helm create --starter pc-fastapi` found the starter by name in `$HELM_DATA_HOME/starters`, rewrote `Chart.yaml` without dependencies and copied `pc-lib-dependency.yaml`; one file kept `<CHARTNAME>`; the chart failed to render until the dependency was appended; the scaffolded chart installed with `image.repository=shipping-service` and its `helm test` pod reported `Phase: Succeeded`. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; the starter-generated chart rendered and installed.*
