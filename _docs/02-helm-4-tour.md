@@ -125,7 +125,3 @@ Chapter 03 returns to the shipping service and deploys it as raw manifests, so t
 - Matt Butcher, Matt Farina, Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: package-manager concepts, charts, releases and repositories.
 - Helm project, [Helm 4 overview](https://helm.sh/docs/overview/) and [Helm 4 released](https://helm.sh/blog/helm-4-released/): the changes in the table above.
 - Helm project, [Using Helm](https://helm.sh/docs/intro/using_helm/): the install, list and uninstall workflow.
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/02-helm-tour.txt`. The install reached `deployed` with two ready pods, the `sh.helm.release.v1.podinfo.v1` Secret existed and was gone after uninstall, `podcli check http` returned 200 in-pod, and `helm get manifest` matched the live Deployment (2 replicas, image `ghcr.io/stefanprodan/podinfo:6.15.0`). Re-run on r1.1 on 2026-10-08 on the recreated helm4dev profile; this chapter makes no host requests, so only the cluster changed, and the behaviour above held.*

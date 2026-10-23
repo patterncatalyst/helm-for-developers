@@ -117,7 +117,3 @@ The next chapter hands the reconcile loop to Argo CD, which reads the same chart
 - Helmfile 1.8.1 release: <https://github.com/helmfile/helmfile/releases/tag/v1.8.1>
 - Mauricio Salatino, *Platform Engineering on Kubernetes* (Manning, 2024), ISBN 9781617299322. Used here for: promoting one artifact through environments as a platform practice.
 - Oliver et al., *Effective Platform Engineering* (Manning, 2025), ISBN 9781633436497. Used here for: environments and paved-road delivery as platform concerns.
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/24-environments.txt`. Observed on Helm 4.3.0 and Helmfile 1.8.1: offline checks for dev, stage and prod passed; `helmfile -l env=dev sync` installed `platform` in `hfd-24-dev` with `rollbackOnFailure` and `helm test` passed; a pinned digest was pulled and ran; `version:` on a local path was ignored and enforced for an `oci://` chart. Stage and prod were rendered offline only, not installed. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; `./demo.sh pin stage` pushed to `127.0.0.1:5000` and wrote the digest, and `./demo.sh clean` deleted the KafkaTopics before `helmfile destroy` (first live run of that `clean`).*

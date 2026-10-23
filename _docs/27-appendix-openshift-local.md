@@ -6,8 +6,6 @@ description: "Deploy the umbrella chart to OpenShift Local (CRC): the restricted
 duration: 45 minutes
 ---
 
-> **Verified on OpenShift Local 2.64.0 (OpenShift 4.22.14) on 2026-10-08**, both the full and the minimal profile, with community Strimzi 1.2.0 and again with Streams for Apache Kafka 3.2.1. The Developer console Helm view was set up against the published chart repository, but the console's own listing was not opened (details in the console section). Output below is from those runs, with the kubeadmin password and tokens left out.
-
 Chapter 16's umbrella chart already carries two OpenShift decisions: no `runAsUser` in any security context, and a Route template that renders only where the cluster serves `route.openshift.io/v1`. This appendix uses both. The chart does not change. A different values file, a different registry and an operator install path do the work.
 
 The code is in `examples/27-openshift-crc/`. Its `verify-crc.sh` checks the whole path and `CHECKLIST.md` lists the same steps by hand. Commands below run on the CRC machine, shown as `[crc-host]$`.
@@ -319,7 +317,3 @@ The next appendix collects the Helm 3 to Helm 4 changes in one place.
 - [OpenShift Local product page](https://developers.redhat.com/products/openshift-local/overview) and [CRC documentation](https://crc.dev/docs/introducing/): accounts, pull secret, `crc setup` and `crc start`.
 - [OpenShift Container Platform documentation](https://docs.redhat.com/en/documentation/openshift_container_platform/latest): security context constraints, Routes, the internal registry and Helm charts on OpenShift.
 - [Helm 4 overview](https://helm.sh/docs/overview/): `--rollback-on-failure` and the kstatus `--wait`.
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on OpenShift Local 2.64.0 (OpenShift 4.22.14), Helm 4.3.0, 2026-10-08, with both profiles, with community Strimzi 1.2.0 and with Streams for Apache Kafka 3.2.1-14 (evidence: `_plans/evidence/27-openshift-crc.txt`, `_plans/evidence/27-openshift-crc-streams.txt`). The Developer console Helm view is partly verified: the repository resources were accepted, the console pod reads the published index and `helm` lists the six charts from it (`_plans/evidence/27-openshift-crc-console.txt`), but the console's own catalog listing needs a browser login and was not opened.*

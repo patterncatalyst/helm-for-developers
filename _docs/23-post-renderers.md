@@ -159,7 +159,3 @@ The next part moves from extending Helm to running it across environments, start
 - Building a postrenderer plugin: <https://helm.sh/docs/plugins/developer/tutorial-postrenderer-plugin/>
 - Flag reference for the template command: <https://helm.sh/docs/helm/helm_template/>
 - HIP-0026, the Wasm plugin system for Helm 4: <https://github.com/helm/community/blob/main/hips/hip-0026.md>
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/23-post-renderers.txt`. Observed on Helm 4.3.0: `helm install --post-renderer kustomize-postrender` on the cluster put `patterncatalyst.io/post-rendered` on the Deployment, Service, ConfigMap and Secret and the annotation on the pod template, `spec.selector.matchLabels` stayed unchanged, `helm get manifest` carried the label (install and upgrade), two `--post-renderer-args` arrived as `$1` and `$2`, and the missing-annotations Deployment failed the install. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; the post-renderer plugin annotated the rendered objects and the path form was rejected as documented.*

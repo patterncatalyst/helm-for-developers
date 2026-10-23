@@ -138,7 +138,3 @@ Chapter 07 moves the repeated names and labels into named templates and adds `NO
 - Matt Butcher, Matt Farina, Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: Go templates, built-in objects and control structures.
 - Andrew Block and Austin Dewey, *Managing Kubernetes Resources Using Helm, 2nd ed.* (Packt, 2022), ISBN 9781803242897. Used here for: templating functions and flow control.
 - Helm project, "Chart Template Guide", https://helm.sh/docs/chart_template_guide/.
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/06-templates.txt`. Observed on Helm 4.3.0: the `tpl` annotation reached the running pod with the install namespace, `required` fired only with schema validation skipped, and `lookup` returned an empty map under `helm template` and `--dry-run=client` but the live object under `--dry-run=server` (observed with the chapter 08 chart, `_plans/evidence/08-config-secrets.txt`). Re-run on r1.1 with published NodePorts on 2026-10-08 (helm4dev recreated with `HFD_NODE_PORTS`, host requests at `http://127.0.0.1:30080`, no tunnel); the behaviour above held.*

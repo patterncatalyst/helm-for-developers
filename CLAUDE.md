@@ -12,7 +12,7 @@ A Jekyll/GitHub Pages tutorial, "Helm for Developers", in the lgtm-jekyll house 
 - Run `source scripts/env.sh` before any Helm command. Helm 4 lives in `.tools/`; never use or modify the global Helm 3.
 - Check every Helm command and flag against `helm <cmd> --help` from Helm 4. Do not write `--atomic`, `helm upgrade --force`, or a path to `--post-renderer` outside the migration appendix.
 - Cite books only for concepts Helm 4 left unchanged. Helm-4-changed topics cite helm.sh/docs, the release notes or HIPs.
-- Never mark a claim `verified` from a clean exit. Promote only with an evidence file recording the observed effect.
+- Never mark a claim `verified` from a clean exit. Record the observed effect in an evidence file under `_plans/evidence/` and summarize it in `_plans/verification-log.md`. The reader-facing chapters carry a `## Build, run, observe` section (the example's real commands), not a `*Verification status: …*` footer.
 - Write in the lgtm-professional-voice register. The banned vocabulary list is in `CONTRIBUTING.md`.
 - Wrap literal `{{ }}` in `{% raw %}...{% endraw %}`. `_plans/*.md` use `render_with_liquid: false`.
 - Commits follow Conventional Commits with `§NN`, `demo-NN` or `r1.0` scopes. No AI attribution trailers. Do not push or add a remote without the owner's confirmation.

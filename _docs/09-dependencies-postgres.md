@@ -113,7 +113,3 @@ Chapter 10 looks at what happens when the CRD behind that `Cluster` is missing, 
 - Matt Butcher, Matt Farina, Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: chart dependencies, subchart values scoping and `global`.
 - Andrew Block and Austin Dewey, *Managing Kubernetes Resources Using Helm, 2nd ed.* (Packt, 2022), ISBN 9781803242897. Used here for: chart dependencies and conditional subcharts.
 - Bilgin Ibryam and Roland Huß, *Kubernetes Patterns, 2nd ed.* (O'Reilly, 2023), ISBN 9781098131678. Used here for: the Operator pattern behind the CloudNativePG `Cluster`.
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/09-postgres-subchart.txt`. Observed on Helm 4.3.0: `--wait` succeeded with the CNPG `Cluster`, the pod authenticated with the generated `shipping-postgres-app` Secret, the manual migration and a POST stored a row, the `import-values` names matched the live Service and Secret, `helm lint` failed without `--set postgres.host`, and `helm template` rendered the packaged copy until `helm dependency build` was rerun. Re-run on r1.1 with published NodePorts on 2026-10-08 (helm4dev recreated with `HFD_NODE_PORTS`, host requests at `http://127.0.0.1:30080`, no tunnel); the behaviour above held.*

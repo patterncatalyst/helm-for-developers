@@ -120,7 +120,3 @@ Chapter 18 turns this into a scaffold so the next service starts on the library.
 
 - Matt Butcher, Matt Farina, Josh Dolitsky, *Learning Helm* (O'Reilly, 2021), ISBN 9781492083641. Used here for: library charts and named templates.
 - Oliver et al., *Effective Platform Engineering* (Manning, 2025), ISBN 9781633436497. Used here for: shared, opinionated defaults as a platform product.
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/17-library-chart.txt`. Observed on Helm 4.3.0 and minikube: the library-based and copied charts rendered identically apart from the chart label and checksum for both services, with line counts 224 to 16 and 295 to 87; release `platform` installed from the library charts, the shipping and notification Deployments and Services carried `patterncatalyst.io/domain`, `owner` and `data-product`, and `helm test platform` passed. Re-run on r1.1 with published NodePorts (bound to 127.0.0.1) on 2026-10-08: `./demo.sh` exited 0 and `./demo.sh clean` removed the namespace; the library-based umbrella installed and its three release tests passed.*

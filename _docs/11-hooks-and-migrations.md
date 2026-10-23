@@ -131,7 +131,3 @@ Chapter 12 uses the same chart to walk the failure paths of `helm upgrade`.
 - Bilgin Ibryam and Roland Huß, *Kubernetes Patterns, 2nd ed.* (O'Reilly, 2023), ISBN 9781098131678. Used here for: the Init Container pattern.
 - Helm project, [Chart hooks](https://helm.sh/docs/topics/charts_hooks/). Used here for: hook phases, weights and delete policies.
 - Helm community, [HIP-0022, Wait with kstatus](https://github.com/helm/community/blob/main/hips/hip-0022.md). Used here for: the Helm 4 `--wait` watcher.
-
----
-
-*Verification status: <span class="status status--verified">verified</span> on 2026-10-08, evidence `_plans/evidence/11-hooks-migrations.txt`. Observed on Helm 4.3.0: the post-install migration succeeded under `--wait`, the Job was deleted on success and `shipping.schema_migrations` held versions 1 and 2, the warm hook ran after the migration, `deadlock` failed with `context deadline exceeded` and no Job, and `preinstall` failed with `secret "shipping-postgres-app" not found` (evidence also in `_plans/evidence/11-hooks-migrations-deadlock.txt` and `-preinstall.txt`). Re-run on r1.1 with published NodePorts on 2026-10-08 (helm4dev recreated with `HFD_NODE_PORTS`, host requests at `http://127.0.0.1:30080`, no tunnel); the behaviour above held.*
