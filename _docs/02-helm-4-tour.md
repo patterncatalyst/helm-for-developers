@@ -13,7 +13,7 @@ The code is in `examples/02-helm-tour/`. `./demo.sh offline` renders the chart w
 {% include excalidraw.html
    file="02-helm-architecture"
    alt="Diagram in three columns: an OCI registry holding the podinfo chart artifact, the local Helm 4 client with values and a content cache, and a Kubernetes cluster holding the rendered objects and a release record Secret; arrows show pull, apply and record"
-   caption="Figure 2.1 — Helm is a client: it pulls a chart, applies rendered objects and records a release in the cluster" %}
+   caption="Figure 2.1: Helm is a client: it pulls a chart, applies rendered objects and records a release in the cluster" %}
 
 ## What Helm is
 

@@ -13,7 +13,7 @@ The code is in `examples/10-crds-operators/`. `./demo.sh offline` needs no clust
 {% include excalidraw.html
    file="10-crd-ownership"
    alt="Diagram of three layers: the application chart with crds/, templates and an operator guard; the Helm actions install, upgrade and uninstall on crds/; and the platform layer with the CRD in the API server and the operator"
-   caption="Figure 10.1 — Which side owns the CRD, the custom resources and the operator" %}
+   caption="Figure 10.1: Which side owns the CRD, the custom resources and the operator" %}
 
 ## Operators belong to the platform
 

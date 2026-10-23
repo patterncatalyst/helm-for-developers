@@ -10,7 +10,7 @@ Helm ships a fixed set of commands. A plugin adds one without a fork: a director
 
 The code is in `examples/22-plugins/`. Run `./demo.sh` there; its `README.md` lists what it does. Every plugin installs into an isolated directory under the example, not into `.tools/`.
 
-{% include excalidraw.html file="22-plugin-types" alt="A plugin directory holding plugin.yaml and an entry point feeds the Helm 4 plugin loader, which dispatches to the subprocess runtime or the extism Wasm runtime." caption="Figure 22.1 — From a plugin directory to a runtime" %}
+{% include excalidraw.html file="22-plugin-types" alt="A plugin directory holding plugin.yaml and an entry point feeds the Helm 4 plugin loader, which dispatches to the subprocess runtime or the extism Wasm runtime." caption="Figure 22.1: From a plugin directory to a runtime" %}
 
 ## Types and runtimes
 

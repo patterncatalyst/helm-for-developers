@@ -15,7 +15,7 @@ The code is in `examples/27-openshift-crc/`. Its `verify-crc.sh` checks the whol
 {% include excalidraw.html
    file="27-openshift-deploy"
    alt="Diagram of the OpenShift Local deployment: podman pushes images to the internal registry, helm installs release platform, pods run under restricted-v2 with an assigned UID, and a Route with edge TLS reaches the Service"
-   caption="Figure 27.1 — Images, release and traffic path on OpenShift Local" %}
+   caption="Figure 27.1: Images, release and traffic path on OpenShift Local" %}
 
 ## Prerequisites
 

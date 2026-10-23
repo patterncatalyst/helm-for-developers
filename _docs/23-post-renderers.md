@@ -10,7 +10,7 @@ Sometimes the chart is not yours: a platform team needs a label on every object,
 
 The code is in `examples/23-post-renderers/`. Run `./demo.sh` there. The plugin installs into an isolated directory under the example, and `kubectl` must be on `PATH`.
 
-{% include excalidraw.html file="23-post-render-pipeline" alt="Helm renders a chart into one YAML stream, pipes it to the kustomize-postrender plugin on stdin, which runs kubectl kustomize and writes modified YAML to stdout." caption="Figure 23.1 — A post-renderer sits between rendering and use" %}
+{% include excalidraw.html file="23-post-render-pipeline" alt="Helm renders a chart into one YAML stream, pipes it to the kustomize-postrender plugin on stdin, which runs kubectl kustomize and writes modified YAML to stdout." caption="Figure 23.1: A post-renderer sits between rendering and use" %}
 
 ## The contract
 

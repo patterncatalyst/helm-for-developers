@@ -10,7 +10,7 @@ The umbrella chart from chapter 16 already carries `values-dev.yaml`, `values-st
 
 The code is in `examples/24-environments/`. Run `./demo.sh offline` there; its `README.md` lists the other modes.
 
-{% include excalidraw.html file="24-promotion-flow" alt="A chart package and an image digest are built once, then promoted through dev, stage and prod. Each environment layers its own values file and pin file and installs into its own namespace, and helmfile.yaml records the versions." caption="Figure 24.1 — Build once, promote by editing pins" %}
+{% include excalidraw.html file="24-promotion-flow" alt="A chart package and an image digest are built once, then promoted through dev, stage and prod. Each environment layers its own values file and pin file and installs into its own namespace, and helmfile.yaml records the versions." caption="Figure 24.1: Build once, promote by editing pins" %}
 
 ## What an environment is
 

@@ -10,7 +10,7 @@ Telemetry is configuration. The services already export traces, metrics and logs
 
 The code is in `examples/26-observability/`. Run `./demo.sh offline` there; the full run needs the LGTM stack from `scripts/platform/setup-lgtm.sh`. The example is the complete umbrella, namespace `hfd-26`, release `platform`.
 
-{% include excalidraw.html file="26-telemetry-path" alt="Shipping and notification services in namespace hfd-26 send OTLP to the OpenTelemetry Collector in namespace observability, which routes traces to Tempo, logs to Loki and metrics to Mimir. Grafana's sidecar loads a dashboard ConfigMap from the chart." caption="Figure 26.1 — From the chart's environment variables to Grafana" %}
+{% include excalidraw.html file="26-telemetry-path" alt="Shipping and notification services in namespace hfd-26 send OTLP to the OpenTelemetry Collector in namespace observability, which routes traces to Tempo, logs to Loki and metrics to Mimir. Grafana's sidecar loads a dashboard ConfigMap from the chart." caption="Figure 26.1: From the chart's environment variables to Grafana" %}
 
 ## Telemetry from the library
 

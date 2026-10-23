@@ -13,7 +13,7 @@ The code is in `examples/14-chart-testing/`. Run it with `cd examples/14-chart-t
 {% include excalidraw.html
    file="14-test-pyramid"
    alt="Pyramid of chart tests from bottom to top: helm-unittest on every push, ct lint on every pull request, kubeconform on every pull request, and ct install with helm test as a manual or nightly job"
-   caption="Figure 14.1 — The chart test pyramid: many fast tests below, few cluster tests on top" %}
+   caption="Figure 14.1: The chart test pyramid: many fast tests below, few cluster tests on top" %}
 
 ## What each layer is for
 

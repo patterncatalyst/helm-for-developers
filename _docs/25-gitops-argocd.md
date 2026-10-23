@@ -10,7 +10,7 @@ Chapter 24 promoted a chart by running Helmfile from a workstation. GitOps moves
 
 The code is in `examples/25-gitops-argocd/`. Run `./demo.sh offline` there for the checks that need no cluster; its `README.md` lists the rest.
 
-{% include excalidraw.html file="25-gitops-loop" alt="Argo CD's repo server fetches a chart from an OCI registry or Git, runs helm template with value files and inline values, and hands manifests to the application controller. The controller applies them to namespace hfd-25 in PreSync, Sync and PostSync phases." caption="Figure 25.1 — The Argo CD loop around a Helm chart" %}
+{% include excalidraw.html file="25-gitops-loop" alt="Argo CD's repo server fetches a chart from an OCI registry or Git, runs helm template with value files and inline values, and hands manifests to the application controller. The controller applies them to namespace hfd-25 in PreSync, Sync and PostSync phases." caption="Figure 25.1: The Argo CD loop around a Helm chart" %}
 
 ## The loop
 

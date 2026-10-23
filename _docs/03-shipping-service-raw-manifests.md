@@ -13,7 +13,7 @@ The code is in `examples/03-raw-manifests/`. `./demo.sh offline` validates the m
 {% include excalidraw.html
    file="03-raw-manifest-sprawl"
    alt="Diagram: one manifests directory with three files is copied and edited for dev, stage and prod, producing nine files that must stay in step"
-   caption="Figure 3.1 — Three environments from raw manifests means nine files to keep in step" %}
+   caption="Figure 3.1: Three environments from raw manifests means nine files to keep in step" %}
 
 ## The application contract
 

@@ -13,7 +13,7 @@ The code is in `examples/09-postgres-subchart/`. `./demo.sh offline` needs no cl
 {% include excalidraw.html
    file="09-subchart-tree"
    alt="Diagram of the shipping-service parent chart depending on the shipping-postgres subchart, importing its exported host and secret name into the parent values, and the resulting Deployment and CloudNativePG Cluster"
-   caption="Figure 9.1 — The parent chart, its subchart and the values that flow between them" %}
+   caption="Figure 9.1: The parent chart, its subchart and the values that flow between them" %}
 
 ## Dependencies are charts in `charts/`
 
