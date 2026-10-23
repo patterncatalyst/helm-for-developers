@@ -13,7 +13,7 @@ The code is in `examples/13-debugging/`. Run it with `cd examples/13-debugging &
 {% include excalidraw.html
    file="13-debug-ladder"
    alt="Diagram of the debug ladder: four rungs that need no cluster (helm lint --strict, helm template --debug --show-only, kubeconform, helm diff local) lead to three rungs that need a cluster (--dry-run=server, helm diff upgrade, helm get manifest)"
-   caption="Figure 13.1 — The debug ladder: cheap local checks first, API-server checks last" %}
+   caption="Figure 13.1: The debug ladder: cheap local checks first, API-server checks last" %}
 
 ## The ladder
 

@@ -13,7 +13,7 @@ The code is in `examples/01-lab-setup/`. `./demo.sh offline` checks the toolchai
 {% include excalidraw.html
    file="01-lab-topology"
    alt="Diagram of the lab: a host checkout with scripts/env.sh, project-local tools and Helm state under .tools, a separate untouched Helm 3, and loopback ports published from the node; and the helm4dev minikube profile with the API server, registry addon, release records, operator namespaces and one hfd namespace per example"
-   caption="Figure 1.1 — The lab: project-local tools on the host, one minikube profile, one namespace per example" %}
+   caption="Figure 1.1: The lab: project-local tools on the host, one minikube profile, one namespace per example" %}
 
 ## What you need on the host
 

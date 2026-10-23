@@ -13,7 +13,7 @@ Each hands-on chapter has an `examples/NN-slug/` directory. The directory is a s
 {% include excalidraw.html
    file="00-build-up-arc"
    alt="Diagram of the build-up arc: raw manifests become a chart, then a chart with a Postgres subchart, an umbrella with Kafka and a library chart, and finally a signed OCI artifact delivered by Argo CD"
-   caption="Figure 0.1 — The build-up arc from raw manifests to GitOps delivery" %}
+   caption="Figure 0.1: The build-up arc from raw manifests to GitOps delivery" %}
 
 ## Chapters
 

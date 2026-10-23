@@ -13,7 +13,7 @@ The code is in `examples/05-values/`. `./demo.sh offline` runs the schema and pr
 {% include excalidraw.html
    file="05-values-precedence"
    alt="Diagram: the chart's values.yaml, then each -f file in order, then --set flags, merge in increasing priority into the .Values map, which values.schema.json validates"
-   caption="Figure 5.1 — Values merge from lowest to highest priority, then the schema validates the result" %}
+   caption="Figure 5.1: Values merge from lowest to highest priority, then the schema validates the result" %}
 
 ## Designing values.yaml
 

@@ -13,7 +13,7 @@ The code is in `examples/07-helpers-notes/`. `./demo.sh offline` checks the nami
 {% include excalidraw.html
    file="07-named-templates"
    alt="Diagram: _helpers.tpl defines name, fullname, selectorLabels and labels templates; the configmap, service and deployment templates call them with include"
-   caption="Figure 7.1 — One _helpers.tpl defines the names and labels that every template includes" %}
+   caption="Figure 7.1: One _helpers.tpl defines the names and labels that every template includes" %}
 
 ## Named templates
 

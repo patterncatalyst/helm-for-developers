@@ -13,7 +13,7 @@ The code is in `examples/17-library-chart/`. The `demo.sh` there installs and ru
 {% include excalidraw.html
    file="17-library-reuse"
    alt="Diagram: the pc-lib library chart holds the deployment, service, labels, fullname, probes, image, security, otelEnv and metadataAnnotations templates; shipping-service, notification-service and a future starter chart each include them"
-   caption="Figure 17.1 — One library chart, many consumers" %}
+   caption="Figure 17.1: One library chart, many consumers" %}
 
 ## What a library chart is
 

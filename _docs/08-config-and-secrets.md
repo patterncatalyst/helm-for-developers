@@ -13,7 +13,7 @@ The code is in `examples/08-config-secrets/`. `./demo.sh offline` asserts the Se
 {% include excalidraw.html
    file="08-secrets-options"
    alt="Diagram: a chart-created Secret and an existingSecret reach the Deployment's API_TOKEN environment variable directly, while External Secrets Operator, Sealed Secrets and SOPS produce a Secret from outside the chart"
-   caption="Figure 8.1 — Five sources for the Secret that feeds API_TOKEN" %}
+   caption="Figure 8.1: Five sources for the Secret that feeds API_TOKEN" %}
 
 ## Rolling pods on config change
 

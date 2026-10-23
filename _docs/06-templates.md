@@ -13,7 +13,7 @@ The code is in `examples/06-templates/`. `./demo.sh offline` renders the chart a
 {% include excalidraw.html
    file="06-render-pipeline"
    alt="Diagram: .Values, .Release, .Chart, .Capabilities and .Files feed the Go template engine with Sprig functions, which produces YAML documents that are parsed and checked before the API server receives them"
-   caption="Figure 6.1 — Templates read built-in objects and produce YAML documents" %}
+   caption="Figure 6.1: Templates read built-in objects and produce YAML documents" %}
 
 ## The objects a template can read
 

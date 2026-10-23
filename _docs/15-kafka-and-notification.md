@@ -13,7 +13,7 @@ The code is in `examples/15-kafka-notification/`. The `demo.sh` there installs a
 {% include excalidraw.html
    file="15-event-flow"
    alt="Diagram: shipping-service produces to the shipment.dispatched topic and notification-service consumes it; below, the shipping-kafka chart declares a Kafka, a KafkaNodePool and a KafkaTopic for the Strimzi operator"
-   caption="Figure 15.1 — The dispatch event path and the three Strimzi resources behind the topic" %}
+   caption="Figure 15.1: The dispatch event path and the three Strimzi resources behind the topic" %}
 
 ## An operator owns the brokers, the chart owns the declaration
 

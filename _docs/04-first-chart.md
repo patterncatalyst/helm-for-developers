@@ -13,7 +13,7 @@ The code is in `examples/04-first-chart/`. `./demo.sh offline` lints and renders
 {% include excalidraw.html
    file="04-chart-anatomy"
    alt="Diagram: a shipping-service chart directory with Chart.yaml, values.yaml, templates and .helmignore feeds the helm client, which applies a Deployment, Service and ConfigMap and stores the release record as a Secret in the cluster"
-   caption="Figure 4.1 — A chart directory is rendered by the client; the release record is stored in the cluster" %}
+   caption="Figure 4.1: A chart directory is rendered by the client; the release record is stored in the cluster" %}
 
 ## helm create and a lean chart
 
@@ -104,7 +104,7 @@ Helm has no server. Each revision is stored in the cluster as a Secret in the re
 {% include excalidraw.html
    file="04-release-revisions"
    alt="Diagram: three revisions of release shipping, install, upgrade to two replicas and rollback to one, each stored as a Secret named sh.helm.release.v1.shipping.v1, v2 and v3"
-   caption="Figure 4.2 — Every install, upgrade and rollback writes one revision Secret" %}
+   caption="Figure 4.2: Every install, upgrade and rollback writes one revision Secret" %}
 
 ```bash
 [host]$ kubectl -n hfd-04 get secrets -l owner=helm

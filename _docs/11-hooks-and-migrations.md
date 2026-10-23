@@ -13,7 +13,7 @@ The code is in `examples/11-hooks-migrations/`. `./demo.sh offline` needs no clu
 {% include excalidraw.html
    file="11-hook-timeline"
    alt="Two timelines. Option A runs a pre-install migration hook before the release resources, which fails when the database is created by the same release. Option B waits for all resources to be ready before the post-install hook, which deadlocks when readiness needs the migrated tables"
-   caption="Figure 11.1 — Where the migration hook runs, and what each placement breaks" %}
+   caption="Figure 11.1: Where the migration hook runs, and what each placement breaks" %}
 
 ## What a hook is
 
