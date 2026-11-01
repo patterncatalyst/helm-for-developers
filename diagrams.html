@@ -1,0 +1,67 @@
+---
+layout: default
+title: Diagrams
+description: "Every figure from the book on one page, with its editable Excalidraw source."
+permalink: /diagrams/
+---
+
+<style>
+  .diagram-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(28rem, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  .diagram-gallery .excalidraw-embed { margin: 0; }
+  @media (max-width: 40rem) {
+    .diagram-gallery { grid-template-columns: 1fr; }
+  }
+</style>
+
+<section class="section">
+  <div class="container">
+    <span class="hero__eyebrow">Diagrams</span>
+    <h1>Every figure, on one page.</h1>
+    <p class="hero__lead">
+      The 29 diagrams from Helm for Developers, in reading order. Each one renders
+      inline here and ships a paired <code>.excalidraw</code> source you can
+      open on excalidraw.com and edit.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="diagram-gallery">
+      {%- include excalidraw.html file="00-build-up-arc" alt="Diagram of the build-up arc: raw manifests become a chart, then a chart with a Postgres subchart, an umbrella with Kafka and a library chart, and finally a signed OCI artifact delivered by Argo CD" caption="Figure 0.1: The build-up arc from raw manifests to GitOps delivery" -%}
+      {%- include excalidraw.html file="01-lab-topology" alt="Diagram of the lab: a host checkout with scripts/env.sh, project-local tools and Helm state under .tools, a separate untouched Helm 3, and loopback ports published from the node; and the helm4dev minikube profile with the API server, registry addon, release records, operator namespaces and one hfd namespace per example" caption="Figure 1.1: The lab: project-local tools on the host, one minikube profile, one namespace per example" -%}
+      {%- include excalidraw.html file="02-helm-architecture" alt="Diagram in three columns: an OCI registry holding the podinfo chart artifact, the local Helm 4 client with values and a content cache, and a Kubernetes cluster holding the rendered objects and a release record Secret; arrows show pull, apply and record" caption="Figure 2.1: Helm is a client: it pulls a chart, applies rendered objects and records a release in the cluster" -%}
+      {%- include excalidraw.html file="03-raw-manifest-sprawl" alt="Diagram: one manifests directory with three files is copied and edited for dev, stage and prod, producing nine files that must stay in step" caption="Figure 3.1: Three environments from raw manifests means nine files to keep in step" -%}
+      {%- include excalidraw.html file="04-chart-anatomy" alt="Diagram: a shipping-service chart directory with Chart.yaml, values.yaml, templates and .helmignore feeds the helm client, which applies a Deployment, Service and ConfigMap and stores the release record as a Secret in the cluster" caption="Figure 4.1: A chart directory is rendered by the client; the release record is stored in the cluster" -%}
+      {%- include excalidraw.html file="04-release-revisions" alt="Diagram: three revisions of release shipping, install, upgrade to two replicas and rollback to one, each stored as a Secret named sh.helm.release.v1.shipping.v1, v2 and v3" caption="Figure 4.2: Every install, upgrade and rollback writes one revision Secret" -%}
+      {%- include excalidraw.html file="05-values-precedence" alt="Diagram: the chart's values.yaml, then each -f file in order, then --set flags, merge in increasing priority into the .Values map, which values.schema.json validates" caption="Figure 5.1: Values merge from lowest to highest priority, then the schema validates the result" -%}
+      {%- include excalidraw.html file="06-render-pipeline" alt="Diagram: .Values, .Release, .Chart, .Capabilities and .Files feed the Go template engine with Sprig functions, which produces YAML documents that are parsed and checked before the API server receives them" caption="Figure 6.1: Templates read built-in objects and produce YAML documents" -%}
+      {%- include excalidraw.html file="07-named-templates" alt="Diagram: _helpers.tpl defines name, fullname, selectorLabels and labels templates; the configmap, service and deployment templates call them with include" caption="Figure 7.1: One _helpers.tpl defines the names and labels that every template includes" -%}
+      {%- include excalidraw.html file="08-secrets-options" alt="Diagram: a chart-created Secret and an existingSecret reach the Deployment's API_TOKEN environment variable directly, while External Secrets Operator, Sealed Secrets and SOPS produce a Secret from outside the chart" caption="Figure 8.1: Five sources for the Secret that feeds API_TOKEN" -%}
+      {%- include excalidraw.html file="09-subchart-tree" alt="Diagram of the shipping-service parent chart depending on the shipping-postgres subchart, importing its exported host and secret name into the parent values, and the resulting Deployment and CloudNativePG Cluster" caption="Figure 9.1: The parent chart, its subchart and the values that flow between them" -%}
+      {%- include excalidraw.html file="10-crd-ownership" alt="Diagram of three layers: the application chart with crds/, templates and an operator guard; the Helm actions install, upgrade and uninstall on crds/; and the platform layer with the CRD in the API server and the operator" caption="Figure 10.1: Which side owns the CRD, the custom resources and the operator" -%}
+      {%- include excalidraw.html file="11-hook-timeline" alt="Two timelines. Option A runs a pre-install migration hook before the release resources, which fails when the database is created by the same release. Option B waits for all resources to be ready before the post-install hook, which deadlocks when readiness needs the migrated tables" caption="Figure 11.1: Where the migration hook runs, and what each placement breaks" -%}
+      {%- include excalidraw.html file="12-upgrade-failure-paths" alt="Flowchart of helm upgrade: render and apply, then wait; success supersedes the old revision, a timeout marks the revision failed, and the failed path leads to cleanup-on-fail, rollback-on-failure or a manual rollback, with history-max pruning old revisions" caption="Figure 12.1: The paths out of a helm upgrade" -%}
+      {%- include excalidraw.html file="13-debug-ladder" alt="Diagram of the debug ladder: four rungs that need no cluster (helm lint --strict, helm template --debug --show-only, kubeconform, helm diff local) lead to three rungs that need a cluster (--dry-run=server, helm diff upgrade, helm get manifest)" caption="Figure 13.1: The debug ladder: cheap local checks first, API-server checks last" -%}
+      {%- include excalidraw.html file="14-test-pyramid" alt="Pyramid of chart tests from bottom to top: helm-unittest on every push, ct lint on every pull request, kubeconform on every pull request, and ct install with helm test as a manual or nightly job" caption="Figure 14.1: The chart test pyramid: many fast tests below, few cluster tests on top" -%}
+      {%- include excalidraw.html file="15-event-flow" alt="Diagram: shipping-service produces to the shipment.dispatched topic and notification-service consumes it; below, the shipping-kafka chart declares a Kafka, a KafkaNodePool and a KafkaTopic for the Strimzi operator" caption="Figure 15.1: The dispatch event path and the three Strimzi resources behind the topic" -%}
+      {%- include excalidraw.html file="16-umbrella-topology" alt="Diagram: the shipping-platform umbrella contains shipping and notification application subcharts and db and kafka infrastructure subcharts; global values flow to all of them and import-values carries the database host, Secret name and Kafka bootstrap address up into the application values" caption="Figure 16.1: The umbrella: aliases, switches, global values and imported values" -%}
+      {%- include excalidraw.html file="17-library-reuse" alt="Diagram: the pc-lib library chart holds the deployment, service, labels, fullname, probes, image, security, otelEnv and metadataAnnotations templates; shipping-service, notification-service and a future starter chart each include them" caption="Figure 17.1: One library chart, many consumers" -%}
+      {%- include excalidraw.html file="18-starter-flow" alt="Diagram: helm create --starter copies the pc-fastapi starter from the Helm data directory into charts/inventory-service, rewrites Chart.yaml, replaces the chart name placeholder and also copies pc-lib-dependency.yaml, which is appended to Chart.yaml before helm dependency build packs pc-lib" caption="Figure 18.1: From starter to a buildable chart" -%}
+      {%- include excalidraw.html file="19-semver-chart-vs-app" alt="Diagram: Chart.yaml version, appVersion and dependencies feed helm package, which writes shipping-service-1.0.0.tgz; helm repo index builds index.yaml next to it and a python http.server serves both to helm repo add" caption="Figure 19.1: Chart.yaml fields into a package, an index and a served repository" -%}
+      {%- include excalidraw.html file="20-oci-flow" alt="Diagram: a packaged chart is pushed with helm push into an OCI registry, where a manifest points at a config layer and a chart layer and optionally a provenance layer; helm pull, helm install by digest and helm dependency update read it back" caption="Figure 20.1: What helm push stores in a registry and who reads it back" -%}
+      {%- include excalidraw.html file="21-trust-chain" alt="Diagram: two chains over the same chart. Top: the tgz is signed by helm package --sign into a .prov file and checked by helm verify. Bottom: the pushed OCI manifest digest is signed by cosign sign and checked by cosign verify" caption="Figure 21.1: Helm provenance covers the archive bytes; cosign covers the registry manifest digest" -%}
+      {%- include excalidraw.html file="22-plugin-types" alt="A plugin directory holding plugin.yaml and an entry point feeds the Helm 4 plugin loader, which dispatches to the subprocess runtime or the extism Wasm runtime." caption="Figure 22.1: From a plugin directory to a runtime" -%}
+      {%- include excalidraw.html file="23-post-render-pipeline" alt="Helm renders a chart into one YAML stream, pipes it to the kustomize-postrender plugin on stdin, which runs kubectl kustomize and writes modified YAML to stdout." caption="Figure 23.1: A post-renderer sits between rendering and use" -%}
+      {%- include excalidraw.html file="24-promotion-flow" alt="A chart package and an image digest are built once, then promoted through dev, stage and prod. Each environment layers its own values file and pin file and installs into its own namespace, and helmfile.yaml records the versions." caption="Figure 24.1: Build once, promote by editing pins" -%}
+      {%- include excalidraw.html file="25-gitops-loop" alt="Argo CD's repo server fetches a chart from an OCI registry or Git, runs helm template with value files and inline values, and hands manifests to the application controller. The controller applies them to namespace hfd-25 in PreSync, Sync and PostSync phases." caption="Figure 25.1: The Argo CD loop around a Helm chart" -%}
+      {%- include excalidraw.html file="26-telemetry-path" alt="Shipping and notification services in namespace hfd-26 send OTLP to the OpenTelemetry Collector in namespace observability, which routes traces to Tempo, logs to Loki and metrics to Mimir. Grafana's sidecar loads a dashboard ConfigMap from the chart." caption="Figure 26.1: From the chart's environment variables to Grafana" -%}
+      {%- include excalidraw.html file="27-openshift-deploy" alt="Diagram of the OpenShift Local deployment: podman pushes images to the internal registry, helm installs release platform, pods run under restricted-v2 with an assigned UID, and a Route with edge TLS reaches the Service" caption="Figure 27.1: Images, release and traffic path on OpenShift Local" -%}
+    </div>
+  </div>
+</section>
